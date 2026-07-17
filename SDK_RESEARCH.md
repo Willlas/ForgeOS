@@ -1308,7 +1308,7 @@ import { getLiveModelsCatalog } from "@cline/core/services/llms/provider-default
 
 1. ✅ **Agent loop** - API limpia y bien documentada en `@cline/agents`
 2. ✅ **Provider system** - 14+ providers built-in con soporte para OAuth, API keys, etc.
-3. ✅ **Session management** - CRUD completo de sessions con persistencia SQLite
+3. ✅ **Session management** - CRUD completo of sessions con persistencia SQLite
 4. ✅ **Teams / SubAgents** - Completos pero requieren ClineCore
 5. ✅ **Default tools** - 9+ herramientas builtin disponibles
 6. ✅ **Hooks y Plugins** - Sistema de extensión robusto
@@ -1327,6 +1327,369 @@ import { getLiveModelsCatalog } from "@cline/core/services/llms/provider-default
 2. ❌ **Workspace detection** - Depende del host IDE
 3. ❌ **Desktop notifications** - Requiere VS Code API
 4. ❌ **Browser-based auth flows** - Requieren interacción del usuario
+
+---
+
+## 24. Construir Nuestro Propio Core + CLI + GUI para Gestionar Agentes y Modelos
+
+### 24.1. Objetivo
+
+Crear una alternativa independiente a la extensión de VS Code de Cline que permita:
+- Gestionar agentes, providers y modelos desde línea de comandos (CLI)
+- Gestionar sesiones de agentes (crear, listar, abortar, detener, borrar)
+- Gestionar equipos multi-agent (spawn, tareas, comunicación)
+- Visualizar el estado de ejecución en tiempo real
+- Configurar modelos y providers de forma persistente
+- Funcionar como una extensión alternativa para VS Code
+
+### 24.2. Arquitectura Propuesta
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Nuestra Aplicación                           │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │   CLI (yargs)│  │   GUI        │  │   VS Code Extension  │  │
+│  │   (Node.js)  │  │   (Tauri/    │  │   (VSCode API + SDK) │  │
+│  │              │  │    Electron) │  │                      │  │
+│  └──────┬───────┘  └──────┬───────┘  └──────────┬───────────┘  │
+│         │                  │                      │              │
+│         ▼                  ▼                      ▼              │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │              Frontend Layer (3 opciones)                 │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                              │                                   │
+│                              ▼                                   │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │          Core Management API (Node.js standalone)        │   │
+│  │                                                          │   │
+│  │  ┌────────────────┐  ┌────────────────┐  ┌───────────┐  │   │
+│  │  │ ClineCore      │  │ AgentTeams     │  │ Agent     │  │   │
+│  │  │ (sessions)     │  │ Runtime        │  │ Runtime   │  │   │
+│  │  └────────────────┘  └────────────────┘  └───────────┘  │   │
+│  │  ┌────────────────┐  ┌────────────────┐  ┌───────────┐  │   │
+│  │  │ Provider       │  │ Model          │  │ Tool      │  │   │
+│  │  │ Settings       │  │ Catalog        │  │ Policy    │  │   │
+│  │  └────────────────┘  └────────────────┘  └───────────┘  │   │
+│  │  ┌────────────────┐  ┌────────────────┐                  │   │
+│  │  │ SQLite Store   │  │ Auth           │                  │   │
+│  │  │ (sessions,     │  │ Manager        │                  │   │
+│  │  │  teams)        │  └────────────────┘                  │   │
+│  │  └────────────────┘                                      │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                              │                                   │
+│                              ▼                                   │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │              @cline/llms (Provider Layer)                │   │
+│  │         14+ providers: Ollama, Anthropic, OpenAI...      │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 24.3. Componentes Clave que Podemos Reutilizar del SDK
+
+| Componente | ¿Lo podemos usar? | Paquete | Fuente |
+|-----------|------------------|---------|--------|
+| Agent loop (stateless) | ✅ Totalmente | `@cline/agents` | `agent-runtime.d.ts` |
+| AgentRuntime config | ✅ Con provider form | `@cline/agents` | `AgentRuntimeConfigWithProvider` |
+| Provider handlers | ✅ Totalmente | `@cline/llms` | `createHandler()`, `createGateway()` |
+| Builtin tools (shell, file ops) | ✅ En Node | `@cline/core` | `createBuiltinTools()` |
+| Session persistence (SQLite) | ✅ Programático | `@cline/core` | `SqliteSessionStore` |
+| Team runtime (multi-agent) | ✅ Con limitaciones | `@cline/core` | `AgentTeamsRuntime` |
+| Model catalogs | ✅ Catalogs públicos | `@cline/llms` | `getLiveModelsCatalog()` |
+| Hooks system | ✅ Totalmente | `@cline/agents` | `AgentRuntimeHooks` |
+| Plugin system | ✅ Totalmente | `@cline/agents` | `AgentRuntimePlugin` |
+| Team tools schemas | ✅ Solo lectura | `@cline/shared` | `TeamSpawnTeammateInputSchema` etc. |
+
+### 24.4. Componentes que NO Podemos Reutilizar (vscode-specific)
+
+| Componente | ¿Por qué no? | Alternativa |
+|-----------|---------------|-------------|
+| VS Code UI components | Dependen de `vscode` runtime | Crear nuestra propia UI |
+| VS Code workspace detection | API exclusiva de VS Code | Usar `fs` + `path` nativos |
+| VS Code task/run APIs | API exclusiva de VS Code | No necesario para core |
+| Desktop notifications (tray) | Dependen de VS Code | Usar `electron-notifications` o `node-notifier` |
+| MCP server registration en settings | Requiere `.vscode/settings.json` | Crear propio archivo de config |
+
+### 24.5. Proyecto Referencia: Nuestro Directorio Actual
+
+**Ruta del proyecto**: `c:\Proyects\MultiAgentDev\` (este directorio)
+
+```
+MultiAgentDev/
+├── package.json          # Dependencias: @cline/sdk, @cline/core, etc.
+├── tsconfig.json         # Configuración TypeScript
+├── src/
+│   ├── index.ts                    # Entry-point principal
+│   ├── config/
+│   │   ├── models.js               # Configuración de modelos (Architect + Worker)
+│   │   └── providers.js            # Configuración de providers
+│   └── workflows/
+│       └── team-task-flow.ts       # Workflow multi-agent con AgentTeamsRuntime
+└── SDK_RESEARCH.md                 # Este documento
+```
+
+### 24.6. Estructura Propuesta para Nuestro Core + CLI + GUI
+
+```
+MultiAgentDev/
+├── package.json                    # + nuevas dependencias
+├── tsconfig.json
+├── src/
+│   ├── index.ts                               # Entry-point principal (existente)
+│   ├── cli/                                   # [NUEVO] CLI con yargs/picocolors
+│   │   ├── index.ts                           # Punto de entrada CLI
+│   │   ├── commands/
+│   │   │   ├── agents.ts                      # agent create/list/abort/stop/delete
+│   │   │   ├── sessions.ts                    # session CRUD
+│   │   │   ├── models.ts                      # model list/catalog/update
+│   │   │   ├── providers.ts                   # provider config
+│   │   │   ├── teams.ts                       # team spawn/teammate/task/run
+│   │   │   └── checkpoints.ts                 # checkpoint create/restore/list
+│   │   └── utils.ts                           # Helpers CLI (colores, formatters)
+│   │
+│   ├── core/                                  # [NUEVO] Core management layer
+│   │   ├── manager.ts                         # Single entry point para todo el SDK
+│   │   ├── session-manager.ts                 # Wrapper sobre ClineCore.session*
+│   │   ├── team-manager.ts                    # Wrapper sobre AgentTeamsRuntime
+│   │   ├── provider-settings.ts               # Persistencia de providers en JSON/YAML
+│   │   └── model-catalog.ts                   # Wrapper sobre getLiveModelsCatalog
+│   │
+│   ├── storage/                               # [NUEVO] Storage abstraction
+│   │   ├── sqlite-store.ts                    # Wrapper sobre SqliteSessionStore
+│   │   ├── json-config.ts                     # Config de providers en archivo JSON
+│   │   └── team-store.ts                      # Wrapper sobre SqliteTeamStore
+│   │
+│   ├── config/                                # [EXISTENTE]
+│   │   ├── models.js                          # Modelos por defecto
+│   │   └── providers.js                       # Providers por defecto
+│   │
+│   ├── workflows/                             # [EXISTENTE]
+│   │   ├── team-task-flow.ts                  # Workflow multi-agent (existente)
+│   │   └── agent-lifecycle.ts                 # [NUEVO] Ejemplos de ciclo de vida
+│   │
+│   └── gui/                                   # [NUEVO] GUI (si se elige Tauri/Electron)
+│       ├── main.ts                            # Main process (Electron) o src-tauri (Tauri)
+│       ├── preload.ts                         # Preload script
+│       └── renderer/                          # Frontend (React/Vue/Svelte + CSS)
+│           ├── App.tsx
+│           ├── components/
+│           │   ├── AgentList.tsx
+│           │   ├── SessionViewer.tsx
+│           │   ├── ModelConfig.tsx
+│           │   ├── TeamManager.tsx
+│           │   └── ChatView.tsx
+│           └── styles/
+│
+├── extensions/                                # [NUEVO] VS Code extension (si se crea)
+│   └── vscode-extension/
+│       ├── package.json                       # vsce manifest
+│       ├── src/
+│       │   ├── extension.ts                   # Punto de entrada de la extensión
+│       │   ├── agent-panel.ts                 # Panel lateral con lista de agentes
+│       │   ├── session-view.ts                # View para ver sesiones en detalle
+│       │   └── chat-view.tsx                  # Panel de chat tipo Cline
+│       └── images/
+│
+├── .env                                       # Variables de entorno (API keys)
+├── .agentconfig.json                          # [NUEVO] Config global de agents
+├── SDK_RESEARCH.md                            # Este documento
+└── README.md                                  # Docs del proyecto
+```
+
+### 24.7. CLI Commands Propuestos
+
+```bash
+# Agent management
+ma agent list                  # Listar todos los agentes creados
+ma agent create --name worker --model qwen2.5-coder:7b --provider ollama
+ma agent delete worker
+ma agent info worker           # Info detallada del agente
+
+# Session management
+ma session list                # Listar sesiones
+ma session create --agent worker --prompt "..."
+ma session stop <id>
+ma session abort <id>
+ma session show <id>          # Mostrar historial de mensajes
+ma session messages <id>      # Ver mensajes raw (AgentMessage[])
+ma session delete <id>
+
+# Model management
+ma model list                  # Listar modelos disponibles (del catalog)
+ma model list --provider ollama  # Modelos locales Ollama
+ma model info <modelId>       # Info detallada de un modelo
+ma provider list              # Listar providers configurados
+ma provider add --id anthropic --key $ANTHROPIC_API_KEY
+ma provider update --id openai --key $OPENAI_API_KEY
+
+# Team management
+ma team create --name my-team --lead architect
+ma team spawn <teamId> --agent worker --model qwen2.5-coder:7b
+ma team list                 # Listar equipos activos
+ma team status <teamId>      # Estado del equipo y sus miembros
+ma team task create <teamId> --title "Fix bug" --assignee worker
+ma team task complete <teamId> <taskId> --summary "Done"
+ma team list-runs <teamId>   # Listar runs activos
+
+# Checkpoint management
+ma checkpoint create <sessionId>
+ma checkpoint list <sessionId>
+ma checkpoint restore <sessionId> <checkpointId>
+
+# Utility
+ma status                     # Estado general del sistema
+ma reset                      # Resetear todo el estado
+```
+
+### 24.8. GUI/Panel Propuesto (Tauri o Electron)
+
+La GUI permitiría:
+- Ver lista de agentes configurados con su modelo actual
+- Crear nuevos agentes rápidamente
+- Gestionar sesiones (crear, listar, ver mensajes, borrar)
+- Configurar providers y API keys
+- Gestionar equipos multi-agent (spawn, tareas, runs)
+- Ver logs en tiempo real
+- Ver métricas de uso (tokens, costo)
+
+### 24.9. VS Code Extension: Evaluación de Dificultad
+
+#### Opción A: Extensión standalone que usa el Core existente
+
+**Dificultad**: Media-Alta (~300-500 horas de trabajo)
+
+**Ventajas:**
+- Reutiliza todo el core ya implementado (`src/core/`)
+- La extensión sería solo una capa ligera sobre el SDK
+- Código compartible con CLI y GUI
+
+**Desventajas:**
+- VS Code extension API tiene limitaciones (webview sandbox, etc.)
+- Depende de la estructura interna de Cline que puede cambiar
+
+**Componentes necesarios de la extensión:**
+1. **Agent Panel** (tipo sidebar de Cline) - ~80 horas
+2. **Session Chat View** - ~60 horas
+3. **Model Configuration UI** - ~40 horas
+4. **Provider Settings UI** - ~40 horas
+5. **Team Manager UI** - ~60 horas
+6. **Integration con ClineCore** (llamadas al core desde webview) - ~80 horas
+7. **Activation/Deactivation lifecycle** - ~20 horas
+8. **Package.json manifest + icons** - ~10 horas
+9. **Testing + Debugging** - ~50 horas
+
+**Total estimado**: ~400 horas de trabajo
+
+#### Opción B: Integración con la extensión existente de Cline
+
+**Dificultad**: Baja-Media (~50-100 horas)
+
+**Descripción:** Crear un "sidecar" o complemento que se integre con la extensión existente de Cline, usando directamente los exports del SDK sin re-implementar nada.
+
+#### Opción C: VS Code Extension como producto final completo
+
+**Dificultad**: Alta (~500-800 horas)
+
+Equivalente a crear un clon funcional de la extensión de Cline pero con nuestro propio UI/UX.
+
+**Componentes adicionales requeridos:**
+1. Todo lo de Opción A +:
+2. **File browser integrado** - ~40 horas
+3. **Code diff viewer** - ~60 horas
+4. **Terminal integration** - ~80 horas
+5. **MCP server management UI** - ~40 horas
+6. **Settings page completa** - ~40 horas
+7. **Command palette integration** - ~20 horas
+8. **Context menus** - ~20 horas
+9. **Inline editing** - ~80 horas (muy complejo)
+
+### 24.10. Comparativa: Extensión VS Code vs CLI Standalone vs GUI (Tauri/Electron)
+
+| Criterio | CLI Standalone | VS Code Extension | Tauri/Electron GUI |
+|----------|---------------|-------------------|-------------------|
+| Complejidad inicial | Baja | Media-Alta | Alta |
+| Reusabilidad del core | ✅ 100% | ⚠️ 70% (UI pierde) | ⚠️ 85% (UI pierde) |
+| UX | Baja (terminal) | Alta (IDE native) | Alta (app desktop) |
+| Integración con IDE | ❌ Ninguna | ✅ Total (VS Code API) | ⚠️ Parcial (LSP/stdio) |
+| Mantenimiento | Fácil | Medio (breaking VS Code APIs) | Medio |
+| Distribución | npm package | VS Code Marketplace | Standalone installer |
+| Mercado objetivo | Devs CLI | Usuarios VS Code | Usuarios desktop |
+| Tiempo estimado MVP | 2-3 semanas | 6-10 semanas | 8-12 semanas |
+
+### 24.11. Recomendación
+
+**Fase 1 (prioritaria)**: CLI standalone con core management layer
+- Usar `@cline/agents` directamente + `@cline/core` para sessions y teams
+- CLI con `yargs` o `clack` (mejor UX)
+- Config persistence en JSON (~20 horas)
+
+**Fase 2**: VS Code Extension (si se necesita integración con IDE)
+- Basada en el core existente de Fase 1
+- Panel lateral con webview que usa AgentTeamsRuntime + ClineCore
+- No intentar replicar toda la funcionalidad de Cline sino enfocarse en: agent/session/team management
+
+**Fase 3**: GUI Tauri/Electron (si se quiere app independiente)
+- Reutiliza todo el core de Fase 1
+- Frontend React + Tauri para mínimo overhead
+
+### 24.12. Dificultad Real de Crear la GUI como Extensión VS Code
+
+**Respuesta directa a la pregunta del usuario:**
+
+Crear una GUI como extensión de VS Code es **factible pero con limitaciones importantes**:
+
+1. **Lo fácil (60% del trabajo)**:
+   - El SDK ya expone todo lo que necesitamos: `ClineCore`, `AgentTeamsRuntime`, `Agent`
+   - Los workflows existentes (`team-task-flow.ts`) demuestran que el core funciona
+   - La extensión sería principalmente UI (webviews + package.json)
+
+2. **Lo difícil (40% del trabajo)**:
+   - VS Code webview API tiene restricciones CSP (no puedes import JS directamente)
+   - Hay que comunicar entre webview y extension host (vscode.postMessage)
+   - Debugging de extensiones VS Code es complejo
+   - La extensión debe ser compatible con múltiples versiones de VS Code
+
+3. **Comparación real**:
+   - Si ya sabes TypeScript: ~6-10 semanas para un MVP funcional
+   - Si NO sabes crear extensiones VS Code: ~12-16 semanas (curva de aprendizaje)
+   - La parte más difícil es el `ChatView` tipo Cline con streaming en tiempo real
+
+4. **Alternativa mejor**: Primero hacer la CLI (~3 semanas), luego decidir si vale la pena la extensión VS Code.
+
+---
+
+## 25. Ruta del Proyecto Actual como Referencia
+
+| Componente | Ruta Actual | Propósito |
+|-----------|------------|-----------|
+| Entry-point principal | `src/index.ts` | Muestra Individual agents + AgentTeam workflow |
+| Config de modelos | `src/config/models.ts` | Define Architect y Worker models |
+| Workflow team | `src/workflows/team-task-flow.ts` | Muestra AgentTeamsRuntime spawn/createTask/claimTask/completeTask |
+| SDK packages | `node_modules/@cline/*/` | SDK instalado via npm |
+| Este documento | `SDK_RESEARCH.md` | Investigación completa del SDK |
+
+**Cómo funciona nuestro proyecto actualmente:**
+
+```typescript
+// 1. Importamos desde el SDK directamente:
+import { ClineCore, bootstrapAgentTeams, AgentTeamsRuntime } from "@cline/core";
+import { Agent } from "@cline/agents";  // O @cline/sdk que re-exporta
+
+// 2. Creamos agents individuales:
+const agent = new Agent({ providerId, modelId, apiKey });
+
+// 3. Creamos un equipo multi-agent:
+const teamRuntime = new AgentTeamsRuntime({ teamName: "my-team" });
+const bootstrapResult = bootstrapAgentTeams({ runtime: teamRuntime, ... });
+
+// 4. Usamos el runtime directamente (no via tools):
+teamRuntime.spawnTeammate({ agentId: "worker", config: workerConfig });
+teamRuntime.createTask({ title, description, createdBy });
+teamRuntime.claimTask(taskId, agentId);
+teamRuntime.completeTask(taskId, agentId, summary);
+```
+
+**Esto demuestra que el core ya funciona y puede usarse como base para nuestro propio sistema.**
 
 ---
 
