@@ -3,6 +3,7 @@ import {
     type BootstrapAgentTeamsResult,
     type TeamMemberConfig,
 } from "@cline/core";
+import { Models } from "../config/models.js";
 
 export interface TaskDelegationResult {
     taskId: string;
@@ -16,9 +17,12 @@ export interface TaskDelegationResult {
  * 3. Ejecuta la tarea y obtiene resultado
  * 
  * API Fuentes:
- * - AgentTeamsRuntime.createTask: node_modules/@cline/core/dist/extensions/tools/team/multi-agent.d.ts
- * - AgentTeamsRuntime.claimTask: node_modules/@cline/core/dist/extensions/tools/team/multi-agent.d.ts
- * - AgentTeamsRuntime.completeTask: node_modules/@cline/core/dist/extensions/tools/team/multi-agent.d.ts
+ * - AgentTeamsRuntime.spawnTeammate: multi-agent.d.ts:178
+ *   - SpawnTeammateOptions = { agentId: string, config: TeamMemberConfig }
+ * - AgentTeamsRuntime.createTask: multi-agent.d.ts:181
+ * - AgentTeamsRuntime.claimTask: multi-agent.d.ts:182
+ * - AgentTeamsRuntime.completeTask: multi-agent.d.ts:184
+ * - TeamMemberConfig extends AgentConfig: multi-agent.d.ts:9-11
  */
 export async function runTeamTaskWorkflow(
     teamRuntime: AgentTeamsRuntime,
@@ -30,8 +34,25 @@ export async function runTeamTaskWorkflow(
     console.log(`Tarea: ${taskTitle}`);
     console.log(`Descripción: ${taskDescription}`);
 
-    // Crear la tarea en el team (createTask toma CreateTeamTaskInput con title, description, createdBy)
-    // CreateTeamTaskInput: node_modules/@cline/shared/dist/team/types.d.ts:146-152
+    // 1. Spawn the worker teammate usando AgentTeamsRuntime.spawnTeammate() directamente
+    //    No usar spawnTool.execute() - eso solo funciona desde dentro del agente
+    // TeamMemberConfig: { role?: string } + campos de AgentConfig (agentId, modelId, baseUrl, etc.)
+    // multi-agent.d.ts:9-11
+    const workerConfig: TeamMemberConfig = {
+        role: "worker",
+        modelId: Models.worker.modelId,
+        baseUrl: Models.worker.baseUrl || "http://localhost:11434",
+    };
+
+    teamRuntime.spawnTeammate({
+        agentId: "worker",
+        config: workerConfig,
+    });
+
+    console.log("Worker teammate spawned");
+
+    // 2. Crear la tarea en el team (createTask toma CreateTeamTaskInput con title, description, createdBy)
+    //    CreateTeamTaskInput: node_modules/@cline/shared/dist/team/types.d.ts:146-152
     const task = teamRuntime.createTask({
         title: taskTitle,
         description: taskDescription,
@@ -40,27 +61,11 @@ export async function runTeamTaskWorkflow(
 
     console.log(`Task ID: ${task.id}`);
 
-    // Spawn un teammate worker si no existe (usando spawnTeammate con TeamMemberConfig)
-    // TeamMemberConfig extends AgentConfig: node_modules/@cline/core/dist/extensions/tools/team/multi-agent.d.ts:9-11
-    const teammateConfig: TeamMemberConfig = {
-        providerId: "ollama",
-        modelId: "llama3.1",
-        baseUrl: "http://localhost:11434",
-    };
-
-    const spawnTool = bootstrapResult.tools.find((t: any) => t.name === "team_spawn_teammate");
-    if (spawnTool) {
-        await spawnTool.execute({
-            agentId: "worker",
-            config: teammateConfig,
-        });
-    }
-
-    // Asignar la tarea al worker (claimTask)
+    // 3. Asignar la tarea al worker (claimTask)
     const claimedTask = teamRuntime.claimTask(task.id, "worker");
-    console.log(`Tarea asignada a: ${claimedTask.assignee}`);
+    console.log(`Tarea asignada a: ${claimedTask.assignee ?? "unknown"}`);
 
-    // Ejecutar la tarea (completeTask)
+    // 4. Marcar como completada (completeTask toma summary como tercer parámetro)
     const completedTask = teamRuntime.completeTask(
         task.id,
         "worker",
