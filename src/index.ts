@@ -4,6 +4,7 @@ import Models from "./config/models.js";
 import { createArchitectAgent } from "./agents/architect.js";
 import { createWorkerAgent } from "./agents/worker.js";
 import { createAgentTeam } from "./agents/team.js";
+import { createDelegateWorkflow, runDelegateWorkflow } from "./workflows/delegate.js";
 
 async function main() {
     console.log(`Ollama: ${Config.ollamaBaseUrl}`);
@@ -29,6 +30,10 @@ async function main() {
     ]);
 
     console.log("Team results count:", results.length);
+
+    // === Delegate Workflow (Commit 5) ===
+    const workflowTeam = createDelegateWorkflow();
+    await runDelegateWorkflow(workflowTeam, "Create a hello world API");
 }
 
 main().catch(console.error);
