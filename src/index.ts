@@ -5,6 +5,8 @@ import { createArchitectAgent } from "./agents/architect.js";
 import { createWorkerAgent } from "./agents/worker.js";
 import { createAgentTeam } from "./agents/team.js";
 import { createDelegateWorkflow, runDelegateWorkflow } from "./workflows/delegate.js";
+import { createTeamRuntime } from "./runtime/team-runtime.js";
+import { runTeamTaskWorkflow } from "./workflows/team-task-flow.js";
 
 async function main() {
     console.log(`Ollama: ${Config.ollamaBaseUrl}`);
@@ -23,17 +25,33 @@ async function main() {
     // === AgentTeam (Commit 4) ===
     console.log("\n--- AgentTeam: runSequential ---");
     const team = createAgentTeam();
-
     const results = await team.runSequential([
         { agentId: "architect", message: "I am the architect via team." },
         { agentId: "worker", message: "I am the worker via team." },
     ]);
-
     console.log("Team results count:", results.length);
 
     // === Delegate Workflow (Commit 5) ===
     const workflowTeam = createDelegateWorkflow();
     await runDelegateWorkflow(workflowTeam, "Create a hello world API");
+
+    // === AgentTeamsRuntime (Commit 6) ===
+    console.log("\n--- AgentTeamsRuntime (Commit 6) ---");
+    const { teamRuntime, bootstrapResult } = createTeamRuntime();
+    console.log("Team ID:", teamRuntime.getTeamId());
+    console.log("Team Name:", teamRuntime.getTeamName());
+    
+    // Run a task workflow
+    const taskResult = await runTeamTaskWorkflow(
+        teamRuntime,
+        bootstrapResult,
+        "Hello World API Task",
+        "Create a simple hello world API endpoint"
+    );
+    console.log("Task outcome:", taskResult.outcome);
+
+    // Cleanup
+    teamRuntime.cleanup();
 }
 
 main().catch(console.error);
