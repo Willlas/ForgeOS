@@ -155,7 +155,7 @@ export class WorkGraphEngine {
     // Transition waiting nodes with satisfied dependencies to ready
     for (const node of this.graph.nodes.values()) {
       if (node.state === WorkNodeState.Waiting) {
-        const canReady = this.canTransitionTo(node, WorkNodeState.Ready);
+        const canReady = this.canTransitionTo(node.id, WorkNodeState.Ready);
         if (canReady) {
           node.state = WorkNodeState.Ready;
           node.updatedAt = new Date().toISOString();
@@ -243,13 +243,13 @@ export class WorkGraphEngine {
     return { success: true, node: newNode, unblockedNodes: [] };
   }
 
-  removeNode(nodeId: string): AddNodeResult extends { success: true } ? NodeRemovedResult : AddNodeResult {
+  removeNode(nodeId: string): NodeRemovedResult | { success: false; error: string; details: string } {
     const node = this.graph.nodes.get(nodeId);
     if (!node) {
       return { success: false, error: "invalid_dependency", details: `Node ${nodeId} not found` };
     }
 
-    const activeChildren: string[] = [];
+    const affectedNodes: string[] = [];
 
     // Find direct dependents
     const dependents = this.graph.dependents.get(nodeId);
@@ -257,7 +257,7 @@ export class WorkGraphEngine {
       for (const childId of dependents) {
         const child = this.graph.nodes.get(childId);
         if (child && child.state !== WorkNodeState.Completed && child.state !== WorkNodeState.Cancelled) {
-          activeChildren.push(childId);
+          affectedNodes.push(childId);
         }
       }
     }
@@ -268,7 +268,7 @@ export class WorkGraphEngine {
       deps.delete(nodeId);
     }
 
-    return { success: true, nodeId, affectedNodes: activeChildren };
+    return { success: true, nodeId, affectedNodes };
   }
 
   // ========================================================================
@@ -428,8 +428,9 @@ export class WorkGraphEngine {
           let current = nodeId;
           while (current !== depId) {
             cyclePath.push(current);
-            current = parent.get(current) ?? null;
-            if (current === null) break;
+            const next = parent.get(current);
+            if (!next) break;
+            current = next;
           }
           cyclePath.push(depId);
           return cyclePath.reverse();
@@ -453,25 +454,6 @@ export class WorkGraphEngine {
   /**
    * Checks if adding a node with given dependencies would create a cycle.
    */
-  wouldCreateCycle(nodeId: string, dependencies: string[]): boolean {
-    // Check if any dependency transitively depends on the new node
-    const visited = new Set<string>();
-    const check = (targetId: string): boolean => {
-      if (targetId === nodeId) return true;
-      if (visited.has(targetId)) return false;
-      visited.add(targetId);
-
-      for (const depId of this.getDependents(targetId)) {
-        if (check(depId)) return true;
-      }
-      return false;
-    };
-
-    for (const depId of dependencies) {
-      if (check(depId)) return true;
-    }
-    return false;
-  }
 
   /**
    * Returns all transitive dependents of a node.
@@ -772,7 +754,7 @@ export class WorkGraphEngine {
     }
   }
 
-  private wouldCreateCycle(nodeId: string, dependencies: string[]): boolean {
+  private wouldCreateCycle(_nodeId: string, dependencies: string[]): boolean {
     // A cycle would be created if any transitive dependent of a dependency is the node itself
     // Since the node doesn't exist in the graph yet, we check if any dependency
     // transitively depends on another node that the new node would depend on
