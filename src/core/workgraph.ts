@@ -83,7 +83,7 @@ export class WorkGraphEngine {
     allowedTransitions?: Record<WorkNodeState, Set<WorkNodeState>>;
     scoringConfig?: PriorityScoringConfig;
   }) {
-    this.graph = options?.graph ?? _createWorkGraph("default", "default");
+    this.graph = options?.graph ?? createWorkGraph("default", "default");
     this.allowedTransitions = options?.allowedTransitions ?? DEFAULT_NODE_TRANSITIONS;
     this.scoringConfig = options?.scoringConfig ?? {
       basePriorityWeight: 1.0,
@@ -216,7 +216,7 @@ export class WorkGraphEngine {
     }
 
     // Check for circular dependencies
-    const newNode = _createWorkNode(title, description, type, options);
+    const newNode = createWorkNode(title, description, type, options);
     if (this.wouldCreateCycle(nodeId, options?.dependencies ?? [])) {
       return { success: false, error: "circular_dependency", details: `Adding ${nodeId} would create a cycle` };
     }
