@@ -58,6 +58,14 @@ const DEFAULT_NODE_TRANSITIONS: Record<WorkNodeState, Set<WorkNodeState>> = {
   [WorkNodeState.Ready]: new Set([WorkNodeState.Running, WorkNodeState.Cancelled, WorkNodeState.Waiting]),
   [WorkNodeState.Running]: new Set([WorkNodeState.Completed, WorkNodeState.Failed, WorkNodeState.Blocked, WorkNodeState.Waiting]),
   [WorkNodeState.Waiting]: new Set([WorkNodeState.Ready, WorkNodeState.Cancelled]),
+  [WorkNodeState.Blocked]: new Set([WorkNodeState.Ready, WorkNodeState.Cancelled]),
+  [WorkNodeState.Review]: new Set([WorkNodeState.Completed, WorkNodeState.Failed, WorkNodeState.Cancelled]),
+  [WorkNodeState.Completed]: new Set([WorkNodeState.Archived]),
+  [WorkNodeState.Cancelled]: new Set([WorkNodeState.Archived]),
+  [WorkNodeState.Failed]: new Set([WorkNodeState.Ready, WorkNodeState.Cancelled]),
+  [WorkNodeState.Archived]: new Set(),
+};
+
 // WorkGraphEngine
 // ============================================================================
 
