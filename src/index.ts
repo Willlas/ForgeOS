@@ -1,56 +1,146 @@
-import { type AgentEvent } from "@cline/core";
-import Config from "./config/index.js";
-import Models from "./config/models.js";
-import { createArchitectAgent } from "./agents/architect.js";
-import { createWorkerAgent } from "./agents/worker.js";
-import { createAgentTeam } from "./agents/team.js";
-import type { AgentTeamsRuntime, BootstrapAgentTeamsResult } from "@cline/core";
-import { createTeamRuntime } from "./runtime/team-runtime.js";
-import { runTeamTaskWorkflow } from "./workflows/team-task-flow.js";
+/**
+ * Autonomous Engineering Runtime - Main Entry Point
+ *
+ * Exports all core subsystems for external use.
+ * This is the public API surface of the Runtime.
+ *
+ * @module aer
+ */
 
-async function main() {
-    console.log(`Ollama: ${Config.ollamaBaseUrl}`);
-    console.log(`Architect (${Models.architect.modelId})`);
-    console.log(`Worker (${Models.worker.modelId})`);
+// ============================================================================
+// Runtime Core
+// ============================================================================
 
-    // === Individual agents (Commit 3) ===
-    console.log("\n--- Individual: Architect ---");
-    const architect = createArchitectAgent();
-    await architect.run("I am the architect, ready to design.");
+export { Runtime, RuntimeState, createRuntime, createDefaultConfig } from "./core/runtime.js";
+export type { RuntimeConfig, RuntimeHealth } from "./core/runtime.js";
 
-    console.log("\n--- Individual: Worker ---");
-    const worker = createWorkerAgent();
-    await worker.run("I am the worker, ready to code.");
+// ============================================================================
+// Event Bus
+// ============================================================================
 
-    // === AgentTeam (Commit 4) ===
-    console.log("\n--- AgentTeam: runSequential ---");
-    const team = createAgentTeam();
-    const results = await team.runSequential([
-        { agentId: "architect", message: "I am the architect via team.", metadata: {} },
-        { agentId: "worker", message: "I am the worker via team.", metadata: {} },
-    ]);
-    console.log("Team results count:", results.length);
+export {
+  EventBus,
+  getEventBus,
+  initializeEventBus,
+  shutdownEventBus,
+} from "./core/eventbus.js";
+export type {
+  RuntimeEvent,
+  EventHandler,
+  EventFilter,
+  EventSubscription,
+  EventBusStats,
+} from "./core/eventbus.js";
 
-    // === Delegate Workflow (Commit 5) - Placeholder for future implementation ===
-    // delegate workflow requires real Agent instances which need API keys
+// ============================================================================
+// Types
+// ============================================================================
 
-    // === AgentTeamsRuntime (Commit 6) ===
-    console.log("\n--- AgentTeamsRuntime (Commit 6) ---");
-    const { teamRuntime, bootstrapResult } = createTeamRuntime();
-    console.log("Team ID:", teamRuntime.getTeamId());
-    console.log("Team Name:", teamRuntime.getTeamName());
-    
-    // Run a task workflow
-    const taskResult = await runTeamTaskWorkflow(
-        teamRuntime,
-        bootstrapResult,
-        "Hello World API Task",
-        "Create a simple hello world API endpoint"
-    );
-    console.log("Task outcome:", taskResult.outcome);
+export * from "./core/types/index.js";
 
-    // Cleanup
-    teamRuntime.cleanup();
-}
+// ============================================================================
+// Workspace
+// ============================================================================
 
-main().catch(console.error);
+export { Workspace } from "./core/workspace.js";
+export type { WorkspaceConfig, WorkspaceSnapshot } from "./core/workspace.js";
+
+// ============================================================================
+// Knowledge System
+// ============================================================================
+
+export {
+  KnowledgeManager,
+  InMemoryKnowledgeStore,
+  createKnowledgeItem,
+  KnowledgeType,
+} from "./core/knowledge.js";
+export type {
+  KnowledgeItem,
+  KnowledgeQuery,
+  KnowledgeQueryResult,
+  KnowledgeGraphNode,
+  KnowledgeGraphEdge,
+  KnowledgeGraph,
+  LessonLearned,
+  IKnowledgeStore,
+} from "./core/knowledge.js";
+
+// ============================================================================
+// Metrics
+// ============================================================================
+
+export {
+  MetricsCollector,
+  RuntimeMetrics,
+  MetricType,
+  Counter,
+  Gauge,
+  Histogram,
+  Timer,
+  ConsoleMetricExporter,
+} from "./core/metrics.js";
+export type {
+  CounterOptions,
+  GaugeOptions,
+  HistogramOptions,
+  TimerOptions,
+  CounterValue,
+  GaugeValue,
+  HistogramValue,
+  TimerValue,
+  MetricValue,
+  IMetricExporter,
+} from "./core/metrics.js";
+
+// ============================================================================
+// Logging
+// ============================================================================
+
+export {
+  LogLevel,
+  parseLogLevel,
+  LogManager,
+  Logger,
+  ConsoleLogTarget,
+  FileLogTarget,
+  InMemoryLogTarget,
+  NullLogTarget,
+  LogFilter,
+  createDefaultLogger,
+  createBenchmark,
+} from "./core/logging.js";
+export type {
+  LogEvent,
+  ILogTarget,
+  LoggerConfig,
+} from "./core/logging.js";
+
+// ============================================================================
+// Work Graph
+// ============================================================================
+
+export * from "./core/types/work-graph.js";
+
+// ============================================================================
+// Provider System
+// ============================================================================
+
+export * from "./core/types/provider.js";
+
+// ============================================================================
+// Note: The following subsystems are planned but not yet implemented:
+// - Ollama Provider
+// - Scheduler
+// - Dispatcher
+// - Worker Runtime
+// - Agent Registry
+// - CLI
+// 
+// They will be added in subsequent milestones.
+
+// ============================================================================
+// Version
+// ============================================================================
+
+export const VERSION = "0.1.0";
