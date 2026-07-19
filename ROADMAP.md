@@ -1,93 +1,421 @@
-# Roadmap - Multi-Agent Local System
+# ForgeOS Roadmap
 
-## Fase 3: Implementación Incremental
-
-### Principios
-- Cada commit es pequeño y compilable
-- Después de cada fase: compilar → ejecutar → verificar
-- Solo continuar cuando la fase anterior funciona
-
----
-
-## Commit 1: Estructura base + Agent individual con Ollama
-
-**Objetivo:** Verificar que el SDK puede importar y crear un Agent básico.
-
-**Cambios:**
-- Mantener `src/index.ts` actual como punto de partida
-- Añadir `.env` para configuración
-
-**Archivo `.env`:**
-```env
-OLLAMA_BASE_URL=http://localhost:11434
-ARCHITECT_MODEL=qwen3.6:27b
-WORKER_MODEL=qwen2.5-coder:7b
-```
-
-**Verificación:**
-- `npm run dev` → debe compilar sin errores
-- Verificar que `@cline/sdk` se importa correctamente
+> Living roadmap for the ForgeOS Runtime.
+>
+> This document describes the long-term evolution of ForgeOS.
+> PROJECT_STATE.md contains the current implementation status.
+> ROADMAP.md defines where the project is going.
 
 ---
 
-## Commit 2: Configuración centralizada
+# Engineering Principles
 
-**Objetivo:** Extraer config a módulo separado.
-
-**Archivos nuevos:**
-- `src/config/index.ts` - Carga dotenv + constantes
-- `src/config/models.ts` - Mapeo de modelos por agente
-
-**Cambios en `src/index.ts`:**
-- Importar config desde módulos
-- Crear Agent individual como proof-of-concept
+- Every Sprint leaves the repository in a healthy state.
+- Every Sprint compiles successfully.
+- Every Sprint passes all tests.
+- Every Sprint ends with a stable commit.
+- Every Sprint updates PROJECT_STATE.md.
+- Every Sprint is independently resumable.
 
 ---
 
-## Commit 3: Segundo agente (Worker) con modelo diferente
+# Current Progress
 
-**Objetivo:** Demostrar que se pueden tener dos agentes con modelos distintos.
-
-**Cambios:**
-- `src/index.ts` crea dos instancias de Agent con diferentes `modelId`
-- No hay equipo todavía, solo instancias independientes
-
----
-
-## Commit 4: Integración AgentTeam
-
-**Objetivo:** Usar `createAgentTeam` del SDK para crear el equipo.
-
-**Cambios:**
-- Importar `createAgentTeam` desde `@cline/core`
-- Configurar architect y worker con sus modelos respectivos
-- Probar `routeTo` entre agentes
+| Sprint | Name | Status |
+|---------|------|--------|
+| Sprint 1 | Repository Recovery | ✅ Complete |
+| Sprint 2 | Runtime Infrastructure | ✅ Complete |
+| Sprint 3 | Provider Layer | ✅ Complete |
+| Sprint 4 | Dispatcher Infrastructure | ✅ Complete |
+| Sprint 5 | Execution Runtime | 🟡 Next |
+| Sprint 6 | Agent Runtime | ⏳ Planned |
+| Sprint 7 | Multi-Agent Runtime | ⏳ Planned |
+| Sprint 8 | Workflow Runtime | ⏳ Planned |
+| Sprint 9 | CLI | ⏳ Planned |
+| Sprint 10 | VS Code Extension | ⏳ Planned |
+| Sprint 11 | GUI | ⏳ Planned |
 
 ---
 
-## Commit 5: Flujo completo Architect → Worker
+# Sprint 1 — Repository Recovery
 
-**Objetivo:** Implementar el flujo de delegación completo.
+Status
 
-**Cambios:**
-- `src/workflows/architect.ts` - Lógica del architect
-- `src/workflows/worker.ts` - Lógica del worker
-- `src/index.ts` - Orquesta el flujo completo
+✅ Complete
+
+Goals
+
+- Restore repository health
+- Resolve TypeScript errors
+- Stabilize WorkGraph
+- Recover compilation
+- Recover test suite
+
+Completed
+
+- Repository restored
+- 174 TypeScript errors fixed
+- Stable WorkGraph
+- Healthy baseline commit
+
+Exit Criteria
+
+✅ Build passing
+
+✅ Tests passing
 
 ---
 
-## Commit 6: AgentTeamsRuntime (opcional, para producción)
+# Sprint 2 — Runtime Infrastructure
 
-**Objetivo:** Migrar a runtime completo con mailbox, tasks, outcomes.
+Status
 
-**Depende de:** Si Commit 5 funciona sin este, se pospone.
+✅ Complete
+
+Purpose
+
+Build the core runtime services required by every future subsystem.
+
+Completed
+
+- Scheduler
+- EventBus
+- Logging
+- Metrics
+- Runtime primitives
+
+Tests
+
+143+ unit tests
+
+Exit Criteria
+
+✅ Runtime infrastructure operational
+
+✅ Metrics integrated
+
+✅ Logging integrated
 
 ---
 
-## Compilación y Verificación por Fase
+# Sprint 3 — Provider Layer
 
-| Fase | Comando | Criterio Éxito |
-|------|---------|----------------|
-| 1 | `npx tsc --noEmit` | Sin errores TypeScript |
-| 2 | `npm run dev` | Script ejecuta sin crash |
-| 3 | `npx tsc --noEmit && npm run dev` | Compila + ejecuta |
+Status
+
+✅ Complete
+
+Purpose
+
+Abstract LLM providers from the runtime.
+
+Completed
+
+- Provider interfaces
+- Provider registry
+- Provider factory
+- OllamaProvider
+- ProviderWorker
+- Configuration normalization
+
+Tests
+
+167+ unit tests
+
+Exit Criteria
+
+✅ Provider abstraction complete
+
+✅ Runtime independent from providers
+
+---
+
+# Sprint 4 — Dispatcher Infrastructure
+
+Status
+
+✅ Complete
+
+Purpose
+
+Route work across available workers.
+
+Completed
+
+- TaskDispatcher
+- Worker registration
+- Worker lifecycle
+- Worker pools
+- Capability metadata
+- Worker selection
+- Retry policies
+- Cancellation
+- Health monitoring
+- Metrics integration
+- Logging integration
+
+Tests
+
+205+ unit tests
+
+Exit Criteria
+
+✅ Dispatcher operational
+
+✅ Worker routing operational
+
+✅ Retry policies
+
+✅ Cancellation
+
+---
+
+# Sprint 5 — Execution Runtime
+
+Status
+
+🟡 Planned
+
+Purpose
+
+Transform the infrastructure into a complete execution runtime.
+
+Deliverables
+
+- ExecutionRuntime
+- ExecutionContext
+- WorkerRuntime
+- Worker lifecycle management
+- Worker heartbeat
+- Worker watchdog
+- Recovery
+- Resume
+- Runtime events
+- Cancellation tokens
+- Runtime state snapshots
+
+Exit Criteria
+
+- Multiple workers execute concurrently
+- Automatic recovery
+- Runtime survives worker failures
+- Complete runtime tests
+
+---
+
+# Sprint 6 — Agent Runtime
+
+Purpose
+
+Introduce autonomous agents on top of the execution runtime.
+
+Deliverables
+
+- Agent abstraction
+- Agent lifecycle
+- Prompt management
+- Conversation context
+- Memory abstraction
+- Tool execution
+- Capability system
+- Agent registry
+
+Exit Criteria
+
+- Multiple independent agents
+- Agent lifecycle complete
+- Agent tests passing
+
+---
+
+# Sprint 7 — Multi-Agent Runtime
+
+Purpose
+
+Coordinate multiple autonomous agents.
+
+Deliverables
+
+- AgentTeam
+- Architect Agent
+- Worker Agent
+- Reviewer Agent
+- Shared Context
+- Task decomposition
+- Scheduling integration
+- Agent coordination
+
+This Sprint replaces the original proof-of-concept:
+
+- Commit 3 (Second Agent)
+- Commit 4 (AgentTeam)
+- Commit 5 (Architect → Worker)
+
+Those concepts are now implemented on top of the ForgeOS Runtime rather than directly over the SDK.
+
+Exit Criteria
+
+- Multi-agent execution operational
+- Shared execution context
+- Team orchestration complete
+
+---
+
+# Sprint 8 — Workflow Runtime
+
+Purpose
+
+Implement complete engineering workflows.
+
+Deliverables
+
+- Architect → Worker
+- Worker → Reviewer
+- Reviewer → Architect
+- Automatic retries
+- Failure recovery
+- Workflow metrics
+- Workflow events
+- Long-running execution
+
+Exit Criteria
+
+- Complete engineering workflow
+- Workflow recovery
+- Workflow metrics
+
+---
+
+# Sprint 9 — CLI
+
+Purpose
+
+Expose ForgeOS through a command-line interface.
+
+Deliverables
+
+- Runtime management
+- Agent management
+- Team management
+- Workflow execution
+- Monitoring
+- Configuration
+
+Exit Criteria
+
+ForgeOS fully usable from terminal.
+
+---
+
+# Sprint 10 — VS Code Extension
+
+Purpose
+
+Provide Visual Studio Code integration.
+
+Deliverables
+
+- Runtime connection
+- Chat interface
+- Agent Explorer
+- Task Explorer
+- Runtime monitor
+- Log viewer
+- Configuration UI
+
+Exit Criteria
+
+VS Code becomes a ForgeOS client.
+
+---
+
+# Sprint 11 — GUI
+
+Purpose
+
+Create a standalone desktop application.
+
+Deliverables
+
+- Dashboard
+- Runtime visualization
+- Agent monitoring
+- Metrics
+- Logs
+- Workflow visualization
+- Experiment management
+
+Exit Criteria
+
+ForgeOS fully operable without VS Code.
+
+---
+
+# Architectural Evolution
+
+Repository
+
+↓
+
+Runtime Infrastructure ✅
+
+↓
+
+Provider Layer ✅
+
+↓
+
+Dispatcher Infrastructure ✅
+
+↓
+
+Execution Runtime
+
+↓
+
+Agent Runtime
+
+↓
+
+Multi-Agent Runtime
+
+↓
+
+Workflow Runtime
+
+↓
+
+Clients
+
+• CLI
+
+• VS Code Extension
+
+• GUI
+
+---
+
+# Legacy Mapping
+
+The original roadmap has evolved into the current architecture.
+
+| Original Plan | Current Sprint |
+|---------------|----------------|
+| Commit 1 - Basic Agent + Ollama | Sprint 6 |
+| Commit 2 - Centralized Configuration | Sprint 3 (Completed) |
+| Commit 3 - Second Agent | Sprint 7 |
+| Commit 4 - AgentTeam | Sprint 7 |
+| Commit 5 - Architect → Worker | Sprint 8 |
+| Commit 6 - AgentTeamsRuntime | Sprint 8 |
+
+---
+
+# Definition of Done
+
+A Sprint is complete only when:
+
+- Build passes
+- All tests pass
+- Documentation updated
+- PROJECT_STATE.md updated
+- Stable commit created
+- Exit criteria satisfied
