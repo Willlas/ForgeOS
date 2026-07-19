@@ -3,7 +3,7 @@
 Last Updated: 2026-07-19
 Repository Status: STABLE
 Build Status: PASSING
-Tests: PASSING
+Tests: PASSING (167/167)
 Branch: feature/main_implementation_core_gui_cli
 Last Stable Commit: <hash>
 
@@ -15,89 +15,102 @@ Build an autonomous engineering runtime capable of coordinating multiple LLMs, p
 
 Current implementation phase:
 
-Runtime Core
+Runtime Infrastructure - Provider Layer
 
 ---
 
-# Current Milestone
+## Current Sprint
 
-Milestone ID: M2
+Sprint: Runtime Infrastructure - Provider Layer
 
-Title:
+Status: **COMPLETED**
 
-Runtime Execution Layer
-
-Status:
-
-IN PROGRESS
-
-Completion:
-
-90%
+Completion Criteria:
+- [x] Provider interface defined
+- [x] Provider capabilities model
+- [x] Provider registry with auto-registration
+- [x] Provider factory (createProvider)
+- [x] Ollama provider implementation
+- [x] Provider worker adapter (IWorker bridge)
+- [x] Provider unit tests (17 tests)
+- [x] Multiple providers supported via registry pattern
+- [x] Provider swapping without runtime changes
+- [x] Tests passing (167/167)
+- [x] Build passing
 
 ---
 
 # Repository Health
 
-Compilation:
+Compilation: ✅ Passing
 
-✅ Passing
+Tests: ✅ Passing (167/167)
 
-Tests:
+Formatting: ✅ Clean
 
-✅ Passing
-
-Formatting:
-
-✅ Clean
-
-Known blockers:
-
-None
+Known blockers: None
 
 ---
 
 # Components
 
 | Component | Status | Notes |
-|------------|---------|------|
+|-----------|--------|-------|
 | Runtime Core | Stable | Main loop implemented |
 | WorkGraph | Stable | Compiler issues resolved |
 | Scheduler | Complete | Full implementation with tests |
-| Dispatcher | Planned | Depends on Scheduler completion |
-| Provider API | Planned | Interfaces only |
-| Ollama Provider | Planned | Not started |
+| Dispatcher | Planned | Next sprint target |
+| Provider API | **Complete** | Interface + capabilities model |
+| Ollama Provider | **Complete** | Full IProvider implementation |
+| Provider Worker | **Complete** | IWorker bridge adapter |
+| Provider Registry | **Complete** | Auto-registration pattern |
 | CLI | Planned | Not started |
 | VS Code Extension | Planned | Design only |
 | GUI | Planned | Design only |
 
 ---
 
-# Completed During This Session
+# Completed During This Session - Sprint: Runtime Infrastructure (Provider Layer)
 
-- Restored repository to a compiling state.
-- Fixed cascading TypeScript errors.
-- Stabilised WorkGraph implementation.
-- Created stable recovery commit.
-- Verified successful compilation.
-- Implemented full Scheduler runtime
-- Implemented EventBus event-driven communication layer
-- Added comprehensive logging system (32 tests)
-- Added Scheduler unit tests (35 tests)
-- All 100 tests passing
-- Implemented comprehensive Metrics collection system
-- Added 43 Metrics unit tests
-- All 143 tests passing
+## Provider Implementation
+
+### OllamaProvider (src/providers/ollama-provider.ts)
+- Full IProvider interface compliance
+- Config default normalization (baseUrl, defaultModel, timeoutMs, maxRetries)
+- Model listing via Ollama HTTP API (/api/tags)
+- Streaming support with AsyncIterable<InferenceStreamChunk>
+- Health check integration with automatic model detection
+- Exponential backoff retry logic (3 attempts by default)
+- Capability discovery from base model defaults
+
+### ProviderWorker (src/providers/provider-worker.ts)
+- IWorker interface implementation
+- Bridges IProvider to scheduler task execution model
+- Worker lifecycle management (start/stop)
+- Task execution via provider.generate()
+- Concurrency tracking (activeTasks, remainingCapacity)
+- Health monitoring with configurable check interval
+- Ollama model capability mapping
+
+### Provider Registry (src/providers/registry.ts)
+- Auto-registration pattern on module load
+- registerDefaultProviders() for Ollama
+- Extension point for future providers (OpenAI, Anthropic)
+
+## Test Results
+- All 167 tests passing (0 failures)
+- Provider registry tests: 17 tests covering createProvider, listAvailableProviders, config variations
+- Ollama provider tests: coverage for health check, generate, stream, listModels, shutdown
 
 ---
 
 # Current Objective
 
-Continue implementing the Runtime Execution Layer.
+Provider Layer is complete. Moving to Sprint 3: Dispatcher Infrastructure.
 
-The next implementation target is the Provider API and default provider integration.
+The next implementation target is the Task Dispatcher for routing scheduled tasks to available workers via providers.
 
-Do not modify completed components (Scheduler, EventBus, Logging, Metrics) unless new compiler errors appear.
+Do not modify completed Provider Layer components (OllamaProvider, ProviderWorker, Registry) unless new compiler errors appear.
 
 ---
 
@@ -109,13 +122,17 @@ Do not modify completed components (Scheduler, EventBus, Logging, Metrics) unles
 - Experiments belong under /experiments.
 - Small commits.
 - Milestone-based development.
+- Provider config defaults normalized at construction time.
 
 ---
 
 # Technical Debt
 
-- Provider integration layer not yet implemented.
-- CLI tooling not yet implemented.
+- Provider capability detection is static (no model-specific overrides)
+- Only Ollama provider registered (OpenAI, Anthropic pending)
+- Dispatcher not yet implemented
+- CLI tooling not yet implemented
+- VSCode Extension not yet implemented
 
 ---
 
@@ -124,6 +141,7 @@ Do not modify completed components (Scheduler, EventBus, Logging, Metrics) unles
 - Large files should not be rewritten.
 - Avoid compiler cascades.
 - Prefer incremental refactors.
+- Provider health checks depend on Ollama running locally.
 
 ---
 
@@ -133,19 +151,15 @@ None
 
 ---
 
-# Recommended Next Tasks
+# Recommended Next Tasks (Sprint 3: Dispatcher)
 
-Priority 1
+Priority 1: Implement Task Dispatcher - routes scheduled tasks to available workers
 
-Implement Provider API and default provider.
+Priority 2: Implement additional providers (OpenAI, Anthropic)
 
-Priority 2
+Priority 3: Implement CLI tooling for runtime management
 
-Implement Dispatcher for task routing.
-
-Priority 3
-
-Implement CLI tooling.
+Priority 4: Implement VSCode Extension
 
 ---
 
@@ -154,13 +168,9 @@ Implement CLI tooling.
 Every autonomous session MUST load context in this order:
 
 1. PROJECT_STATE.md
-
 2. Latest commit
-
 3. Current milestone
-
 4. Only required documentation
-
 5. Only required source files
 
 Never read the whole repository.
@@ -197,11 +207,22 @@ Metrics collection system implementation complete.
 - Created 43 comprehensive Metrics unit tests covering all metric types and collector operations
 - All 143 tests passing (35 Scheduler + 33 EventBus + 32 Logging + 43 Metrics)
 
-## Next Session
+## Session 004 - Provider Layer Sprint
 
-Implement Provider API and default provider integration.
+Provider Layer implementation complete.
 
-Stop after completing one logical milestone per session rules.
+### Deliverables Completed:
+- OllamaProvider: Full IProvider interface with streaming, health checks, model listing
+- ProviderWorker: IWorker adapter bridging provider to scheduler task execution
+- ProviderRegistry: Auto-registration pattern with factory support
+- Test Suite: 17 provider tests covering registry, factory, and configuration variations
+- Config Normalization: Provider defaults applied at construction time
+
+### Build Verification:
+- Compilation: PASSING
+- Test Suite: 167/167 passing (all green)
+
+---
 
 # Canonical Documents
 
