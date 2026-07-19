@@ -129,15 +129,25 @@ export * from "./core/types/work-graph.js";
 export * from "./core/types/provider.js";
 
 // ============================================================================
-// Note: The following subsystems are planned but not yet implemented:
-// - Ollama Provider
-// - Scheduler
-// - Dispatcher
-// - Worker Runtime
-// - Agent Registry
-// - CLI
-// 
-// They will be added in subsequent milestones.
+// Scheduler
+// ============================================================================
+
+export {
+  Scheduler,
+  SchedulerEventType,
+  SchedulingDecision,
+  TaskStatus,
+  createScheduler,
+  createDefaultSchedulerConfig,
+} from "./core/scheduler.js";
+export type {
+  SchedulerConfig,
+  SchedulerSummary,
+  SchedulerMetricsSnapshot,
+  HistogramSummary,
+  ActiveTaskRecord,
+  CompletedTaskRecord,
+} from "./core/scheduler.js";
 
 // ============================================================================
 // Version
