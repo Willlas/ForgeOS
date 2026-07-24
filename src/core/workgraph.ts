@@ -189,6 +189,7 @@ export class WorkGraphEngine {
     description: string,
     type: WorkNodeType,
     options?: {
+      id?: string;
       priority?: number;
       dependencies?: string[];
       requiredCapabilities?: string[];
@@ -202,7 +203,7 @@ export class WorkGraphEngine {
       return { success: false, error: "invalid_dependency", details: `Cannot add nodes to ${this.graph.state} graph` };
     }
 
-    const nodeId = generateNodeId({ prefix: type.split("_")[0].substring(0, 4) });
+    const nodeId = options?.id ?? generateNodeId({ prefix: type.split("_")[0].substring(0, 4) });
 
     if (this.graph.nodes.has(nodeId)) {
       return { success: false, error: "node_exists", details: `Node ${nodeId} already exists` };

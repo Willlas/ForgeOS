@@ -66,6 +66,25 @@ export type {
 export type { CancellationTokenSource } from "./cancellation.js";
 export { CancellationToken } from "./cancellation.js";
 
+// Workflow Runtime exports
+export { 
+  WorkflowEngine, 
+  WorkflowExecutionContext, 
+  WorkflowExecutionEngine,
+  WorkflowStatus, 
+  WorkflowEvent,
+  EngineeringWorkflowType, 
+  EngineeringWorkflowBuilder,
+  createStandardEngineeringWorkflows,
+  createDefaultWorkflowEngineConfig,
+} from "./workflow-engine.js";
+
+export type { 
+  WorkflowEngineConfig, 
+  WorkflowExecutionPlan, 
+  WorkflowNodeResult 
+} from "./workflow-engine.js";
+
 // Multi-Agent Runtime exports
 export { 
   Agent, 
