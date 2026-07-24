@@ -1,244 +1,59 @@
 # AI Native Repository Standard
 
-Version: 1.0
+## Mission
+
+ForgeOS is developed by autonomous AI agents.
+
+Agents MUST execute small, well-defined work packages.
+
+Repository-wide analysis is prohibited unless explicitly requested.
 
 ---
 
-# Purpose
+# Golden Rule
 
-ForgeOS is designed to be developed by both humans and autonomous AI agents.
+Never refactor an entire directory.
 
-Repository structure must minimize unnecessary context usage, reduce repeated file reads and make implementation predictable.
+Never refactor an entire subsystem.
 
-Every architectural decision should favour maintainability for both humans and AI agents.
-
----
-
-# Core Principles
-
-1. Interfaces before implementations.
-2. One responsibility per file.
-3. Small, cohesive modules.
-4. Stable public APIs.
-5. Incremental development.
-6. Documentation close to the code.
-7. Minimize context consumption.
+Always work on one component at a time.
 
 ---
 
-# File Size Policy
+# Allowed Work Unit
 
-Preferred:
+One execution should target only ONE of the following:
 
-- 150 - 250 lines
+- one file
+- one component
+- one interface
+- one algorithm
+- one responsibility
 
-Recommended maximum:
-
-- 350 lines
-
-Hard review threshold:
-
-- 500 lines
-
-If a file exceeds the hard threshold and requires significant modifications, it MUST be refactored before new functionality is added.
-
-Large files should never continue growing indefinitely.
+Never multiple unrelated targets.
 
 ---
 
-# Component Structure
+# Repository Exploration
 
-Every major component should follow the same layout.
+Repository exploration is expensive.
 
-Example:
+Agents MUST NOT:
 
-runtime/
+- recursively inspect src/
+- inspect every file in a directory
+- count files
+- build architectural maps
 
-    README.md
+Instead:
 
-    IWorkflowEngine.ts
-
-    WorkflowEngine.ts
-
-    WorkflowExecution.ts
-
-    WorkflowState.ts
-
-    WorkflowMetrics.ts
-
-    tests/
-
-Another example:
-
-core/
-
-    README.md
-
-    IWorkGraph.ts
-
-    WorkGraph.ts
-
-    WorkGraphBuilder.ts
-
-    WorkGraphAlgorithms.ts
-
-    WorkGraphValidation.ts
+Read only the files explicitly referenced by the task.
 
 ---
 
-# Interfaces
+# Preferred Workflow
 
-Every public component should expose an interface.
-
-Example:
-
-IWorkGraph
-
-ITaskDispatcher
-
-IScheduler
-
-IProvider
-
-IWorker
-
-IWorkflowEngine
-
-Interfaces should describe behaviour only.
-
-Business logic belongs inside implementations.
-
----
-
-# Responsibilities
-
-Each file should answer one question.
-
-Examples:
-
-Good
-
-WorkGraphAlgorithms.ts
-
-Contains only:
-
-- topological sort
-- bfs
-- dfs
-
-Bad
-
-WorkGraph.ts
-
-Contains:
-
-- builder
-- serializer
-- validation
-- execution
-- algorithms
-- metrics
-
----
-
-# Local Documentation
-
-Every component should contain a README.md.
-
-README should explain:
-
-- Purpose
-- Responsibilities
-- Public API
-- Dependencies
-- Examples
-- Extension points
-
-The README must be understandable without reading implementation code.
-
----
-
-# AI First Navigation
-
-Agents should navigate repositories using this order.
-
-1. README.md
-2. Interface
-3. Tests
-4. Implementation
-
-Never start from implementation unless explicitly required.
-
----
-
-# Refactoring Rules
-
-Refactoring is encouraged whenever:
-
-- file > 400 lines
-- multiple responsibilities exist
-- repeated navigation loops appear
-- agents repeatedly read the same file
-
-Refactoring must preserve:
-
-- behaviour
-- tests
-- public APIs
-
----
-
-# Dependency Rules
-
-Avoid:
-
-- circular dependencies
-- cross-module imports
-- hidden coupling
-
-Prefer:
-
-Interfaces
-
-↓
-
-Implementations
-
-↓
-
-Composition
-
-instead of
-
-Implementation
-
-↓
-
-Implementation
-
-↓
-
-Implementation
-
----
-
-# AI Context Optimization
-
-Repository structure should reduce context usage.
-
-Agents should never need to load an entire subsystem to modify one feature.
-
-Small independent components are preferred over large central files.
-
----
-
-# Implementation Rules
-
-Implement only one logical change at a time.
-
-Workflow:
-
-Read minimum code
+Understand
 
 ↓
 
@@ -258,71 +73,90 @@ Commit
 
 ↓
 
-Continue
-
-Avoid large feature branches.
+Stop
 
 ---
 
-# Testing
+# Reading Policy
 
-Every extracted component should preserve existing tests.
+Read the minimum amount of code required.
 
-Prefer:
+Maximum:
 
-Component tests
+- 1 primary implementation file
+- 2 supporting files
+- affected tests
 
-over
-
-Large integration tests
-
-when behaviour allows it.
+Avoid reopening files already read.
 
 ---
 
-# Commits
+# Refactoring Policy
 
-Commits should be:
+Refactor only the target component.
 
-- small
-- coherent
-- independently compilable
+Never refactor neighbouring components.
 
-Each commit should represent one logical improvement.
+Never "improve" unrelated code.
 
 ---
 
-# Repository Evolution
+# File Size Targets
 
-Whenever a component repeatedly becomes difficult to understand:
+Ideal:
 
-Refactor first.
+150-250 lines
 
-Do not continue increasing complexity.
+Acceptable:
 
-Repository quality has priority over implementation speed.
+250-350 lines
 
----
+Review:
 
-# Agent Rules
+350-500 lines
 
-Agents MUST NOT:
+Refactor:
 
-- read the same large file repeatedly
-- scan the whole repository without reason
-- analyse unrelated components
-- increase file size above repository standards
-
-Agents SHOULD:
-
-- prefer interfaces
-- prefer README documentation
-- implement incrementally
-- minimise context usage
-- extract responsibilities early
+>500 lines
 
 ---
 
-# Long-Term Goal
+# Extraction Order
 
-ForgeOS should become an AI-native repository where autonomous agents can understand, modify and extend the system with minimal context, predictable navigation and stable architectural contracts.
+When splitting a file:
+
+1. Interface
+2. Algorithms
+3. Validation
+4. Builder
+5. Serialization
+6. Runtime
+7. State
+
+Never mix responsibilities.
+
+---
+
+# Commit Policy
+
+One logical change.
+
+One build.
+
+One test run.
+
+One commit.
+
+Continue only after success.
+
+---
+
+# Success Criteria
+
+A task is complete when:
+
+- code compiles
+- affected tests pass
+- one small commit exists
+
+Do not continue analysing after that.
