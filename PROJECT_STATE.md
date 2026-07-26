@@ -69,7 +69,7 @@ Known blockers: None
 | Ollama Provider | **Complete** | Full IProvider implementation |
 | Provider Worker | **Complete** | IWorker bridge adapter |
 | Provider Registry | **Complete** | Auto-registration pattern |
-| CLI | Planned | Not started |
+| CLI | **In Progress** | Implementation started |
 | VS Code Extension | Planned | Design only |
 | GUI | Planned | Design only |
 
