@@ -122,7 +122,7 @@ export class WorkflowExecutionEngine {
 
   startNode(nodeId: string, agentId?: string): void {
     this.activeNodes.add(nodeId);
-    this.nodeResults.set(nodeId, { nodeId, status: "completed", retryCount: 0, durationMs: 0, assignedAgentId: agentId });
+    this.nodeResults.set(nodeId, { nodeId, status: "running", retryCount: 0, durationMs: 0, assignedAgentId: agentId });
   }
 
   completeNode(nodeId: string, result?: unknown): boolean {
@@ -136,19 +136,22 @@ export class WorkflowExecutionEngine {
     return true;
   }
 
-  failNode(nodeId: string, error: string, retryCount?: number): boolean {
-    const existing = this.nodeResults.get(nodeId);
-    if (!existing) return false;
-    // Always track failed nodes in getFailedNodes()
-    this.failedNodes.add(nodeId);
-    existing.status = "failed" as const;
-    existing.error = error;
-    existing.retryCount = retryCount ?? 0;
-    existing.completedAt = new Date().toISOString();
-    existing.durationMs = Date.now() - this.startTime;
-    this.activeNodes.delete(nodeId);
-    return true;
-  }
+   failNode(nodeId: string, error: string, retryCount?: number): boolean {
+     const existing = this.nodeResults.get(nodeId);
+     if (!existing) return false;
+     // Only permanently track failed nodes when maxRetries is reached
+     const retries = retryCount ?? 0;
+     if (retries >= this.config.maxRetries) {
+       this.failedNodes.add(nodeId);
+     }
+     existing.status = "failed" as const;
+     existing.error = error;
+     existing.retryCount = retries;
+     existing.completedAt = new Date().toISOString();
+     existing.durationMs = Date.now() - this.startTime;
+     this.activeNodes.delete(nodeId);
+     return true;
+   }
 
   skipNode(nodeId: string, reason?: string): void {
     this.skippedNodes.add(nodeId);
