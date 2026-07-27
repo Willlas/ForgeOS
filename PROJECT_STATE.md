@@ -15,9 +15,8 @@ Build an autonomous engineering runtime capable of coordinating multiple LLMs, p
 
 Current implementation phase:
 
-Agent Runtime
+Multi-Agent Runtime
 
----
 
 ## Current Sprint
 
