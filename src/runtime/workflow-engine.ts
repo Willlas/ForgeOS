@@ -453,8 +453,9 @@ export class WorkflowEngine {
   private _runningWorkflows = new Map<string, WorkflowExecutionPlan>();
   private readonly logger: { info: (msg: string) => void; warn: (msg: string) => void; error: (msg: string) => void };
   private eventBus: SimpleEventBus;
+  private agentTeam?: AgentTeam;
 
-  constructor(config?: WorkflowEngineConfig, eventBus?: SimpleEventBus) {
+  constructor(config?: WorkflowEngineConfig, eventBus?: SimpleEventBus, team?: AgentTeam) {
     this.configValue = createDefaultWorkflowEngineConfig(config);
     this.logger = {
       info: (msg: string) => console.info(`[WorkflowEngine:${this.configValue.name}] ${msg}`),
@@ -462,6 +463,7 @@ export class WorkflowEngine {
       error: (msg: string) => console.error(`[WorkflowEngine:${this.configValue.name}] ERROR: ${msg}`),
     };
     this.eventBus = eventBus ?? new SimpleEventBus();
+    this.agentTeam = team;
   }
 
   // ======================================================================
@@ -483,7 +485,7 @@ export class WorkflowEngine {
   /** Submits a workflow from a pre-built graph definition. */
   submitWorkflow(
     graphDef: { graph: WorkGraph; typeVal: EngineeringWorkflowType; metadata?: Record<string, unknown> },
-    _team?: AgentTeam
+    team?: AgentTeam
   ): string {
     const workflowId = `wf-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -674,20 +676,20 @@ export class WorkflowEngine {
     }
   }
 
-  /** Dispatches a node to the appropriate agent based on role. */
-  private async dispatchToAgent(node: any, _plan: WorkflowExecutionPlan): Promise<unknown> {
-    const capabilities = node?.requiredCapabilities ?? [];
-    const role = capabilities[0] ?? "generalist";
+   /** Dispatches a node to the appropriate agent based on role. */
+   private async dispatchToAgent(node: any, plan: WorkflowExecutionPlan): Promise<unknown> {
+     const capabilities = node?.requiredCapabilities ?? [];
+     const role = capabilities[0] ?? "generalist";
 
-    // In production: dispatch to actual agent via team
-    // For now: simulate successful execution
-    return {
-      nodeId: node.id,
-      status: "completed",
-      executedBy: role,
-      timestamp: new Date().toISOString(),
-    };
-  }
+     // In production: dispatch to actual agent via team
+     // For now: simulate successful execution
+     return {
+       nodeId: node.id,
+       status: "completed",
+       executedBy: role,
+       timestamp: new Date().toISOString(),
+     };
+   }
 
   // ======================================================================
   // Workflow Control
