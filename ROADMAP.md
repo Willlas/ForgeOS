@@ -276,6 +276,16 @@ Exit Criteria
 - Shared execution context
 - Team orchestration complete
 
+Sprint 7
+│
+├── 7.1 Multi-Agent Coordinator
+├── 7.2 Task Router
+├── 7.3 Team Scheduler
+├── 7.4 Shared Execution Context
+├── 7.5 Workflow Orchestrator
+├── 7.6 Runtime CLI integration
+└── 7.7 Documentation
+
 ---
 
 # Sprint 8 — Workflow Runtime

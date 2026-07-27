@@ -50,7 +50,7 @@ export enum WorkflowStatus {
 
 export interface WorkflowNodeResult {
   nodeId: string;
-  status: "completed" | "failed" | "cancelled" | "skipped";
+  status: "completed" | "failed" | "cancelled" | "skipped" | "running";
   result?: unknown;
   error?: string;
   retryCount: number;
@@ -75,8 +75,8 @@ export class WorkflowExecutionEngine {
   private checkpoints: Array<{ timestamp: string; status: string }> = [];
   private startTime = 0;
 
-  constructor(config: { workflowId: string }) {
-    this.config = { ...config, maxRetries: 3, nodeTimeoutMs: 300_000, checkpointIntervalMs: 60_000 };
+  constructor(config: { workflowId: string; maxRetries?: number }) {
+    this.config = { ...config, maxRetries: config.maxRetries ?? 3, nodeTimeoutMs: 300_000, checkpointIntervalMs: 60_000 };
     this._status = WorkflowStatus.Pending;
   }
 
@@ -136,22 +136,41 @@ export class WorkflowExecutionEngine {
     return true;
   }
 
-   failNode(nodeId: string, error: string, retryCount?: number): boolean {
-     const existing = this.nodeResults.get(nodeId);
-     if (!existing) return false;
-     // Only permanently track failed nodes when maxRetries is reached
-     const retries = retryCount ?? 0;
-     if (retries >= this.config.maxRetries) {
-       this.failedNodes.add(nodeId);
-     }
-     existing.status = "failed" as const;
-     existing.error = error;
-     existing.retryCount = retries;
-     existing.completedAt = new Date().toISOString();
-     existing.durationMs = Date.now() - this.startTime;
-     this.activeNodes.delete(nodeId);
-     return true;
-   }
+  failNode(nodeId: string, error: string, retryCount?: number): boolean {
+      // Create node result if it doesn't exist (to handle case where failNode is called without startNode)
+      let existing = this.nodeResults.get(nodeId);
+      if (!existing) {
+        // Create a new node result with default values
+        existing = { 
+          nodeId, 
+          status: "running",  // Start as running then fail it
+          retryCount: 0,
+          durationMs: 0,
+          error: undefined,
+          result: undefined,
+          assignedAgentId: undefined,
+          completedAt: undefined
+        };
+        this.nodeResults.set(nodeId, existing);
+        this.activeNodes.add(nodeId);
+      }
+      
+      // Only permanently track failed nodes when maxRetries is reached
+      const retries = retryCount ?? 0;
+      existing.status = "failed" as const;
+      existing.error = error;
+      existing.retryCount = retries;
+      existing.completedAt = new Date().toISOString();
+      existing.durationMs = Date.now() - this.startTime;
+      this.activeNodes.delete(nodeId);
+      
+      // Test expectation: a node is permanently failed when retry count equals maxRetries
+      // This means with maxRetries=3, it should fail on retryCount=3 (4th attempt)
+      if (retries >= this.config.maxRetries) {
+        this.failedNodes.add(nodeId);
+      }
+      return true;
+    }
 
   skipNode(nodeId: string, reason?: string): void {
     this.skippedNodes.add(nodeId);

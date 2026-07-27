@@ -148,3 +148,29 @@ Progress is measured by:
 - many small commits
 
 Continue autonomously until every item in PLAN.md has been executed.
+
+## Build and Test Policy
+
+Never invoke build tools directly.
+
+Always use the official npm scripts defined in package.json.
+
+Preferred commands:
+
+- npm run build
+- npm run test
+- npm run lint
+- npm run typecheck
+## Priority Rules
+
+When multiple project documents disagree, always use this priority:
+
+1. PROJECT_STATE.md (highest priority)
+2. Active sprint documentation
+3. ROADMAP.md
+4. Source code
+5. Assumptions
+
+Never start a future sprint while the current sprint is still marked as active in PROJECT_STATE.md.
+
+If ROADMAP and PROJECT_STATE disagree, PROJECT_STATE is authoritative.
