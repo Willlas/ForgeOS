@@ -20,9 +20,9 @@ Multi-Agent Runtime
 
 ## Current Sprint
 
-Sprint: Agent Runtime (Sprint 6)
+Sprint: Multi-Agent Runtime (Sprint 7)
 
-Status: **COMPLETE**
+Status: **IN PROGRESS**
 
 Completion Criteria:
 - [x] Agent abstraction implemented
