@@ -455,7 +455,7 @@ export class WorkflowEngine {
   private eventBus: SimpleEventBus;
   private agentTeam?: AgentTeam;
 
-  constructor(config?: WorkflowEngineConfig, eventBus?: SimpleEventBus, team?: AgentTeam) {
+  constructor(config?: WorkflowEngineConfig, eventBus?: SimpleEventBus) {
     this.configValue = createDefaultWorkflowEngineConfig(config);
     this.logger = {
       info: (msg: string) => console.info(`[WorkflowEngine:${this.configValue.name}] ${msg}`),
@@ -463,7 +463,6 @@ export class WorkflowEngine {
       error: (msg: string) => console.error(`[WorkflowEngine:${this.configValue.name}] ERROR: ${msg}`),
     };
     this.eventBus = eventBus ?? new SimpleEventBus();
-    this.agentTeam = team;
   }
 
   // ======================================================================
@@ -484,8 +483,7 @@ export class WorkflowEngine {
 
   /** Submits a workflow from a pre-built graph definition. */
   submitWorkflow(
-    graphDef: { graph: WorkGraph; typeVal: EngineeringWorkflowType; metadata?: Record<string, unknown> },
-    team?: AgentTeam
+    graphDef: { graph: WorkGraph; typeVal: EngineeringWorkflowType; metadata?: Record<string, unknown> }
   ): string {
     const workflowId = `wf-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -495,14 +493,14 @@ export class WorkflowEngine {
     // Activate the engine so it transitions to 'running' state
     graphEngine.activate();
 
-    // Create execution context
-    const execContext = new WorkflowExecutionContext({
-      workflowId,
-      maxRetries: this.configValue.maxRetries ?? 3,
-      nodeTimeoutMs: this.configValue.nodeTimeoutMs ?? 300_000,
-      checkpointIntervalMs: this.configValue.checkpointIntervalMs ?? 60_000,
-      metadata: graphDef.metadata ?? {},
-    } as any);
+     // Create execution context
+     const execContext = new WorkflowExecutionContext({
+       workflowId,
+       maxRetries: this.configValue.maxRetries ?? 3,
+       nodeTimeoutMs: this.configValue.nodeTimeoutMs ?? 300_000,
+       checkpointIntervalMs: this.configValue.checkpointIntervalMs ?? 60_000,
+       metadata: graphDef.metadata ?? {},
+     } as any);
 
     // Create execution plan
     const plan: WorkflowExecutionPlan = {
@@ -643,7 +641,7 @@ export class WorkflowEngine {
 
       try {
         // Simulate node execution (in production: dispatch to agent)
-        const result = await this.dispatchToAgent(node, plan);
+        const result = await this.dispatchToAgent(node);
         plan.executionContext.completeNode(nodeId, result);
         plan.nodesCompleted++;
         this.eventBus.emit(WorkflowEvent.NodeCompleted, { workflowId, nodeId, result });
@@ -677,7 +675,7 @@ export class WorkflowEngine {
   }
 
     /** Dispatches a node to the appropriate agent based on role. */
-    private async dispatchToAgent(node: any, plan: WorkflowExecutionPlan): Promise<unknown> {
+    private async dispatchToAgent(node: any): Promise<unknown> {
       const capabilities = node?.requiredCapabilities ?? [];
       const role = capabilities[0] ?? "generalist";
 
