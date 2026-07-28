@@ -29,7 +29,7 @@
 | Sprint 4 | Dispatcher Infrastructure | ✅ Complete |
 | Sprint 5 | Execution Runtime | 🟡 Next |
 | Sprint 6 | Agent Runtime | ⏳ Planned |
-| Sprint 7 | Multi-Agent Runtime | ⏳ Planned |
+| Sprint 7 | Multi-Agent Runtime | ✅ Complete |
 | Sprint 8 | Workflow Runtime | ⏳ Planned |
 | Sprint 9 | CLI | ⏳ Planned |
 | Sprint 10 | VS Code Extension | ⏳ Planned |

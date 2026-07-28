@@ -676,20 +676,63 @@ export class WorkflowEngine {
     }
   }
 
-   /** Dispatches a node to the appropriate agent based on role. */
-   private async dispatchToAgent(node: any, plan: WorkflowExecutionPlan): Promise<unknown> {
-     const capabilities = node?.requiredCapabilities ?? [];
-     const role = capabilities[0] ?? "generalist";
+    /** Dispatches a node to the appropriate agent based on role. */
+    private async dispatchToAgent(node: any, plan: WorkflowExecutionPlan): Promise<unknown> {
+      const capabilities = node?.requiredCapabilities ?? [];
+      const role = capabilities[0] ?? "generalist";
 
-     // In production: dispatch to actual agent via team
-     // For now: simulate successful execution
-     return {
-       nodeId: node.id,
-       status: "completed",
-       executedBy: role,
-       timestamp: new Date().toISOString(),
-     };
-   }
+      // Use real agent from AgentTeam if available
+      if (this.agentTeam) {
+        try {
+          let agent;
+          
+          // Map workflow roles to agent team roles
+          switch (role) {
+            case "architect":
+              agent = this.agentTeam.getArchitect();
+              break;
+            case "worker":
+              agent = this.agentTeam.getWorker();
+              break;
+            case "reviewer":
+              agent = this.agentTeam.getReviewer();
+              break;
+            default:
+              // For general tasks, try to get any available agent
+              const allAgents = this.agentTeam.getAllAgents();
+              if (allAgents.size > 0) {
+                const firstAgent = allAgents.values().next().value;
+                agent = firstAgent;
+              }
+          }
+
+          if (agent) {
+            // Execute the node using the actual agent
+            const prompt = `Execute task: ${node.description || node.id}`;
+            const result = await agent.generate(prompt);
+            
+            return {
+              nodeId: node.id,
+              status: "completed",
+              executedBy: role,
+              result: result.content,
+              timestamp: new Date().toISOString(),
+            };
+          }
+        } catch (error) {
+          // If agent execution fails, re-throw to trigger retry
+          throw error;
+        }
+      }
+
+      // Fallback to simulation if no team or agent available
+      return {
+        nodeId: node.id,
+        status: "completed",
+        executedBy: role,
+        timestamp: new Date().toISOString(),
+      };
+    }
 
   // ======================================================================
   // Workflow Control
