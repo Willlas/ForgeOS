@@ -395,7 +395,7 @@ describe("Sprint 8 - Workflow Execution Engine", () => {
   });
 
   it("should handle failed nodes with retry tracking", () => {
-    const engine = new WorkflowExecutionEngine({ workflowId: "test-3" });
+    const engine = new WorkflowExecutionEngine({ workflowId: "test-3", maxRetries: 1 });
     
     // First failure - not yet at maxRetries
     engine.failNode("node-1", "Error 1", 0);
