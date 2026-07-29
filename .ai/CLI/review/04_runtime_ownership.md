@@ -7,7 +7,7 @@ Determine who owns the ForgeOS Runtime instance and how ownership is maintained.
 
 Evaluate which of the following applies:
 
-- [ ] **CLI owns Runtime** — The CLI process creates and holds the Runtime; when CLI exits, Runtime dies.
+- [x] **CLI owns Runtime** — The CLI process creates and holds the Runtime; when CLI exits, Runtime dies.
 - [ ] **Runtime owns itself** — The Runtime instantiates itself independently of the CLI.
 - [ ] **Daemon owns Runtime** — A daemon process is responsible for the Runtime lifecycle.
 - [ ] **Background process owns Runtime** — A separate background process manages the Runtime.
@@ -37,11 +37,9 @@ Evaluate which of the following applies:
 
 ## Output Format
 
-```markdown
 ### Findings — Phase 4
-- Owner: [CLI | Runtime | Daemon | Background | Other]
-- Creator: [file:path + class/method]
-- Stopped by: [file:path + class/method]
-- Can outlive CLI: [Yes/No]
-- Evidence: [list all relevant files + line references]
-```
+- Owner: CLI
+- Creator: src/cli/index.ts:33 (createRuntime function)
+- Stopped by: src/cli/index.ts:102, 144 (stop method called on globalRuntime)
+- Can outlive CLI: No
+- Evidence: The Runtime is created in src/cli/index.ts at line 33 via createRuntime() and assigned to a global variable. The CLI process owns this instance and is responsible for starting (line 39) and stopping (lines 102, 144) the Runtime. There is no evidence of the Runtime outliving the CLI process as it's entirely in-process.

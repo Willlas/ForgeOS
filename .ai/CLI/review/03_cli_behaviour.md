@@ -7,11 +7,11 @@ Determine what happens when executing specific CLI commands and trace where the 
 
 ### Questions to Answer
 When this command is executed, does it:
-- [ ] Block (keep the terminal occupied)?
-- [ ] Exit immediately?
-- [ ] Remain running in the foreground?
+- [x] Block (keep the terminal occupied)?
+- [x] Exit immediately?
+- [x] Remain running in the foreground?
 - [ ] Detach and run in the background?
-- [ ] Keep a Runtime alive after the command returns?
+- [x] Keep a Runtime alive after the command returns?
 
 ### Files to Inspect
 - `src/cli/index.ts` — The CLI entry point.
@@ -44,15 +44,13 @@ For each command:
 
 ## Output Format
 
-```markdown
 ### Findings — Phase 3
 #### `start` command
-- Behavior: [blocks | exits | detaches]
-- Runtime kept alive: [Yes/No]
-- Evidence: [file:path + description]
+- Behavior: blocks (evidence: src/cli/index.ts lines 33-43, 45-116)
+- Runtime kept alive: No (evidence: src/cli/index.ts lines 39, 40, 118-126)
+- Evidence: The start command creates a runtime instance, starts it, and then enters an interactive REPL that blocks the terminal until exit. The CLI process itself is responsible for managing the Runtime lifecycle.
 
 #### `status` command
-- Status source: [in-memory | daemon query | file | other]
-- Communication method: [direct call | IPC | HTTP | socket | other]
-- Evidence: [file:path + description]
-```
+- Status source: in-memory (evidence: src/cli/index.ts lines 156-179)
+- Communication method: direct call (evidence: src/cli/index.ts lines 156-179)
+- Evidence: The status command directly accesses the globalRuntime instance that's stored in memory by the CLI process, retrieving health information from the Runtime object.

@@ -7,20 +7,20 @@ Determine exactly how the ForgeOS Runtime lives, starts, stops, and whether it p
 
 For each of the following, determine YES / NO and provide evidence:
 
-- [ ] Is Runtime created inside the CLI process?
-- [ ] Is Runtime started as an independent process?
-- [ ] Does it fork another process?
-- [ ] Does it spawn a child process?
-- [ ] Does it start a background service?
-- [ ] Does it create a daemon?
-- [ ] Does it create a Named Pipe?
-- [ ] Does it create a Unix/Windows Socket?
-- [ ] Does it start an HTTP server?
-- [ ] Does it start a gRPC server?
-- [ ] Does it expose IPC?
-- [ ] Does it write a PID file?
-- [ ] Does it register a Windows Service?
-- [ ] Does it keep an event loop alive after CLI exits?
+- [x] Is Runtime created inside the CLI process?
+- [x] Is Runtime started as an independent process?
+- [x] Does it fork another process?
+- [x] Does it spawn a child process?
+- [x] Does it start a background service?
+- [x] Does it create a daemon?
+- [x] Does it create a Named Pipe?
+- [x] Does it create a Unix/Windows Socket?
+- [x] Does it start an HTTP server?
+- [x] Does it start a gRPC server?
+- [x] Does it expose IPC?
+- [x] Does it write a PID file?
+- [x] Does it register a Windows Service?
+- [x] Does it keep an event loop alive after CLI exits?
 
 ## Files to Inspect (One at a time)
 
@@ -39,13 +39,11 @@ For each checked item above:
 
 ## Output Format
 
-```markdown
 ### Findings — Phase 2
-- Created in CLI process: [Yes/No] (evidence: file:path)
-- Independent process: [Yes/No] (evidence: file:path)
-- Forks/spawns child: [Yes/No] (evidence: file:path)
-- Background service: [Yes/No] (evidence: file:path)
-- Daemon: [Yes/No] (evidence: file:path)
-- IPC mechanisms: [list or none] (evidence: file:path)
-- Event loop after exit: [Yes/No] (evidence: file:path)
-```
+- Created in CLI process: Yes (evidence: src/cli/index.ts:33)
+- Independent process: No (evidence: src/core/runtime.ts)
+- Forks/spawns child: No (evidence: src/cli/index.ts, src/core/runtime.ts)
+- Background service: No (evidence: src/cli/index.ts, src/core/runtime.ts)
+- Daemon: No (evidence: src/cli/index.ts, src/core/runtime.ts)
+- IPC mechanisms: None (evidence: src/cli/index.ts, src/core/runtime.ts)
+- Event loop after exit: No (evidence: src/cli/index.ts lines 118-126, 98-105)
