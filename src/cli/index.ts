@@ -5,6 +5,7 @@
  */
 
 import { Command } from 'commander';
+import { createInterface } from 'readline';
 import { createRuntime, Runtime } from '../index.js';
 
 const program = new Command();
@@ -39,13 +40,87 @@ program
       globalRuntime = runtime;
       
       console.log('Runtime started successfully');
+      console.log('Type "help" for available commands, or "exit" to quit.');
       
-      // Keep process alive
+      // Start interactive REPL
+      const rl = createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      });
+      
+      const prompt = () => {
+        if (globalRuntime) {
+          rl.question('aer> ', async (input) => {
+            const args = input.trim().split(/\s+/);
+            const cmd = args[0]?.toLowerCase();
+            
+            switch (cmd) {
+              case 'help':
+                console.log('Available commands:');
+                console.log('  status          - Show runtime status');
+                console.log('  config:list     - List configuration');
+                console.log('  workflows:list  - List running workflows');
+                console.log('  exit            - Stop runtime and exit');
+                prompt();
+                break;
+               case 'status': {
+                 if (!globalRuntime) {
+                   console.log('Runtime not available');
+                   prompt();
+                   break;
+                 }
+                 const health = globalRuntime.getHealth();
+                 const config = globalRuntime.getConfig();
+                console.log(`Status: ${health.state}`);
+                console.log(`Environment: ${config.environment}`);
+                console.log(`Uptime: ${Math.round(health.uptimeSeconds)}s`);
+                console.log(`Healthy: ${health.healthy ? 'Yes' : 'No'}`);
+                prompt();
+                break;
+              }
+               case 'config:list': {
+                 if (!globalRuntime) {
+                   console.log('Runtime not available');
+                   prompt();
+                   break;
+                 }
+                 const config = globalRuntime.getConfig();
+                console.log(`Name: ${config.name}`);
+                console.log(`Environment: ${config.environment}`);
+                console.log(`Log Level: ${config.logLevel}`);
+                prompt();
+                break;
+              }
+              case 'workflows:list':
+                console.log('No workflows currently running');
+                prompt();
+                break;
+               case 'exit':
+               case 'quit':
+                 console.log('Shutting down runtime...');
+                 if (globalRuntime) {
+                   await globalRuntime.stop();
+                 }
+                rl.close();
+                process.exit(0);
+                break;
+              default:
+                if (cmd) console.log(`Unknown command: ${cmd}. Type "help" for available commands.`);
+                prompt();
+                break;
+            }
+          });
+        }
+      };
+      
+      prompt();
+
       process.on('SIGINT', async () => {
         console.log('\nShutting down runtime...');
         if (globalRuntime) {
           await globalRuntime.stop();
         }
+        rl.close();
         console.log('Runtime stopped');
         process.exit(0);
       });
@@ -128,6 +203,7 @@ program
       
       // In a real implementation, we would access workflow engine from runtime
       console.log('No workflows currently running');
+      console.log('Note: Workflow engine integration needs to be implemented in runtime system');
     } catch (error) {
       console.error('Failed to list workflows:', error);
       process.exit(1);
@@ -152,7 +228,9 @@ program
         process.exit(1);
       }
       
+      // In a real implementation, we would submit the workflow to the runtime's workflow engine
       console.log(`Started workflow of type ${workflowType}`);
+      console.log('Note: Workflow engine integration needs to be implemented in runtime system');
     } catch (error) {
       console.error('Failed to start workflow:', error);
       process.exit(1);
@@ -166,7 +244,8 @@ program
   .action(async (workflowId) => {
     try {
       console.log(`Workflow status for ${workflowId}:`);
-      console.log('- Status: Not implemented in CLI (mock)');
+      console.log('Status: Not implemented in CLI (mock)');
+      console.log('Note: Workflow engine integration needs to be implemented in runtime system');
     } catch (error) {
       console.error('Failed to get workflow status:', error);
       process.exit(1);
@@ -180,7 +259,8 @@ program
   .action(async (workflowId) => {
     try {
       console.log(`Cancelling workflow ${workflowId}:`);
-      console.log('- Cancel functionality not implemented in CLI (mock)');
+      console.log('Cancel functionality not implemented in CLI (mock)');
+      console.log('Note: Workflow engine integration needs to be implemented in runtime system');
     } catch (error) {
       console.error('Failed to cancel workflow:', error);
       process.exit(1);
