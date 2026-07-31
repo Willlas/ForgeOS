@@ -6,7 +6,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "aer": "./dist/cli/index.js"
+    "aer": "./dist/cli/index.js",
+    "aer-daemon": "./dist/runtime/daemon-entry.js"
   },
   "scripts": {
     "build": "tsc",

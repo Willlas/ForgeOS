@@ -367,6 +367,7 @@ export function createWorkNode(
   description: string,
   type: WorkNodeType,
   options?: {
+    id?: string;
     priority?: number;
     dependencies?: string[];
     requiredCapabilities?: string[];
@@ -377,6 +378,7 @@ export function createWorkNode(
   }
 ): WorkNode {
   const {
+    id: customId,
     priority = 5,
     dependencies = [],
     requiredCapabilities = [],
@@ -389,7 +391,7 @@ export function createWorkNode(
   const now = new Date().toISOString();
 
   return {
-    id: generateNodeId(),
+    id: customId ?? generateNodeId(),
     title,
     description,
     type,

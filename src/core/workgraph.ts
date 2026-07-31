@@ -369,18 +369,11 @@ export class WorkGraphEngine {
        inDegree.set(node.id, 0);
      }
 
-     // Compute in-degrees by counting incoming edges
-     for (const node of nodes) {
-       for (const depId of node.dependencies) {
-         // Ensure the dependency exists in our graph before incrementing its in-degree
-         if (inDegree.has(depId)) {
-           const current = inDegree.get(depId)!;
-           inDegree.set(depId, current + 1);
-         }
-         // If dependency doesn't exist in graph, we ignore it - this shouldn't happen in a valid graph
-         // but if it does, we just skip it to prevent errors
-       }
-     }
+      // Compute in-degrees: each dependency of a node means that node has an incoming edge
+      for (const node of nodes) {
+        const depCount = node.dependencies.filter((depId) => inDegree.has(depId)).length;
+        inDegree.set(node.id, depCount);
+      }
 
      const queue: string[] = [];
      for (const [id, degree] of inDegree.entries()) {
