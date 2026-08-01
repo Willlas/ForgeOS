@@ -5,6 +5,7 @@
  *
  * Standalone executable that runs the ForgeOS Runtime as a daemon process.
  * Supports --verbose, --environment, and --config CLI flags.
+ * Initializes IPC server for CLI communication.
  */
 
 import { createRuntime } from "../index.js";
@@ -12,6 +13,7 @@ import { existsSync, writeFileSync, mkdirSync, unlinkSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import http from "http";
+import { IpcServer } from "./ipc-server.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -128,8 +130,28 @@ async function main(): Promise<void> {
   // Create and start the runtime
   const runtime = await createRuntime();
   await runtime.start();
-
   console.log("[Daemon] Runtime started successfully");
+
+  // Setup IPC server for CLI communication
+  const ipcServer = new IpcServer();
+  ipcServer.setRuntime(runtime);
+
+  // Handlers are dispatched internally by IpcServer via setRuntime()
+  // No need for explicit registerHandler calls
+
+  // Start listening on IPC socket
+  await ipcServer.listen();
+  console.log("[Daemon] IPC server started");
+
+  // Prevent shutdown from closing immediately while waiting for IPC commands
+  return new Promise<void>((resolve) => {
+    const gracefulShutdown = () => {
+      ipcServer.close();
+      resolve();
+    };
+    process.on("SIGTERM", gracefulShutdown);
+    process.on("SIGINT", gracefulShutdown);
+  });
 }
 
 main().catch((error) => {
