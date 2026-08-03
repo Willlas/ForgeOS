@@ -1,16 +1,13 @@
 {
-  "name": "@aer/runtime",
+  "name": "@aer/root",
   "version": "0.1.0",
+  "private": true,
   "description": "Autonomous Engineering Runtime - A provider-independent, modular runtime for autonomous software engineering",
-  "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "bin": {
-    "aer": "./dist/cli/index.js",
-    "aer-daemon": "./dist/runtime/daemon-entry.js"
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build --workspaces",
     "dev": "tsx src/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
