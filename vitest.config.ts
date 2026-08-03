@@ -1,25 +1,18 @@
 import { defineConfig } from "vitest/config";
-import path from "path";
 
 export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    include: ["src/**/*.test.ts"],
+    include: ["packages/**/*.test.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
-      include: ["src/**/*.ts"],
+      include: ["packages/**/*.ts"],
       exclude: [
-        "src/**/*.test.ts",
-        "src/**/*.d.ts",
-        "src/index.ts",
+        "packages/**/*.test.ts",
+        "packages/**/*.d.ts",
       ],
-    },
-  },
-  resolve: {
-    alias: {
-      "@aer": path.resolve(__dirname, "./src"),
     },
   },
 });

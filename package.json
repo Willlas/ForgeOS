@@ -8,15 +8,15 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces",
-    "dev": "tsx src/index.ts",
+    "dev": "tsx packages/cli/src/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
-    "format": "prettier --check src/",
-    "format:fix": "prettier --write src/",
-    "clean": "rm -rf dist",
+    "lint": "eslint packages/",
+    "lint:fix": "eslint packages/ --fix",
+    "format": "prettier --check packages/",
+    "format:fix": "prettier --write packages/",
+    "clean": "npm run clean --workspaces",
     "prepublishOnly": "npm run build"
   },
   "keywords": [

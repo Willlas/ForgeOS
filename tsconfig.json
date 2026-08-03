@@ -4,8 +4,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "composite": false,
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -21,6 +20,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["packages/**/*.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
