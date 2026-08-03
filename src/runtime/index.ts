@@ -141,3 +141,23 @@ export type {
   ContextEntry, 
   Snapshot 
 } from "./shared-context.js";
+
+// IPC Communication exports
+export { IpcTransport, getIpcSocketPath } from "./ipc-transport.js";
+export { IpcClient } from "./ipc-client.js";
+export { IpcServer } from "./ipc-server.js";
+export {
+  IPCCommand,
+  IPCErrorCode,
+  generateRequestId,
+  getTimeoutForCommand,
+} from "./ipc-protocol.js";
+export type {
+  IPCRequest,
+  IPCResponse,
+  IPCError,
+  IPCEvent,
+  RuntimeStatusPayload,
+  HealthCheckPayload,
+  ConfigGetPayload,
+} from "./ipc-protocol.js";

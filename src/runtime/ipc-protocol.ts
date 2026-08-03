@@ -22,9 +22,6 @@ export enum IPCCommand {
 
   // Event Bus
   EventsList = "events:list",
-  EventsSubscribe = "events:subscribe",
-  EventsUnsubscribe = "events:unsubscribe",
-  EventsQuery = "events:query",
 
   // Workspace
   WorkspaceGetInfo = "workspace:get-info",
@@ -157,9 +154,6 @@ export const COMMAND_TIMEOUTS: Record<IPCCommand, number> = {
   [IPCCommand.RuntimeResume]: DEFAULT_TIMEOUT,
   [IPCCommand.HealthCheck]: DEFAULT_TIMEOUT,
   [IPCCommand.EventsList]: DEFAULT_TIMEOUT,
-  [IPCCommand.EventsSubscribe]: DEFAULT_TIMEOUT,
-  [IPCCommand.EventsUnsubscribe]: DEFAULT_TIMEOUT,
-  [IPCCommand.EventsQuery]: DEFAULT_TIMEOUT,
   [IPCCommand.WorkspaceGetInfo]: DEFAULT_TIMEOUT,
   [IPCCommand.WorkspaceSnapshot]: LONG_OPERATION_TIMEOUT,
   [IPCCommand.KnowledgeQuery]: DEFAULT_TIMEOUT,

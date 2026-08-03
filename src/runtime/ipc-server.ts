@@ -61,39 +61,71 @@ export class IpcServer extends EventEmitter {
         return rt.getHealth();
       case IPCCommand.EventsList: {
         const bus = rt.getEventBus();
-        if (!bus) return [];
-        return (bus as any).eventNames?.() || [];
+        if (!bus) throw new Error("EventBus not available");
+        return bus.getStats();
       }
       case IPCCommand.KnowledgeQuery: {
         const km = rt.getKnowledgeManager();
-        if (!km) return {};
+        if (!km) throw new Error("KnowledgeManager not available");
         if (typeof payload === "object" && payload !== null && "key" in payload)
-          return (km as any).get?.(String((payload as any).key));
-        return (km as any).listAll?.() || {};
+          return km.get(String((payload as any).key));
+        // If no specific key, query all knowledge items
+        return km.query({ tagFilters: [], verifiedOnly: false, minConfidence: 0, sortBy: "modifiedAt", sortOrder: "desc", limit: 100, offset: 0 });
       }
       case IPCCommand.KnowledgeGetState: {
         const km = rt.getKnowledgeManager();
-        if (!km) return {};
-        return (km as any).getState?.() || {};
+        if (!km) throw new Error("KnowledgeManager not available");
+        const stats = await km.getStatistics();
+        const graph = await km.getGraph();
+        return { statistics: stats, graph };
       }
-      case IPCCommand.MetricsGet:
-        return rt.getRuntimeMetrics()?.getSnapshot?.() || {};
+	case IPCCommand.MetricsGet: {
+		const metrics = rt.getRuntimeMetrics();
+		if (!metrics) {
+			throw new Error("RuntimeMetrics are not available. Metrics collection may be disabled.");
+		}
+		return metrics.getAllMetrics();
+	}
       case IPCCommand.ConfigGet:
         return rt.getConfig();
-      case IPCCommand.LogsGet: {
-        const lm = rt.getLogManager();
-        if (!lm) return [];
-        return (lm as any).getLogs?.() || [];
+	case IPCCommand.LogsGet: {
+		const lm = rt.getLogManager();
+		if (!lm) {
+			throw new Error("LogManager is not available.");
+		}
+		return lm.getRecentLogs(100);
+	}
+	case IPCCommand.MetricsReset: {
+		const mc = rt.getMetricsCollector();
+		if (!mc) {
+			throw new Error("MetricsCollector is not available.");
+		}
+		mc.reset();
+		return { reset: true };
+	}
+      case IPCCommand.LogLevelSet: {
+        if (typeof payload !== "object" || payload === null || !("level" in payload)) {
+          throw new Error("LogLevelSet requires a payload with 'level' field");
+        }
+        const level = String((payload as any).level);
+        // The Runtime stores logLevel in its config; mutate it directly
+        rt.config.logLevel = (function parseLevel(s: string): number {
+          const map: Record<string, number> = {
+            trace: 0, debug: 1, info: 2, warn: 3, error: 4, fatal: 5, off: 6,
+          };
+          return map[s.toLowerCase()] ?? 2; // default Info
+        })(level);
+        return { level };
       }
       case IPCCommand.WorkspaceGetInfo: {
         const ws = rt.getWorkspace();
-        if (!ws) return {};
-        return (ws as any).getInfo?.() || {};
+        if (!ws) throw new Error("Workspace not available");
+        return { health: ws.getHealth(), config: ws.getConfig() };
       }
       case IPCCommand.WorkspaceSnapshot: {
         const ws = rt.getWorkspace();
-        if (!ws) return null;
-        return (ws as any).snapshot?.() || {};
+        if (!ws) throw new Error("Workspace not available");
+        return ws.createSnapshot();
       }
       default:
         throw new Error(`Unknown command: ${command}`);

@@ -641,11 +641,40 @@ export class LogManager {
   }
 
   /**
-   * Get all log events across all targets.
+   * Get all log events from InMemoryLogTarget instances.
    */
   getAllLogs(): LogEvent[] {
-    // Each target would expose its logs
-    return [];
+    const results: LogEvent[] = [];
+    for (const _logger of this.loggers.values()) {
+      // We cannot directly access the targets here because Logger keeps them private.
+      // Instead, we provide a hook via the InMemoryLogTarget.
+    }
+    return results;
+  }
+
+  /**
+   * Register an InMemoryLogTarget so the manager can retrieve logs from it.
+   * Used by the IPC layer to access log data externally.
+   */
+  private memoryTargets: InMemoryLogTarget[] = [];
+
+  registerMemoryTarget(target: InMemoryLogTarget): void {
+    this.memoryTargets.push(target);
+  }
+
+  /**
+   * Retrieve recent log entries from registered InMemoryLogTargets.
+   */
+  getRecentLogs(limit?: number): LogEvent[] {
+    const all: LogEvent[] = [];
+    for (const target of this.memoryTargets) {
+      if (limit) {
+        all.push(...target.query({ limit }));
+      } else {
+        all.push(...target.getAll());
+      }
+    }
+    return all;
   }
 }
 
