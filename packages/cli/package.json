@@ -1,0 +1,28 @@
+{
+  "name": "@aer/cli",
+  "version": "0.1.0",
+  "description": "CLI for Autonomous Engineering Runtime",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "aer": "./dist/index.js",
+    "aer-daemon": "./dist/daemon-entry.js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@aer/runtime-lib": "0.1.0",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.8",
+    "typescript": "^5.8.2"
+  }
+}
