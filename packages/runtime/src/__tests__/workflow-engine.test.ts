@@ -15,7 +15,7 @@ import {
   EngineeringWorkflowBuilder,
   createStandardEngineeringWorkflows,
 } from "../workflow-engine.js";
-import { WorkGraphEngine, WorkNodeState, WorkNodeType } from "../../core/workgraph.js";
+import { WorkGraphEngine, WorkNodeState, WorkNodeType } from "../core/workgraph.js";
 
 // ============================================================================
 // Helpers
