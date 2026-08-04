@@ -164,3 +164,186 @@ export type {
 // Runtime Core exports
 export { Runtime, RuntimeState, createRuntime, createDefaultConfig } from "./core/runtime.js";
 export type { RuntimeConfig, RuntimeHealth } from "./core/runtime.js";
+
+// Core Subsystem exports — EventBus
+export { EventBus, getEventBus, initializeEventBus, shutdownEventBus } from "./core/eventbus.js";
+export type { RuntimeEvent, EventHandler, EventFilter, EventSubscription, EventBusStats } from "./core/eventbus.js";
+
+// Core Subsystem exports — Workspace
+export {
+  Workspace,
+  WorkspaceEventType,
+  DEFAULT_WORKSPACE_CONFIG,
+  INDEX_VERSION,
+  createWorkspace,
+  createDefaultWorkspace,
+} from "./core/workspace.js";
+export type {
+  FileReadResult,
+  FileWriteResult,
+  FileMetadata,
+  WorkspaceConfig,
+  WorkspaceSnapshot,
+  SnapshotFile,
+  WorkspaceIndex,
+  WorkspaceChange,
+  WorkspaceDiff,
+  DiffFile,
+} from "./core/workspace.js";
+
+// Core Subsystem exports — Knowledge
+export {
+  KnowledgeType,
+  InMemoryKnowledgeStore,
+  KnowledgeManager,
+  createKnowledgeItem,
+  createKnowledgeManager,
+} from "./core/knowledge.js";
+export type {
+  KnowledgeItem,
+  KnowledgeQuery,
+  KnowledgeQueryResult,
+  KnowledgeGraphNode,
+  KnowledgeGraphEdge,
+  KnowledgeGraph,
+  LessonLearned,
+  IKnowledgeStore,
+} from "./core/knowledge.js";
+
+// Core Subsystem exports — Metrics
+export {
+  MetricType,
+  Counter,
+  Gauge,
+  Histogram,
+  Timer,
+  MetricsCollector,
+  RuntimeMetrics,
+  ConsoleMetricExporter,
+} from "./core/metrics.js";
+export type {
+  CounterOptions,
+  GaugeOptions,
+  HistogramOptions,
+  TimerOptions,
+  CounterValue,
+  GaugeValue,
+  HistogramValue,
+  TimerValue,
+  MetricValue,
+  IMetricExporter,
+} from "./core/metrics.js";
+
+// Core Subsystem exports — Scheduler
+export {
+  SchedulerEventType,
+  SchedulingDecision,
+  createDefaultSchedulerConfig,
+  Scheduler,
+  TaskStatus as SchedulerTaskStatus,
+  SchedulerMetrics,
+  createScheduler,
+} from "./core/scheduler.js";
+export type {
+  SchedulerConfig,
+  InternalPriorityScoringConfig,
+  ActiveTaskRecord,
+  CompletedTaskRecord,
+  SchedulerMetricsSnapshot,
+  HistogramSummary,
+  SchedulerSummary,
+} from "./core/scheduler.js";
+
+// Core Subsystem exports — Logging
+export {
+  LogLevel,
+  parseLogLevel,
+  ConsoleLogTarget,
+  FileLogTarget,
+  InMemoryLogTarget,
+  NullLogTarget,
+  EventBusLogTarget,
+  LogFilter,
+  Logger,
+  LogManager,
+  createDefaultLogger,
+  createBenchmark,
+} from "./core/logging.js";
+export type { LogEvent, ILogTarget, LoggerConfig } from "./core/logging.js";
+
+// Core Subsystem exports — WorkGraph
+export {
+  WorkGraphEngine,
+  generateNodeId,
+  createWorkNode,
+  createWorkGraph,
+  WorkNodeState,
+  WorkNodeType,
+  WorkGraphLifecycleState,
+} from "./core/workgraph.js";
+export type {
+  WorkNode,
+  WorkGraph,
+  WorkNodeFilter,
+  WorkGraphQueryResult,
+  PriorityScore,
+  PriorityScoringConfig,
+  AddNodeResult,
+  NodeRemovedResult,
+} from "./core/workgraph.js";
+
+// Configuration exports
+export { Config } from "./config/index.js";
+export { Models } from "./config/models.js";
+
+// Provider interface exports
+export {
+  DEFAULT_SAMPLING_PARAMS,
+  ProviderRegistry,
+  registerProvider,
+  createProvider,
+  listAvailableProviders,
+  WorkerStatus,
+} from "./core/types/provider.js";
+export type {
+  ProviderCapabilities,
+  BaseProviderConfig,
+  OllamaProviderConfig,
+  OpenAIProviderConfig,
+  AnthropicProviderConfig,
+  ProviderConfig,
+  MessageContent,
+  Message,
+  ToolCall,
+  ToolResult,
+  InferenceRequest,
+  InferenceConstraints,
+  ModelSamplingParams,
+  ToolDefinition,
+  GeneratedToken,
+  UsageMetrics,
+  ToolCallResult,
+  InferenceResponse,
+  IProvider,
+  ProviderHealthStatus,
+  ProviderModelInfo,
+  InferenceStreamChunk,
+  ProviderFactory,
+  IWorker,
+  WorkerHealthStatus,
+  TaskExecutionResult,
+  ExecutionArtifact,
+} from "./core/types/provider.js";
+
+// Provider implementation exports
+export { OllamaProvider, ProviderWorker, registerDefaultProviders } from "./providers/index.js";
+
+// Agent Execution Coordinator exports
+export {
+  AgentExecutionCoordinator,
+  getAgentExecutionCoordinator,
+  resetAgentExecutionCoordinator,
+} from "./agent-execution-coordinator.js";
+export type { ExecutionRequest, ExecutionResult } from "./agent-execution-coordinator.js";
+
+//
