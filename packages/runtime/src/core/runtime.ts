@@ -19,6 +19,8 @@ import { Workspace } from "./workspace.js";
 import { KnowledgeManager, InMemoryKnowledgeStore } from "./knowledge.js";
 import { MetricsCollector, RuntimeMetrics } from "./metrics.js";
 import { LogManager, LogLevel, InMemoryLogTarget, ConsoleLogTarget } from "./logging.js";
+import type { RuntimeStateSnapshot } from "../persistence/state-store.js";
+import { SNAPSHOT_SCHEMA_VERSION } from "../persistence/state-store.js";
 
 // ============================================================================
 // Runtime State
@@ -400,6 +402,34 @@ export class Runtime {
       components,
       resources,
       errors,
+    };
+  }
+
+  /**
+   * Produce a plain-JSON snapshot of runtime state + health + metrics.
+   * No I/O — this is a pure in-memory projection consumed by the StateStore.
+   */
+  getSnapshot(): RuntimeStateSnapshot {
+    const health = this.getHealth();
+
+    return {
+      schemaVersion: SNAPSHOT_SCHEMA_VERSION,
+      pid: process.pid,
+      state: this.getState(),
+      healthy: health.healthy,
+      startedAt: health.startedAt,
+      uptimeSeconds: health.uptimeSeconds,
+      health: {
+        healthy: health.healthy,
+        state: health.state,
+        uptimeSeconds: health.uptimeSeconds,
+        startedAt: health.startedAt,
+        components: health.components,
+        resources: health.resources,
+        errors: health.errors,
+      },
+      metrics: this.getMetricsCollector()?.getSummary(),
+      capturedAt: new Date().toISOString(),
     };
   }
 
