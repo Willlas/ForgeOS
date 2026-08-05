@@ -368,3 +368,7 @@ export {
   getLastHeartbeat,
 } from "./persistence/state-store.js";
 export type { RuntimeStateSnapshot } from "./persistence/state-store.js";
+
+// Persistence — Health Check exports
+export { checkHealth } from "./persistence/health-check.js";
+export type { HealthStatus, HealthCheckResult } from "./persistence/health-check.js";
