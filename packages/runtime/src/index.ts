@@ -346,4 +346,25 @@ export {
 } from "./agent-execution-coordinator.js";
 export type { ExecutionRequest, ExecutionResult } from "./agent-execution-coordinator.js";
 
-//
+// Persistence — PID Manager exports
+export {
+  getPidFilePath,
+  writePidFile,
+  readPidFile,
+  removePidFile,
+  isPidAlive,
+  isStale,
+  validatePid,
+  cleanupStale,
+} from "./persistence/pid-manager.js";
+
+// Persistence — State Store exports
+export {
+  SNAPSHOT_SCHEMA_VERSION,
+  getSnapshotPath,
+  writeSnapshot,
+  readSnapshot,
+  removeSnapshot,
+  getLastHeartbeat,
+} from "./persistence/state-store.js";
+export type { RuntimeStateSnapshot } from "./persistence/state-store.js";
