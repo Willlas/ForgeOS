@@ -1,5 +1,5 @@
 /**
- * ForgeOS CLI - Connects to daemon process via IPC for runtime management.
+ * Aer CLI - Connects to daemon process via IPC for runtime management.
  * Does NOT create Runtime instances directly.
  */
 
@@ -11,8 +11,8 @@ import { IPCCommand } from '@aer/runtime-lib';
 const program = new Command();
 
 program
-  .name('forgeos')
-  .description('ForgeOS Runtime CLI')
+  .name('aer')
+  .description('Aer Runtime CLI')
   .version('0.1.0');
 
 // Helper: create and connect an IPC client
@@ -32,7 +32,7 @@ program
   .option('--verbose', 'Enable verbose logging')
   .action(async (options) => {
     try {
-      console.log('Starting ForgeOS daemon...');
+      console.log('Starting Aer daemon...');
       const args: string[] = [];
       if (options.verbose || options.logLevel === 'debug') args.push('--verbose');
       if (options.environment) args.push('--environment', options.environment);
@@ -49,7 +49,7 @@ program
   .description('Stop the runtime daemon process')
   .action(async () => {
     try {
-      console.log('Stopping ForgeOS daemon...');
+      console.log('Stopping Aer daemon...');
       await stopDaemon();
       console.log('Daemon stopped.');
     } catch (error) {
@@ -63,7 +63,7 @@ program
   .description('Restart the runtime daemon process')
   .action(async () => {
     try {
-      console.log('Restarting ForgeOS daemon...');
+      console.log('Restarting Aer daemon...');
       await restartDaemon();
       console.log('Daemon restarted.');
     } catch (error) {

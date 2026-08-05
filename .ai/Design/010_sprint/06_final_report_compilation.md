@@ -1,6 +1,6 @@
 # Objective
 
-Compile all findings from Phases 1–5 of the ForgeOS Runtime Architecture Review into a structured final architecture report following the template defined in `.ai/CLI/review/06_required_output_template.md`. The report must synthesize evidence-backed conclusions about Runtime type, ownership, lifecycle, communication method, persistence model, multi-instance behavior, and architectural classification.
+Compile all findings from Phases 1–5 of the Aer Runtime Architecture Review into a structured final architecture report following the template defined in `.ai/CLI/review/06_required_output_template.md`. The report must synthesize evidence-backed conclusions about Runtime type, ownership, lifecycle, communication method, persistence model, multi-instance behavior, and architectural classification.
 
 # Existing Architecture
 

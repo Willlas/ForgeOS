@@ -1,7 +1,7 @@
 # 01 — Runtime Daemon Process
 
 ## Objective
-Create a persistent background process for the ForgeOS Runtime so it survives CLI exit and can be shared across multiple CLI invocations.
+Create a persistent background process for the Aer Runtime so it survives CLI exit and can be shared across multiple CLI invocations.
 
 ## Why
 The Runtime is currently an in-process library instantiated inside the CLI (`src/cli/index.ts:33`). When the CLI process exits, the Runtime dies with it. There is no daemon, no background service, no fork, no spawn — nothing that keeps the Runtime alive independently. This task establishes the foundation for a long-lived Runtime process.
@@ -29,7 +29,7 @@ The Runtime is currently an in-process library instantiated inside the CLI (`src
 - Debugging complexity increases when Runtime runs in a separate process
 
 ## Acceptance Criteria
-- [ ] A dedicated process can start the ForgeOS Runtime independently of any CLI invocation
+- [ ] A dedicated process can start the Aer Runtime independently of any CLI invocation
 - [ ] The Runtime process survives after the CLI process exits
 - [ ] The daemon can be started, stopped, and restarted explicitly
 - [ ] The daemon does not block terminal interaction (runs in background)

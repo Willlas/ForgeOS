@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "tsc --build",
     "dev": "tsx packages/cli/src/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -16,7 +16,7 @@
     "lint:fix": "eslint packages/ --fix",
     "format": "prettier --check packages/",
     "format:fix": "prettier --write packages/",
-    "clean": "npm run clean --workspaces",
+    "clean": "tsc --build --clean",
     "prepublishOnly": "npm run build"
   },
   "keywords": [

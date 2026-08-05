@@ -109,7 +109,7 @@ export interface WorkflowResult {
 // ============================================================================
 
 /**
- * The core orchestrator of the ForgeOS runtime.
+ * The core orchestrator of the Aer runtime.
  *
  * Responsibilities:
  * - Receive workflow submissions

@@ -1,7 +1,7 @@
 # 01 — Discover Runtime Bootstrap
 
 ## Objective
-Locate and inspect the files involved in bootstrapping the ForgeOS Runtime to understand where and how it is instantiated.
+Locate and inspect the files involved in bootstrapping the Aer Runtime to understand where and how it is instantiated.
 
 ## Files to Inspect (One at a time)
 

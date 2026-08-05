@@ -118,7 +118,7 @@ Let me evaluate each criterion:
 
 **CLI PARTIALLY READY**
 
-The CLI has a good architectural foundation with proper command structure, but it's not ready for production use as the official public interface of ForgeOS because:
+The CLI has a good architectural foundation with proper command structure, but it's not ready for production use as the official public interface of Aer because:
 
 - Many commands are stubbed or partially implemented
 - Essential functionality like provider and worker inspection is missing  

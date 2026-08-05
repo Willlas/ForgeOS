@@ -1,5 +1,5 @@
 /**
- * WorkflowEngine - Core orchestrator for engineering workflows in ForgeOS.
+ * WorkflowEngine - Core orchestrator for engineering workflows in Aer.
  *
  * Provides:
  * - DAG-based workflow execution with WorkGraph integration

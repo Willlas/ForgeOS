@@ -1,7 +1,7 @@
 # INDEX — Sprint 010 Planning Documents
 
 ## Overview
-This index maps all planning documents for Sprint 010, which addresses the architectural transformation of ForgeOS from an in-process CLI library to a daemon-based architecture with proper process separation, IPC, and lifecycle management.
+This index maps all planning documents for Sprint 010, which addresses the architectural transformation of Aer from an in-process CLI library to a daemon-based architecture with proper process separation, IPC, and lifecycle management.
 
 ---
 

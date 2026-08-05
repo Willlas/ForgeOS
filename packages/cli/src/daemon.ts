@@ -1,5 +1,5 @@
 /**
- * Runtime Daemon Manager - Manages the ForgeOS Runtime as a separate process.
+ * Runtime Daemon Manager - Manages the Aer Runtime as a separate process.
  */
 
 import { spawn } from "child_process";
@@ -11,10 +11,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 function getPidFilePath(): string {
-  const customDir = process.env.FORGEOS_DAEMON_PID_DIR;
-  if (customDir) return join(customDir, "forgeos-daemon.pid");
+  const customDir = process.env.AER_DAEMON_PID_DIR;
+  if (customDir) return join(customDir, "aer-daemon.pid");
   const projectRoot = join(__dirname, "..", "..");
-  return join(projectRoot, ".daemon", "forgeos-daemon.pid");
+  return join(projectRoot, ".daemon", "aer-daemon.pid");
 }
 
 function writePidFile(pid: number): void {

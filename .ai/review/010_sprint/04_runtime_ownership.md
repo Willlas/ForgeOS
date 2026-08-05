@@ -1,7 +1,7 @@
 # 04 — Runtime Ownership Analysis
 
 ## Objective
-Determine who owns the ForgeOS Runtime instance and how ownership is maintained.
+Determine who owns the Aer Runtime instance and how ownership is maintained.
 
 ## Possible Ownership Models
 

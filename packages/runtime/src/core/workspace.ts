@@ -12,6 +12,8 @@
  * @module core/workspace
  */
 
+import { dirname } from "path";
+
 // ============================================================================
 // File Operations
 // ============================================================================
@@ -504,7 +506,7 @@ export class Workspace {
       const fs = await import("fs");
       for (const file of snapshot.files) {
         const fullPath = `${this.config.rootPath}/${file.path}`;
-        const dir = require("path").dirname(fullPath);
+const dir = dirname(fullPath);
         fs.mkdirSync(dir, { recursive: true });
         fs.writeFileSync(fullPath, Buffer.from(file.contentBase64, "base64"), "utf-8");
       }

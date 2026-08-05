@@ -58,7 +58,7 @@ What remains is **migration completion and verification**, not redesign.
 | 8 | Runtime version pinned exactly in CLI | Medium | 03_07 | No |
 | 9 | `require()` in ESM source | Medium | 03_07 | No |
 | 10 | Orphaned debug scripts | Low | 03_05 | No |
-| 11 | Naming: `@aer/cli` vs "ForgeOS" | Low | 03_07 | No |
+| 11 | Naming: `@aer/cli` vs "Aer" | Low | 03_07 | No |
 
 **Design 04 (Persistent State Store)** is blocked by actions 01, 02, 03 (and 05 by
 transitivity). Design 04 modifies the daemon entry point, CLI status command, and

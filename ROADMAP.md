@@ -1,8 +1,8 @@
-# ForgeOS Roadmap
+# Aer Roadmap
 
-> Living roadmap for the ForgeOS Runtime.
+> Living roadmap for the Aer Runtime.
 >
-> This document describes the long-term evolution of ForgeOS.
+> This document describes the long-term evolution of Aer.
 > PROJECT_STATE.md contains the current implementation status.
 > ROADMAP.md defines where the project is going.
 
@@ -268,7 +268,7 @@ This Sprint replaces the original proof-of-concept:
 - Commit 4 (AgentTeam)
 - Commit 5 (Architect → Worker)
 
-Those concepts are now implemented on top of the ForgeOS Runtime rather than directly over the SDK.
+Those concepts are now implemented on top of the Aer Runtime rather than directly over the SDK.
 
 Exit Criteria
 
@@ -317,7 +317,7 @@ Exit Criteria
 
 Purpose
 
-Expose ForgeOS through a command-line interface.
+Expose Aer through a command-line interface.
 
 Deliverables
 
@@ -330,7 +330,7 @@ Deliverables
 
 Exit Criteria
 
-ForgeOS fully usable from terminal.
+Aer fully usable from terminal.
 
 ---
 
@@ -352,7 +352,7 @@ Deliverables
 
 Exit Criteria
 
-VS Code becomes a ForgeOS client.
+VS Code becomes an Aer client.
 
 ---
 
@@ -374,7 +374,7 @@ Deliverables
 
 Exit Criteria
 
-ForgeOS fully operable without VS Code.
+Aer fully operable without VS Code.
 
 ---
 

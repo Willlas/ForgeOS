@@ -1,7 +1,7 @@
 # 02 — Runtime Lifecycle Analysis
 
 ## Objective
-Determine exactly how the ForgeOS Runtime lives, starts, stops, and whether it persists independently of the CLI.
+Determine exactly how the Aer Runtime lives, starts, stops, and whether it persists independently of the CLI.
 
 ## Checklist — Investigate Each Item
 

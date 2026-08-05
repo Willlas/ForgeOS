@@ -8,7 +8,7 @@ Compile all findings from Phases 1–5 into a structured final architecture repo
 ## Template
 
 ```markdown
-# ForgeOS Runtime Architecture Review — Final Report
+# Aer Runtime Architecture Review — Final Report
 
 ## Architecture Summary
 

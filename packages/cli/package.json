@@ -24,7 +24,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@aer/runtime-lib": "0.1.0",
+    "@aer/runtime-lib": "*",
     "commander": "^12.1.0"
   },
   "devDependencies": {

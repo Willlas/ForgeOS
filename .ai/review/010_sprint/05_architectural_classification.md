@@ -1,7 +1,7 @@
 # 05 — Architectural Classification
 
 ## Objective
-Classify the ForgeOS Runtime architecture based on findings from previous phases.
+Classify the Aer Runtime architecture based on findings from previous phases.
 
 ## Architecture Patterns to Evaluate
 

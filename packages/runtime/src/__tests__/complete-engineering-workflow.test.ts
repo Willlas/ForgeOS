@@ -122,7 +122,7 @@ describe("Complete Engineering Workflow", () => {
     }, TeamRole.Worker);
 
     // Set initial project context
-    team.setContext("project_name", "ForgeOS Multi-Agent System");
+    team.setContext("project_name", "Aer Multi-Agent System");
     team.setContext("project_goals", "Build autonomous engineering runtime");
     team.setContext("tech_stack", "TypeScript, Node.js, LLMs");
 
@@ -131,7 +131,7 @@ describe("Complete Engineering Workflow", () => {
     const goals = team.getContext<string>("project_goals");
     const stack = team.getContext<string>("tech_stack");
     
-    expect(projectName).toBe("ForgeOS Multi-Agent System");
+    expect(projectName).toBe("Aer Multi-Agent System");
     expect(goals).toBe("Build autonomous engineering runtime");
     expect(stack).toBe("TypeScript, Node.js, LLMs");
 

@@ -1,7 +1,7 @@
 # 06 — Final Report Compilation Plan
 
 ## Objective
-Compile all findings from Phases 1–5 of the ForgeOS Runtime Architecture Review into a structured final architecture report using the template defined in `.ai/CLI/review/06_required_output_template.md`.
+Compile all findings from Phases 1–5 of the Aer Runtime Architecture Review into a structured final architecture report using the template defined in `.ai/CLI/review/06_required_output_template.md`.
 
 ## Current State
 - Phase 1 (01_discover_bootstrap.md): Complete. Runtime instantiation, ownership, and bootstrap analyzed.

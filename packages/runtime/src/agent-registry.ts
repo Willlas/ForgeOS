@@ -1,5 +1,5 @@
 /**
- * AgentRegistry - Central registry for managing agents within the ForgeOS runtime.
+ * AgentRegistry - Central registry for managing agents within the Aer runtime.
  *
  * Provides:
  * - Agent registration, discovery, and lifecycle coordination

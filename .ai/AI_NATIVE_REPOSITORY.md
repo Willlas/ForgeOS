@@ -2,7 +2,7 @@
 
 ## Mission
 
-ForgeOS is developed by autonomous AI agents.
+Aer is developed by autonomous AI agents.
 
 Agents MUST execute small, well-defined work packages.
 

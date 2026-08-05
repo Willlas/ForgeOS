@@ -10,11 +10,11 @@ The IPC layer was delivered in commit `d4f032f` and is functionally present but 
 
 **Implemented and verified compliant:**
 - Four IPC modules exist and are re-exported from `src/runtime/index.ts`: `ipc-protocol.ts`, `ipc-transport.ts`, `ipc-server.ts`, `ipc-client.ts`.
-- Transport: Node `net` Unix domain socket, newline-delimited JSON framing, connect/disconnect lifecycle. Socket path resolved from `FORGEOS_IPC_SOCKET` or `os.tmpdir()/forgeos-daemon.sock`.
+- Transport: Node `net` Unix domain socket, newline-delimited JSON framing, connect/disconnect lifecycle. Socket path resolved from `AER_IPC_SOCKET` or `os.tmpdir()/aer-daemon.sock`.
 - Protocol (`ipc-protocol.ts`): 19-command enum (`IPCCommand`), 9 error codes (`IPCErrorCode`), `IPCRequest`/`IPCResponse`/`IPCEvent` envelopes, `generateRequestId()` correlation, per-command timeout map (`DEFAULT_TIMEOUT` 5s, `LONG_OPERATION_TIMEOUT` 30s).
 - Server (`ipc-server.ts`): `listen()`/`close()`, command→Runtime dispatch switch, try/catch response formatting.
 - Client (`ipc-client.ts`): `call()`, `subscribe()`, `disconnect()`, `connected` indicator; per-request `setTimeout`; pending-map keyed by request id.
-- Daemon (`daemon-entry.ts`): hosts `IpcServer`, injects Runtime, listens, plus an HTTP `/health` endpoint on `FORGEOS_HEALTH_PORT` (3099).
+- Daemon (`daemon-entry.ts`): hosts `IpcServer`, injects Runtime, listens, plus an HTTP `/health` endpoint on `AER_HEALTH_PORT` (3099).
 - CLI (`src/cli/index.ts`): no longer references `globalRuntime` directly; uses an `IpcClient`. Lifecycle commands (`start`/`stop`/`restart`) go through the daemon manager; `status` and `config:list` go through IPC.
 
 **Design 02 Acceptance Criteria — pass status:**

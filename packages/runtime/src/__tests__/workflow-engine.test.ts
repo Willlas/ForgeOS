@@ -1,5 +1,5 @@
 /**
- * WorkflowEngine Tests - Comprehensive test suite for ForgeOS workflow runtime.
+ * WorkflowEngine Tests - Comprehensive test suite for Aer workflow runtime.
  *
  * @module runtime/__tests__/workflow-engine
  */

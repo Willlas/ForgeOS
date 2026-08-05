@@ -10,9 +10,9 @@ import os from "os";
 import fs from "fs";
 
 export function getIpcSocketPath(): string {
-  const custom = process.env.FORGEOS_IPC_SOCKET;
+  const custom = process.env.AER_IPC_SOCKET;
   if (custom) return custom;
-  return path.join(os.tmpdir(), "forgeos-daemon.sock");
+  return path.join(os.tmpdir(), "aer-daemon.sock");
 }
 
 export class IpcTransport extends EventEmitter {

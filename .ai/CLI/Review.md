@@ -1,5 +1,5 @@
 Objective
-Determine whether the current ForgeOS Runtime is:
+Determine whether the current Aer Runtime is:
 
 A) A persistent Runtime Service (Daemon)
 

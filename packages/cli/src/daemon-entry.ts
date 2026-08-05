@@ -3,7 +3,7 @@
 /**
  * Runtime Daemon Entry Point
  *
- * Standalone executable that runs the ForgeOS Runtime as a daemon process.
+ * Standalone executable that runs the Aer Runtime as a daemon process.
  * Supports --verbose, --environment, and --config CLI flags.
  * Initializes IPC server for CLI communication.
  */
@@ -39,10 +39,10 @@ for (let i = 0; i < args.length; i++) {
 // ============================================================================
 
 function getPidFilePath(): string {
-  const customDir = process.env.FORGEOS_DAEMON_PID_DIR;
-  if (customDir) return join(customDir, "forgeos-daemon.pid");
+  const customDir = process.env.AER_DAEMON_PID_DIR;
+  if (customDir) return join(customDir, "aer-daemon.pid");
   const projectRoot = join(__dirname, "..", "..");
-  return join(projectRoot, ".daemon", "forgeos-daemon.pid");
+  return join(projectRoot, ".daemon", "aer-daemon.pid");
 }
 
 function writePidFile(): void {
@@ -66,7 +66,7 @@ function removePidFile(): void {
 let healthServer: http.Server | null = null;
 
 function startHealthServer(): void {
-  const port = parseInt(process.env.FORGEOS_HEALTH_PORT || "3099", 10);
+  const port = parseInt(process.env.AER_HEALTH_PORT || "3099", 10);
 
   healthServer = http.createServer((req, res) => {
     if (req.url === "/health") {

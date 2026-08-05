@@ -2,7 +2,7 @@
 
 ## Objective
 
-Create a persistent background process for the ForgeOS Runtime so it survives CLI exit and can be shared across multiple CLI invocations. The Runtime transitions from an in-process library instantiated inside the CLI to a standalone long-lived Node.js process managed by a dedicated daemon entry point.
+Create a persistent background process for the Aer Runtime so it survives CLI exit and can be shared across multiple CLI invocations. The Runtime transitions from an in-process library instantiated inside the CLI to a standalone long-lived Node.js process managed by a dedicated daemon entry point.
 
 ## Existing Architecture
 
@@ -37,7 +37,7 @@ Create a persistent background process for the ForgeOS Runtime so it survives CL
 ## Public Interfaces
 
 **Daemon Entry Point:**
-- Starts the ForgeOS Runtime as an independent Node.js process
+- Starts the Aer Runtime as an independent Node.js process
 - Accepts command-line flags for daemon configuration (verbose, config path, etc.)
 - Runs in background mode without blocking terminal interaction
 - Exposes programmatic start/stop/restart operations
@@ -75,7 +75,7 @@ Create a persistent background process for the ForgeOS Runtime so it survives CL
 
 ## Acceptance Criteria
 
-- A dedicated process can start the ForgeOS Runtime independently of any CLI invocation
+- A dedicated process can start the Aer Runtime independently of any CLI invocation
 - The Runtime process survives after the CLI process exits
 - The daemon can be started, stopped, and restarted explicitly
 - The daemon does not block terminal interaction (runs in background)
@@ -98,7 +98,7 @@ Create a persistent background process for the ForgeOS Runtime so it survives CL
 
 ## Acceptance Criteria
 
-- **[FAIL]** A dedicated process can start the ForgeOS Runtime independently of any CLI invocation.
+- **[FAIL]** A dedicated process can start the Aer Runtime independently of any CLI invocation.
   `daemon-entry.ts` calls `startDaemon()` which creates a Runtime in-process. There is no mechanism to spawn/fork it as an independent process. No `child_process`, no separate binary execution path, no cross-process isolation.
 
 - **[FAIL]** The Runtime process survives after the CLI process exits.

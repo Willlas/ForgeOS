@@ -1,6 +1,6 @@
-# ForgeOS Runtime Architecture Review
+# Aer Runtime Architecture Review
 
-This folder contains broken-down investigation tasks for auditing whether the ForgeOS Runtime is a persistent service (daemon) or a temporary in-process library.
+This folder contains broken-down investigation tasks for auditing whether the Aer Runtime is a persistent service (daemon) or a temporary in-process library.
 
 ## Task Files
 
