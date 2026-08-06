@@ -3,41 +3,19 @@
  */
 
 import { spawn } from "child_process";
-import { existsSync, readFileSync, writeFileSync, unlinkSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
+// Canonical PID functions — single source of truth from runtime-lib
+import {
+  readPidFile,
+  writePidFile,
+  removePidFile,
+  isPidAlive,
+} from "@aer/runtime-lib";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-function getPidFilePath(): string {
-  const customDir = process.env.AER_DAEMON_PID_DIR;
-  if (customDir) return join(customDir, "aer-daemon.pid");
-  const projectRoot = join(__dirname, "..", "..");
-  return join(projectRoot, ".daemon", "aer-daemon.pid");
-}
-
-function writePidFile(pid: number): void {
-  const pidPath = getPidFilePath();
-  const pidDir = dirname(pidPath);
-  try { mkdirSync(pidDir, { recursive: true }); } catch { /* exists */ }
-  writeFileSync(pidPath, String(pid), { flag: "w" });
-}
-
-function readPidFile(): number {
-  const p = getPidFilePath();
-  if (!existsSync(p)) return -1;
-  try { return parseInt(readFileSync(p, "utf-8").trim(), 10); } catch { return -1; }
-}
-
-function removePidFile(): void {
-  try { const p = getPidFilePath(); if (existsSync(p)) unlinkSync(p); } catch { /* best effort */ }
-}
-
-function isPidAlive(pid: number): boolean {
-  if (pid <= 0) return false;
-  try { process.kill(pid, 0); return true; } catch { return false; }
-}
 
 let daemonProcess: ReturnType<typeof spawn> | null = null;
 

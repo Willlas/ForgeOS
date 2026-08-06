@@ -6,16 +6,28 @@
  * Standalone executable that runs the Aer Runtime as a daemon process.
  * Supports --verbose, --environment, and --config CLI flags.
  * Initializes IPC server for CLI communication.
+ *
+ * Lifecycle integration (Design 04):
+ *  - START: cleanupStale() → writePidFile() → writeSnapshot(initial state)
+ *  - HEARTBEAT: periodic writeSnapshot() every AER_STATE_HEARTBEAT_MS (default 5 s)
+ *  - STOP:    clear heartbeat → writeSnapshot(stopped) → removePidFile → removeSnapshot
+ *  - FATAL:   best-effort writeSnapshot(error) + removePidFile (never mask original error)
+ *
+ * Snapshot-on-clean-shutdown policy: REMOVE the snapshot file. This means a later `aer status`
+ * reports "unknown" rather than a stale "stopped", which is the correct semantic — there is no
+ * daemon running and no evidence of a crash to investigate.
  */
 
-import { createRuntime, IpcServer } from "@aer/runtime-lib";
-import { existsSync, writeFileSync, mkdirSync, unlinkSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+import {
+  createRuntime,
+  IpcServer,
+  cleanupStale,
+  writePidFile,
+  removePidFile,
+  writeSnapshot,
+  removeSnapshot,
+} from "@aer/runtime-lib";
 import http from "http";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // ============================================================================
 // CLI Flag Parsing
@@ -32,31 +44,6 @@ for (let i = 0; i < args.length; i++) {
   } else if (args[i] === "--config") {
     config.configPath = args[++i];
   }
-}
-
-// ============================================================================
-// PID File
-// ============================================================================
-
-function getPidFilePath(): string {
-  const customDir = process.env.AER_DAEMON_PID_DIR;
-  if (customDir) return join(customDir, "aer-daemon.pid");
-  const projectRoot = join(__dirname, "..", "..");
-  return join(projectRoot, ".daemon", "aer-daemon.pid");
-}
-
-function writePidFile(): void {
-  const pidPath = getPidFilePath();
-  const pidDir = dirname(pidPath);
-  try { mkdirSync(pidDir, { recursive: true }); } catch { /* exists */ }
-  writeFileSync(pidPath, String(process.pid), { flag: "w" });
-}
-
-function removePidFile(): void {
-  try {
-    const p = getPidFilePath();
-    if (existsSync(p)) unlinkSync(p);
-  } catch { /* best effort */ }
 }
 
 // ============================================================================
@@ -84,12 +71,49 @@ function startHealthServer(): void {
 }
 
 // ============================================================================
-// Signal Handling
+// Signal Handling & Lifecycle
 // ============================================================================
 
+/** Reference to the running Runtime instance (needed for heartbeat + final snapshot). */
+let runtimeInstance: Awaited<ReturnType<typeof createRuntime>> | null = null;
+
+/** Handle returned by setInterval for the heartbeat timer. */
+let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+
+/**
+ * Idempotent shutdown handler. Safe to call multiple times.
+ * Order: clear heartbeat → final snapshot → remove PID → remove snapshot.
+ */
 function shutdown(): void {
+  // Guard: only execute cleanup once
+  if (shutdownExecuted) return;
+  shutdownExecuted = true;
+
   console.log("[Daemon] Shutting down...");
+
+  // (a) Clear the heartbeat timer to prevent leaking handles / keeping process alive.
+  if (heartbeatTimer !== null) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+
+  // (b) Best-effort: write a final snapshot with the actual runtime state (or "stopped").
+  try {
+    if (runtimeInstance) {
+      const finalSnapshot = runtimeInstance.getSnapshot();
+      writeSnapshot(finalSnapshot);
+    }
+  } catch {
+    // Best-effort — do not let a snapshot write failure mask shutdown.
+  }
+
+  // (c) Remove the PID file.
   removePidFile();
+
+  // (d) Remove the snapshot file.
+  //     Policy: on clean shutdown, remove the snapshot so a later `status`
+  //     reports "unknown" rather than stale "stopped".
+  removeSnapshot();
 
   if (healthServer) {
     healthServer.close(() => {
@@ -100,6 +124,9 @@ function shutdown(): void {
   }
 }
 
+/** Tracks whether shutdown() has already run (idempotency guard). */
+let shutdownExecuted = false;
+
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
 
@@ -108,8 +135,18 @@ process.on("SIGINT", shutdown);
 // ============================================================================
 
 async function main(): Promise<void> {
-  // Write PID file
-  writePidFile();
+  // -----------------------------------------------------------------------
+  // STEP 2a: Clean up stale PID file from a prior crash, if any.
+  // -----------------------------------------------------------------------
+  const hadStale = cleanupStale();
+  if (hadStale) {
+    console.log("[Daemon] Cleaned up stale PID file from prior crash");
+  }
+
+  // -----------------------------------------------------------------------
+  // STEP 2b: Write the fresh PID file.
+  // -----------------------------------------------------------------------
+  writePidFile(process.pid);
 
   // Start health server
   startHealthServer();
@@ -130,6 +167,33 @@ async function main(): Promise<void> {
   const runtime = await createRuntime();
   await runtime.start();
   console.log("[Daemon] Runtime started successfully");
+
+  // Store reference for lifecycle access (heartbeat, final snapshot).
+  runtimeInstance = runtime;
+
+  // -----------------------------------------------------------------------
+  // STEP 2c: Write initial state snapshot.
+  // -----------------------------------------------------------------------
+  writeSnapshot(runtime.getSnapshot());
+  console.log("[Daemon] Initial state snapshot written");
+
+  // -----------------------------------------------------------------------
+  // STEP 3: Heartbeat timer — periodic snapshot writes.
+  // -----------------------------------------------------------------------
+  const heartbeatMs = parseInt(process.env.AER_STATE_HEARTBEAT_MS || "5000", 10);
+  heartbeatTimer = setInterval(() => {
+    try {
+      if (runtimeInstance) {
+        writeSnapshot(runtimeInstance.getSnapshot());
+      }
+    } catch {
+      // Best-effort — a single heartbeat failure should not crash the daemon.
+    }
+  }, heartbeatMs);
+  // Do NOT pass unref() — we want the timer to keep the process alive alongside
+  // the IPC server promise below. The timer is cleared explicitly on shutdown.
+
+  console.log(`[Daemon] Heartbeat interval set to ${heartbeatMs}ms`);
 
   // Setup IPC server for CLI communication
   const ipcServer = new IpcServer();
@@ -153,8 +217,25 @@ async function main(): Promise<void> {
   });
 }
 
+// ============================================================================
+// Fatal Error Handler (STEP 5)
+// ============================================================================
+
 main().catch((error) => {
   console.error("[Daemon] Fatal error:", error);
+
+  // Best-effort: write an error snapshot if we have a runtime instance.
+  try {
+    if (runtimeInstance) {
+      const errorSnapshot = runtimeInstance.getSnapshot();
+      // Override state to "error" to signal the crash.
+      (errorSnapshot as unknown as Record<string, unknown>).state = "error";
+      writeSnapshot(errorSnapshot);
+    }
+  } catch {
+    // Best-effort — never let this mask the original error.
+  }
+
   removePidFile();
   process.exit(1);
 });
