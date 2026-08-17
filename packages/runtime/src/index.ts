@@ -373,5 +373,16 @@ export type { RuntimeStateSnapshot } from "./persistence/state-store.js";
 export { checkHealth } from "./persistence/health-check.js";
 export type { HealthStatus, HealthCheckResult } from "./persistence/health-check.js";
 
-// Lifecycle — Watchdog Monitor exports
+// Lifecycle — Public API exports
+export { LifecycleStateMachine } from "./core/lifecycle/lifecycle-state-machine.js";
+export { CleanupCoordinator, createIpcSocketCleanup } from "./core/lifecycle/cleanup-coordinator.js";
+export { GracefulShutdownHandler, exitCodeFor } from "./core/lifecycle/graceful-shutdown-handler.js";
 export { WatchdogMonitor } from "./core/lifecycle/watchdog-monitor.js";
+export type { CleanupFailure } from "./core/lifecycle/cleanup-coordinator.js";
+export { LifecycleState, DEFAULT_BACKOFF_POLICY } from "./core/lifecycle/types.js";
+export type {
+  ShutdownReason,
+  ShutdownContext,
+  BackoffPolicy,
+  RestartDecision,
+} from "./core/lifecycle/types.js";

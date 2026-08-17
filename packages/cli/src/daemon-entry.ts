@@ -21,11 +21,18 @@
 import {
   createRuntime,
   IpcServer,
+  getIpcSocketPath,
   cleanupStale,
   writePidFile,
   removePidFile,
   writeSnapshot,
   removeSnapshot,
+  LifecycleStateMachine,
+  LifecycleState,
+  CleanupCoordinator,
+  createIpcSocketCleanup,
+  GracefulShutdownHandler,
+  exitCodeFor,
 } from "@aer/runtime-lib";
 import http from "http";
 
@@ -71,7 +78,7 @@ function startHealthServer(): void {
 }
 
 // ============================================================================
-// Signal Handling & Lifecycle
+// Signal Handling & Lifecycle (Design 05 — lifecycle modules)
 // ============================================================================
 
 /** Reference to the running Runtime instance (needed for heartbeat + final snapshot). */
@@ -80,55 +87,10 @@ let runtimeInstance: Awaited<ReturnType<typeof createRuntime>> | null = null;
 /** Handle returned by setInterval for the heartbeat timer. */
 let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
 
-/**
- * Idempotent shutdown handler. Safe to call multiple times.
- * Order: clear heartbeat → final snapshot → remove PID → remove snapshot.
- */
-function shutdown(): void {
-  // Guard: only execute cleanup once
-  if (shutdownExecuted) return;
-  shutdownExecuted = true;
-
-  console.log("[Daemon] Shutting down...");
-
-  // (a) Clear the heartbeat timer to prevent leaking handles / keeping process alive.
-  if (heartbeatTimer !== null) {
-    clearInterval(heartbeatTimer);
-    heartbeatTimer = null;
-  }
-
-  // (b) Best-effort: write a final snapshot with the actual runtime state (or "stopped").
-  try {
-    if (runtimeInstance) {
-      const finalSnapshot = runtimeInstance.getSnapshot();
-      writeSnapshot(finalSnapshot);
-    }
-  } catch {
-    // Best-effort — do not let a snapshot write failure mask shutdown.
-  }
-
-  // (c) Remove the PID file.
-  removePidFile();
-
-  // (d) Remove the snapshot file.
-  //     Policy: on clean shutdown, remove the snapshot so a later `status`
-  //     reports "unknown" rather than stale "stopped".
-  removeSnapshot();
-
-  if (healthServer) {
-    healthServer.close(() => {
-      process.exit(0);
-    });
-  } else {
-    process.exit(0);
-  }
-}
-
-/** Tracks whether shutdown() has already run (idempotency guard). */
-let shutdownExecuted = false;
-
-process.on("SIGTERM", shutdown);
-process.on("SIGINT", shutdown);
+// NOTE: All signal handling is now delegated to GracefulShutdownHandler.
+// No module-level process.on('SIGINT') / process.on('SIGTERM') here anymore —
+// initialize() registers a single authoritative set of handlers including
+// uncaughtException and unhandledRejection.
 
 // ============================================================================
 // Main

@@ -133,6 +133,11 @@ export class GracefulShutdownHandler {
         this._fsm.transition(LifecycleState.Crashed);
       } catch { /* ignore */ }
     }
+
+    // After cleanup completes (whether clean or with failures), exit with
+    // the appropriate code.  The deadline timer handles the overrun case;
+    // this is the normal-completion path.
+    process.exit(exitCodeFor(reason));
   }
 
   public dispose(): void {
