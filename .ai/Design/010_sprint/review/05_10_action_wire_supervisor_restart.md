@@ -1,5 +1,9 @@
 # Action 05_10 — Wire supervisor auto-restart onto crash recovery
 
+## Status
+
+Implemented in source: the supervisor now starts a `CrashDetector` + `CrashRecoveryManager`, tracks daemon exits, and stops the recovery loop on deliberate shutdown so a manual stop does not immediately restart the child.
+
 ## Objective
 Make the daemon supervisor (`daemon.ts`) monitor the spawned child and, on an
 unexpected exit, drive the `CrashDetector` + `CrashRecoveryManager` to restart it

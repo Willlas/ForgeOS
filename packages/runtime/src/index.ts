@@ -373,6 +373,15 @@ export type { RuntimeStateSnapshot } from "./persistence/state-store.js";
 export { checkHealth } from "./persistence/health-check.js";
 export type { HealthStatus, HealthCheckResult } from "./persistence/health-check.js";
 
+// Lifecycle — Crash detection + recovery exports
+export { CrashDetector, createDefaultPidReader, createDefaultIsAlive } from "./core/lifecycle/crash-detector.js";
+export type { PidReader, AliveChecker } from "./core/lifecycle/crash-detector.js";
+
+export { CrashRecoveryManager } from "./core/lifecycle/crash-recovery-manager.js";
+export type { OnGiveUp } from "./core/lifecycle/crash-recovery-manager.js";
+
+export { computeBackoffDelay, shouldRetry } from "./core/lifecycle/backoff.js";
+
 // Lifecycle — Public API exports
 export { LifecycleStateMachine } from "./core/lifecycle/lifecycle-state-machine.js";
 export { CleanupCoordinator, createIpcSocketCleanup } from "./core/lifecycle/cleanup-coordinator.js";

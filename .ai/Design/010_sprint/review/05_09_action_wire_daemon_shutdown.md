@@ -1,5 +1,9 @@
 # Action 05_09 — Wire daemon shutdown onto the lifecycle modules
 
+## Status
+
+Implemented in source: the daemon now initializes a `LifecycleStateMachine`, `CleanupCoordinator`, and `GracefulShutdownHandler`, registers the cleanup resources, transitions to `Running`, and routes fatal shutdown through the lifecycle handler.
+
 ## Objective
 Replace the hand-rolled, no-timeout `shutdown()` in `daemon-entry.ts` with the
 new lifecycle modules: construct a `LifecycleStateMachine`, a `CleanupCoordinator`

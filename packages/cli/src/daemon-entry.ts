@@ -21,14 +21,14 @@
 import {
   createRuntime,
   IpcServer,
-  getIpcSocketPath,
   cleanupStale,
   writePidFile,
   removePidFile,
   writeSnapshot,
   removeSnapshot,
-  LifecycleStateMachine,
+  getIpcSocketPath,
   LifecycleState,
+  LifecycleStateMachine,
   CleanupCoordinator,
   createIpcSocketCleanup,
   GracefulShutdownHandler,
@@ -85,12 +85,67 @@ function startHealthServer(): void {
 let runtimeInstance: Awaited<ReturnType<typeof createRuntime>> | null = null;
 
 /** Handle returned by setInterval for the heartbeat timer. */
-let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+let _heartbeatTimer: ReturnType<typeof setInterval> | null = null;
 
-// NOTE: All signal handling is now delegated to GracefulShutdownHandler.
-// No module-level process.on('SIGINT') / process.on('SIGTERM') here anymore —
-// initialize() registers a single authoritative set of handlers including
-// uncaughtException and unhandledRejection.
+let lifecycleStateMachine: LifecycleStateMachine | null = null;
+let shutdownHandler: GracefulShutdownHandler | null = null;
+
+function createShutdownCoordinator(ipcServer: IpcServer): CleanupCoordinator {
+  const coordinator = new CleanupCoordinator();
+  const ipcSocketCleanup = createIpcSocketCleanup(getIpcSocketPath());
+
+  coordinator.registerResource("ipc-accept", async () => {
+    try {
+      ipcServer.close();
+    } catch {
+      // best effort
+    }
+    await ipcSocketCleanup();
+  });
+
+  coordinator.registerResource("heartbeat", () => {
+    if (_heartbeatTimer) {
+      clearInterval(_heartbeatTimer);
+      _heartbeatTimer = null;
+    }
+  });
+
+  coordinator.registerResource("runtime", async () => {
+    if (runtimeInstance) {
+      await runtimeInstance.stop();
+    }
+  });
+
+  coordinator.registerResource("snapshot-final", async () => {
+    if (runtimeInstance) {
+      writeSnapshot(runtimeInstance.getSnapshot());
+    }
+    removeSnapshot();
+  });
+
+  coordinator.registerResource("pid", () => {
+    removePidFile();
+  });
+
+  coordinator.registerResource("health-server", async () => {
+    if (!healthServer) return;
+    await new Promise<void>((resolve) => {
+      healthServer!.close(() => resolve());
+      setTimeout(() => resolve(), 1500);
+    });
+  });
+
+  return coordinator;
+}
+
+function initializeShutdownHandler(ipcServer: IpcServer): void {
+  lifecycleStateMachine = new LifecycleStateMachine(LifecycleState.Starting);
+  const coordinator = createShutdownCoordinator(ipcServer);
+  shutdownHandler = new GracefulShutdownHandler(coordinator, lifecycleStateMachine, console);
+  shutdownHandler.initialize(
+    parseInt(process.env.AER_SHUTDOWN_TIMEOUT_MS || "10000", 10),
+  );
+}
 
 // ============================================================================
 // Main
@@ -143,7 +198,7 @@ async function main(): Promise<void> {
   // STEP 3: Heartbeat timer — periodic snapshot writes.
   // -----------------------------------------------------------------------
   const heartbeatMs = parseInt(process.env.AER_STATE_HEARTBEAT_MS || "5000", 10);
-  heartbeatTimer = setInterval(() => {
+  _heartbeatTimer = setInterval(() => {
     try {
       if (runtimeInstance) {
         writeSnapshot(runtimeInstance.getSnapshot());
@@ -161,6 +216,13 @@ async function main(): Promise<void> {
   const ipcServer = new IpcServer();
   ipcServer.setRuntime(runtime);
 
+  // Create the lifecycle manager once the runtime is ready and before the
+  // daemon waits for work.
+  initializeShutdownHandler(ipcServer);
+  if (lifecycleStateMachine) {
+    lifecycleStateMachine.transition(LifecycleState.Running);
+  }
+
   // Handlers are dispatched internally by IpcServer via setRuntime()
   // No need for explicit registerHandler calls
 
@@ -168,22 +230,15 @@ async function main(): Promise<void> {
   await ipcServer.listen();
   console.log("[Daemon] IPC server started");
 
-  // Prevent shutdown from closing immediately while waiting for IPC commands
-  return new Promise<void>((resolve) => {
-    const gracefulShutdown = () => {
-      ipcServer.close();
-      resolve();
-    };
-    process.on("SIGTERM", gracefulShutdown);
-    process.on("SIGINT", gracefulShutdown);
-  });
+  // Keep the daemon alive until the graceful shutdown handler exits the process.
+  return new Promise<void>(() => undefined);
 }
 
 // ============================================================================
 // Fatal Error Handler (STEP 5)
 // ============================================================================
 
-main().catch((error) => {
+main().catch(async (error) => {
   console.error("[Daemon] Fatal error:", error);
 
   // Best-effort: write an error snapshot if we have a runtime instance.
@@ -198,6 +253,11 @@ main().catch((error) => {
     // Best-effort — never let this mask the original error.
   }
 
+  if (shutdownHandler) {
+    await shutdownHandler.trigger("fatal", error);
+    return;
+  }
+
   removePidFile();
-  process.exit(1);
+  process.exit(exitCodeFor("fatal"));
 });
