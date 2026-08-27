@@ -25,6 +25,8 @@ import { createProvider } from "../core/types/provider.js";
 import type { ProviderConfig } from "../core/types/provider.js";
 import type { AskPayload, AskResponsePayload } from "../ipc-protocol.js";
 import { WorkspaceTools } from "../workspace-tools.js";
+import { SessionGrantManager, getSessionGrantManager } from "../session-grant-manager.js";
+import type { SessionGrantRegisterPayload, SessionGrantResult, SessionGrantListResponse } from "../session-grant-manager.js";
 import type { WorkspaceReadPayload, WorkspaceReadResponsePayload, WorkspaceListPayload, WorkspaceSearchPayload, WorkspaceExecutePayload } from "../ipc-protocol.js";
 
 // ============================================================================
@@ -145,6 +147,9 @@ export class Runtime {
   private runtimeMetrics?: RuntimeMetrics;
   private logManager?: LogManager;
 
+  // Session grant isolation (per-session workspace access control)
+  private readonly sessionGrantManager: SessionGrantManager;
+
   // Health check timer
   private healthCheckTimer?: ReturnType<typeof setInterval>;
 
@@ -159,6 +164,7 @@ export class Runtime {
     this.config = createDefaultConfig(config);
     this.state = RuntimeState.Stopped;
     this.startedAt = "";
+    this.sessionGrantManager = getSessionGrantManager();
 
     // Create a simple internal logger (will be replaced after subsystem init)
     this.selfLogger = {
@@ -257,31 +263,101 @@ export class Runtime {
     }
   }
 
-  async readAuthorizedWorkspace(payload: WorkspaceReadPayload): Promise<WorkspaceReadResponsePayload> {
+  // ========================================================================
+  // Session Grant Management (acceptance criterion: two clients cannot cross-read)
+  // ========================================================================
+
+  /**
+   * Register a workspace grant for an IPC session.
+   */
+  registerSessionGrant(sessionId: string, payload: SessionGrantRegisterPayload): SessionGrantResult {
+    return this.sessionGrantManager.registerGrant(sessionId, payload);
+  }
+
+  /**
+   * Revoke one or all grants for an IPC session.
+   */
+  revokeSessionGrant(sessionId: string, rootPath?: string): { revoked: number } {
+    return { revoked: this.sessionGrantManager.revokeGrant(sessionId, rootPath) };
+  }
+
+  /**
+   * List active grants for an IPC session (audit-safe, no secrets).
+   */
+  getSessionGrants(sessionId: string): SessionGrantListResponse {
+    return this.sessionGrantManager.listGrants(sessionId);
+  }
+
+  /**
+   * List all active sessions with grants.
+   */
+  listActiveGrantSessions(): string[] {
+    return this.sessionGrantManager.listSessions();
+  }
+
+  /**
+   * Get the SessionGrantManager (for advanced usage and testing).
+   */
+  getSessionGrantManager(): SessionGrantManager {
+    return this.sessionGrantManager;
+  }
+
+  // ========================================================================
+  // Authorized Workspace Operations (session-scoped)
+  // ========================================================================
+
+  async readAuthorizedWorkspace(payload: WorkspaceReadPayload, sessionId: string): Promise<WorkspaceReadResponsePayload> {
+    const grant = this.sessionGrantManager.getGrant(sessionId, payload.rootPath);
+    if (!grant.tools.includes("read")) {
+      throw new Error("Workspace tool 'read' is not granted for this session");
+    }
     const tools = await WorkspaceTools.create({
       rootPath: payload.rootPath,
-      mode: payload.mode ?? "read-only",
-      tools: ["read"],
+      mode: grant.mode,
+      tools: grant.tools,
+      allowedCommands: grant.allowedCommands,
+      expiresAt: grant.expiresAt,
+      approvalRequired: grant.approvalRequired,
+      approvalToken: grant.approvalToken,
+      maxReadBytes: grant.maxReadBytes,
     });
     const result = await tools.readFile(payload.relativePath);
     return { rootPath: payload.rootPath, relativePath: payload.relativePath, content: result.content };
   }
 
-  async listAuthorizedWorkspace(payload: WorkspaceListPayload): Promise<unknown> {
-    const tools = await WorkspaceTools.create({ rootPath: payload.rootPath, mode: "read-only", tools: ["list"] });
+  async listAuthorizedWorkspace(payload: WorkspaceListPayload, sessionId: string): Promise<unknown> {
+    const grant = this.sessionGrantManager.getGrant(sessionId, payload.rootPath);
+    if (!grant.tools.includes("list")) {
+      throw new Error("Workspace tool 'list' is not granted for this session");
+    }
+    const tools = await WorkspaceTools.create({
+      rootPath: payload.rootPath,
+      mode: grant.mode,
+      tools: grant.tools,
+    });
     return tools.list(payload.relativePath ?? ".");
   }
 
-  async searchAuthorizedWorkspace(payload: WorkspaceSearchPayload): Promise<string[]> {
-    const tools = await WorkspaceTools.create({ rootPath: payload.rootPath, mode: "read-only", tools: ["search"] });
+  async searchAuthorizedWorkspace(payload: WorkspaceSearchPayload, sessionId: string): Promise<string[]> {
+    const grant = this.sessionGrantManager.getGrant(sessionId, payload.rootPath);
+    if (!grant.tools.includes("search")) {
+      throw new Error("Workspace tool 'search' is not granted for this session");
+    }
+    const tools = await WorkspaceTools.create({
+      rootPath: payload.rootPath,
+      mode: grant.mode,
+      tools: grant.tools,
+    });
     return tools.search(payload.query);
   }
 
-  async executeAuthorizedWorkspace(payload: WorkspaceExecutePayload): Promise<unknown> {
-    const allowedCommands = (process.env.AER_ALLOWED_COMMANDS ?? "dotnet")
-      .split(",")
-      .map((command) => command.trim())
-      .filter(Boolean);
+  async executeAuthorizedWorkspace(payload: WorkspaceExecutePayload, sessionId: string): Promise<unknown> {
+    const grant = this.sessionGrantManager.getGrant(sessionId, payload.rootPath);
+    if (!grant.tools.includes("execute")) {
+      throw new Error("Workspace tool 'execute' is not granted for this session");
+    }
+    const allowedCommands = grant.allowedCommands ??
+      (process.env.AER_ALLOWED_COMMANDS ?? "dotnet").split(",").map((c) => c.trim()).filter(Boolean);
     const tools = await WorkspaceTools.create({
       rootPath: payload.rootPath,
       mode: "read-write",

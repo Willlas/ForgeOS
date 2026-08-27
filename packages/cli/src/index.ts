@@ -29,6 +29,41 @@ async function getIpcClient(): Promise<IpcClient> {
   return client;
 }
 
+type WorkspaceMode = 'read-only' | 'read-write';
+type WorkspaceTool = 'list' | 'read' | 'search' | 'execute' | 'apply';
+
+// Helper: register a session-scoped workspace grant before any tool call.
+// Deny-by-default: without this call, workspace operations are rejected.
+async function ensureWorkspaceGrant(
+  client: IpcClient,
+  root: string,
+  mode: WorkspaceMode,
+  tools: WorkspaceTool[],
+  allowedCommands?: string[],
+): Promise<void> {
+  const resp = await client.call(IPCCommand.WorkspaceGrant, {
+    rootPath: root,
+    mode,
+    tools,
+    allowedCommands,
+  });
+  if (!resp.success) {
+    throw new Error(resp.error?.message ?? 'Failed to register workspace grant.');
+  }
+}
+
+// Helper: interactive confirmation for read-write (destructive-adjacent) operations.
+function confirmAction(question: string): Promise<boolean> {
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  return new Promise<boolean>((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close();
+      const normalized = answer.trim().toLowerCase();
+      resolve(normalized === 'yes' || normalized === 'y');
+    });
+  });
+}
+
 // ---- daemon management commands ----
 
 program
@@ -251,6 +286,7 @@ program
     }
     const client = await getIpcClient();
     try {
+      await ensureWorkspaceGrant(client, root, 'read-only', ['read']);
       const resp = await client.call(IPCCommand.WorkspaceRead, {
         rootPath: root,
         relativePath: filePath,
@@ -284,6 +320,7 @@ program
     if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
     const client = await getIpcClient();
     try {
+      await ensureWorkspaceGrant(client, root, 'read-only', ['list']);
       const response = await client.call(IPCCommand.WorkspaceList, { rootPath: root, relativePath: directoryPath });
       if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace list failed.');
       console.log(JSON.stringify(response.data, null, 2));
@@ -300,6 +337,7 @@ program
     if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
     const client = await getIpcClient();
     try {
+      await ensureWorkspaceGrant(client, root, 'read-only', ['search']);
       const response = await client.call(IPCCommand.WorkspaceSearch, { rootPath: root, query });
       if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace search failed.');
       console.log(JSON.stringify(response.data, null, 2));
@@ -309,14 +347,33 @@ program
 
 program
   .command('workspace:execute')
-  .description('Run an explicitly allowlisted command in a workspace')
+  .description('Run an explicitly allowlisted command in a workspace (requires confirmation)')
   .argument('<root>', 'Absolute workspace root')
   .argument('<command>', 'Allowlisted executable')
   .argument('[args...]', 'Command arguments')
-  .action(async (root: string, command: string, args: string[]) => {
+  .option('-a, --allowed <commands>', 'Comma-separated allowlist of executables', 'dotnet')
+  .option('--yes', 'Skip the read-write confirmation prompt')
+  .action(async (root: string, command: string, args: string[], options: { allowed: string; yes?: boolean }) => {
     if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
+    const allowedCommands = options.allowed.split(',').map((c) => c.trim()).filter(Boolean);
+    if (!allowedCommands.includes(command)) {
+      console.error(`Command '${command}' is not in the allowlist: ${allowedCommands.join(', ')}`);
+      process.exitCode = 1;
+      return;
+    }
+    if (!options.yes) {
+      const confirmed = await confirmAction(
+        `Run '${command} ${args.join(' ')}' in a READ-WRITE session on ${root}? (yes/no) `,
+      );
+      if (!confirmed) {
+        console.log('Aborted by user.');
+        process.exitCode = 1;
+        return;
+      }
+    }
     const client = await getIpcClient();
     try {
+      await ensureWorkspaceGrant(client, root, 'read-write', ['execute'], allowedCommands);
       const response = await client.call(IPCCommand.WorkspaceExecute, { rootPath: root, command, args });
       if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace execution failed.');
       console.log(JSON.stringify(response.data, null, 2));
@@ -333,6 +390,76 @@ program
   });
 
 program
+  .command('workspace:grant')
+  .description('Register a session-scoped workspace grant for this CLI session')
+  .argument('<root>', 'Absolute workspace root')
+  .option('-m, --mode <mode>', 'read-only or read-write', 'read-only')
+  .option('-t, --tools <tools>', 'Comma-separated tools: list,read,search,execute,apply', 'list,read,search')
+  .option('-a, --allowed <commands>', 'Comma-separated allowlisted executables (for execute)')
+  .option('-e, --expires <iso>', 'Optional ISO expiration timestamp')
+  .action(async (root: string, options: { mode: string; tools: string; allowed?: string; expires?: string }) => {
+    if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
+    const mode = (options.mode === 'read-write' ? 'read-write' : 'read-only') as WorkspaceMode;
+    const tools = options.tools.split(',').map((t) => t.trim()).filter(Boolean) as WorkspaceTool[];
+    const allowedCommands = options.allowed?.split(',').map((c) => c.trim()).filter(Boolean);
+    if (mode === 'read-write') {
+      const confirmed = await confirmAction(`Grant READ-WRITE access to ${root} for this CLI session? (yes/no) `);
+      if (!confirmed) { console.log('Aborted by user.'); process.exitCode = 1; return; }
+    }
+    const client = await getIpcClient();
+    try {
+      const resp = await client.call(IPCCommand.WorkspaceGrant, {
+        rootPath: root,
+        mode,
+        tools,
+        allowedCommands,
+        expiresAt: options.expires,
+      });
+      if (!resp.success) throw new Error(resp.error?.message ?? 'Grant registration failed.');
+      console.log(JSON.stringify({ session: client.session, ...(resp.data as object) }, null, 2));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`Workspace grant failed: ${message}`);
+      process.exitCode = 1;
+    } finally { client.disconnect(); }
+  });
+
+program
+  .command('workspace:grants')
+  .description('List active grants for this CLI session (audit-safe, no secrets)')
+  .action(async () => {
+    if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
+    const client = await getIpcClient();
+    try {
+      const resp = await client.call(IPCCommand.WorkspaceGrantList);
+      if (!resp.success) throw new Error(resp.error?.message ?? 'Grant listing failed.');
+      console.log(JSON.stringify(resp.data, null, 2));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`Grant listing failed: ${message}`);
+      process.exitCode = 1;
+    } finally { client.disconnect(); }
+  });
+
+program
+  .command('workspace:revoke')
+  .description('Revoke grants for this CLI session (all, or one root)')
+  .argument('[root]', 'Optional absolute workspace root; omit to revoke all')
+  .action(async (root?: string) => {
+    if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
+    const client = await getIpcClient();
+    try {
+      const resp = await client.call(IPCCommand.WorkspaceRevoke, root ? { rootPath: root } : undefined);
+      if (!resp.success) throw new Error(resp.error?.message ?? 'Grant revocation failed.');
+      console.log(JSON.stringify(resp.data, null, 2));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`Grant revocation failed: ${message}`);
+      process.exitCode = 1;
+    } finally { client.disconnect(); }
+  });
+
+program
   .command('review-workspace')
   .description('Inspect an authorized workspace and ask the Runtime for a review')
   .argument('<root>', 'Absolute workspace root')
@@ -341,6 +468,7 @@ program
     if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
     const client = await getIpcClient();
     try {
+      await ensureWorkspaceGrant(client, root, 'read-only', ['read', 'list']);
       const listResponse = await client.call(IPCCommand.WorkspaceList, { rootPath: root, relativePath: '.' });
       if (!listResponse.success) throw new Error(listResponse.error?.message ?? 'Workspace listing failed.');
       const readResponse = await client.call(IPCCommand.WorkspaceRead, { rootPath: root, relativePath: 'README.md', mode: 'read-only' });

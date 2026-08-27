@@ -48,6 +48,11 @@ export enum IPCCommand {
   WorkspaceList = "workspace:list",
   WorkspaceSearch = "workspace:search",
   WorkspaceExecute = "workspace:execute",
+
+  // Session Grant Management
+  WorkspaceGrant = "workspace:grant",
+  WorkspaceRevoke = "workspace:revoke",
+  WorkspaceGrantList = "workspace:grant:list",
 }
 
 // ============================================================================
@@ -252,6 +257,9 @@ export const COMMAND_TIMEOUTS: Record<IPCCommand, number> = {
   [IPCCommand.WorkspaceList]: DEFAULT_TIMEOUT,
   [IPCCommand.WorkspaceSearch]: LONG_OPERATION_TIMEOUT,
   [IPCCommand.WorkspaceExecute]: LONG_OPERATION_TIMEOUT,
+  [IPCCommand.WorkspaceGrant]: DEFAULT_TIMEOUT,
+  [IPCCommand.WorkspaceRevoke]: DEFAULT_TIMEOUT,
+  [IPCCommand.WorkspaceGrantList]: DEFAULT_TIMEOUT,
 };
 
 export function getTimeoutForCommand(command: IPCCommand): number {

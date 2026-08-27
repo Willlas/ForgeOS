@@ -25,13 +25,25 @@ export class IpcClient extends EventEmitter {
     timer: ReturnType<typeof setTimeout>;
   }>();
   private socketPath: string;
+  /** Stable session identifier for this client instance.
+   * Each CLI process gets a unique session, which isolates workspace grants
+   * between concurrent clients (acceptance: two clients cannot cross-read). */
+  private readonly sessionId: string;
 
-  constructor(socketPath?: string) {
+  constructor(socketPath?: string, sessionId?: string) {
     super();
     this.transport = new IpcTransport();
     this.socketPath = socketPath || getIpcSocketPath();
+    this.sessionId = sessionId
+      ?? process.env.AER_SESSION_ID
+      ?? `cli_${process.pid}_${Date.now()}_${Math.random().toString(16).slice(2, 10)}`;
     this.transport.on("message", (msg) => this.handleMessage(msg));
     this.transport.on("error", (err) => this.emit("error", err));
+  }
+
+  /** Session id assigned to this client (used to scope workspace grants). */
+  get session(): string {
+    return this.sessionId;
   }
 
   async connect(): Promise<void> {
@@ -65,6 +77,7 @@ export class IpcClient extends EventEmitter {
         payload,
         timestamp: Date.now(),
         timeout,
+        sessionId: this.sessionId,
       };
       this.transport.send(request);
     });

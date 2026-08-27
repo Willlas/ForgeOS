@@ -36,11 +36,13 @@ export class IpcServer extends EventEmitter {
   }
 
   /** Dispatch an IPC request to the appropriate Runtime method. */
-  private async dispatchRequest(command: IPCCommand, payload?: unknown): Promise<unknown> {
+  private async dispatchRequest(command: IPCCommand, payload?: unknown, sessionId?: string): Promise<unknown> {
     if (!this.runtimeInstance) {
       throw new Error("Runtime not initialized");
     }
     const rt = this.runtimeInstance;
+    // Resolve sessionId — required for all workspace and grant operations
+    const sid = sessionId ?? "anonymous";
 
     switch (command) {
       case IPCCommand.RuntimeStart:
@@ -69,7 +71,6 @@ export class IpcServer extends EventEmitter {
         if (!km) throw new Error("KnowledgeManager not available");
         if (typeof payload === "object" && payload !== null && "key" in payload)
           return km.get(String((payload as any).key));
-        // If no specific key, query all knowledge items
         return km.query({ tagFilters: [], verifiedOnly: false, minConfidence: 0, sortBy: "modifiedAt", sortOrder: "desc", limit: 100, offset: 0 });
       }
       case IPCCommand.KnowledgeGetState: {
@@ -79,13 +80,13 @@ export class IpcServer extends EventEmitter {
         const graph = await km.getGraph();
         return { statistics: stats, graph };
       }
-	case IPCCommand.MetricsGet: {
-		const metrics = rt.getRuntimeMetrics();
-		if (!metrics) {
-			throw new Error("RuntimeMetrics are not available. Metrics collection may be disabled.");
-		}
-		return metrics.getAllMetrics();
-	}
+      case IPCCommand.MetricsGet: {
+        const metrics = rt.getRuntimeMetrics();
+        if (!metrics) {
+          throw new Error("RuntimeMetrics are not available. Metrics collection may be disabled.");
+        }
+        return metrics.getAllMetrics();
+      }
       case IPCCommand.ConfigGet:
         return rt.getConfig();
       case IPCCommand.Ask:
@@ -93,26 +94,41 @@ export class IpcServer extends EventEmitter {
           throw new Error("Ask requires a payload with 'prompt' field");
         }
         return rt.ask(payload);
+      // ---- Session-scoped workspace operations (require registered grant) ----
       case IPCCommand.WorkspaceRead:
         if (typeof payload !== "object" || payload === null || !("rootPath" in payload) || !("relativePath" in payload)) {
           throw new Error("WorkspaceRead requires rootPath and relativePath");
         }
-        return rt.readAuthorizedWorkspace(payload);
+        return rt.readAuthorizedWorkspace(payload, sid);
       case IPCCommand.WorkspaceList:
         if (typeof payload !== "object" || payload === null || !("rootPath" in payload)) {
           throw new Error("WorkspaceList requires rootPath");
         }
-        return rt.listAuthorizedWorkspace(payload);
+        return rt.listAuthorizedWorkspace(payload, sid);
       case IPCCommand.WorkspaceSearch:
         if (typeof payload !== "object" || payload === null || !("rootPath" in payload) || !("query" in payload)) {
           throw new Error("WorkspaceSearch requires rootPath and query");
         }
-        return rt.searchAuthorizedWorkspace(payload);
+        return rt.searchAuthorizedWorkspace(payload, sid);
       case IPCCommand.WorkspaceExecute:
         if (typeof payload !== "object" || payload === null || !("rootPath" in payload) || !("command" in payload)) {
           throw new Error("WorkspaceExecute requires rootPath and command");
         }
-        return rt.executeAuthorizedWorkspace(payload);
+        return rt.executeAuthorizedWorkspace(payload, sid);
+      // ---- Session Grant Management ----
+      case IPCCommand.WorkspaceGrant: {
+        if (typeof payload !== "object" || payload === null || !("rootPath" in payload)) {
+          throw new Error("WorkspaceGrant requires a payload with rootPath");
+        }
+        return rt.registerSessionGrant(sid, payload);
+      }
+      case IPCCommand.WorkspaceRevoke: {
+        const rootPath = (typeof payload === "object" && payload !== null && "rootPath" in payload)
+          ? String((payload as any).rootPath) : undefined;
+        return rt.revokeSessionGrant(sid, rootPath);
+      }
+      case IPCCommand.WorkspaceGrantList:
+        return rt.getSessionGrants(sid);
 	case IPCCommand.LogsGet: {
 		const lm = rt.getLogManager();
 		if (!lm) {
@@ -182,7 +198,7 @@ export class IpcServer extends EventEmitter {
       if (customHandler) {
         result = await customHandler(request.payload);
       } else {
-        result = await this.dispatchRequest(request.command, request.payload);
+        result = await this.dispatchRequest(request.command, request.payload, request.sessionId);
       }
       response = {
         id: request.id,

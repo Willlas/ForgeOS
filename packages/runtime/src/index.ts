@@ -147,6 +147,14 @@ export { IpcTransport, getIpcSocketPath } from "./ipc-transport.js";
 export { IpcServer } from "./ipc-server.js";
 export { WorkspaceTools, WorkspaceAccessError } from "./workspace-tools.js";
 export type { WorkspaceAccessGrant, WorkspaceAccessMode, WorkspaceEntry, WorkspaceToolName } from "./workspace-tools.js";
+export { SessionGrantManager, getSessionGrantManager, resetSessionGrantManager } from "./session-grant-manager.js";
+export type {
+  SessionGrantInfo,
+  SessionGrantResult,
+  SessionGrantRegisterPayload,
+  SessionGrantRevokePayload,
+  SessionGrantListResponse,
+} from "./session-grant-manager.js";
 import "./providers/registry.js";
 export {
   IPCCommand,

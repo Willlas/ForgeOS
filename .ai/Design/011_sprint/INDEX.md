@@ -20,8 +20,8 @@ Enable `ask` and `chat` to work with an explicitly authorized external workspace
 | # | Status |
 |---|---|
 | 01-05 | Implemented and tested |
-| 06 | Partially implemented and smoke-tested |
-| 07 | In progress |
+| 06 | Partially implemented and smoke-tested (session-scoped grant isolation completed) |
+| 07 | In progress (session isolation evidence recorded; streaming/cancellation pending) |
 
 ## Scope Boundary
 No access is granted by prompt text alone. External roots, commands and mutations require explicit user/host authorization.
