@@ -333,6 +333,38 @@ program
   });
 
 program
+  .command('review-workspace')
+  .description('Inspect an authorized workspace and ask the Runtime for a review')
+  .argument('<root>', 'Absolute workspace root')
+  .argument('<prompt>', 'Review instruction')
+  .action(async (root: string, prompt: string) => {
+    if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
+    const client = await getIpcClient();
+    try {
+      const listResponse = await client.call(IPCCommand.WorkspaceList, { rootPath: root, relativePath: '.' });
+      if (!listResponse.success) throw new Error(listResponse.error?.message ?? 'Workspace listing failed.');
+      const readResponse = await client.call(IPCCommand.WorkspaceRead, { rootPath: root, relativePath: 'README.md', mode: 'read-only' });
+      const readme = readResponse.success && readResponse.data
+        ? (readResponse.data as { content: string }).content.slice(0, 20_000)
+        : 'README.md unavailable';
+      const context = JSON.stringify({ structure: listResponse.data, readme });
+      const askResponse = await client.call(IPCCommand.Ask, {
+        prompt: `${prompt}\n\nUse only this authorized workspace context:\n${context}`,
+      });
+      if (!askResponse.success || !askResponse.data) throw new Error(askResponse.error?.message ?? 'Workspace review failed.');
+      console.log((askResponse.data as { content: string }).content);
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : typeof error === 'object' && error !== null && 'message' in error
+          ? String((error as { message: unknown }).message)
+          : String(error);
+      console.error(`Workspace review failed: ${message}`);
+      process.exitCode = 1;
+    } finally { client.disconnect(); }
+  });
+
+program
   .command('create-html')
   .description('Create a simple HTML page in the workspace')
   .argument('[target]', 'Relative output path', 'prototype/hello-world.html')
