@@ -45,4 +45,19 @@ describe("WorkspaceTools", () => {
     await expect(WorkspaceTools.create({ rootPath: process.cwd(), mode: "read-only", tools: [] }))
       .rejects.toThrow("at least one tool");
   });
+
+  it("rejects expired and invalid grants", async () => {
+    const rootPath = await mkdtemp(path.join(os.tmpdir(), "aer-workspace-tools-"));
+    temporaryRoots.push(rootPath);
+    const expiredAt = new Date(Date.now() - 1000).toISOString();
+
+    await expect(WorkspaceTools.create({ rootPath, mode: "read-only", tools: ["read"], expiresAt: expiredAt }))
+      .rejects.toThrow("expired");
+    await expect(WorkspaceTools.create({ rootPath, mode: "read-only", tools: ["read"], expiresAt: "invalid" }))
+      .rejects.toThrow("valid timestamp");
+    await expect(WorkspaceTools.create({ rootPath, mode: "read-only", tools: ["execute"] }))
+      .rejects.toThrow("Read-only grants");
+    await expect(WorkspaceTools.create({ rootPath, mode: "read-write", tools: ["apply"] }))
+      .rejects.toThrow("explicit approval");
+  });
 });

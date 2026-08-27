@@ -2,11 +2,17 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 
 export type WorkspaceAccessMode = "read-only" | "read-write";
+export type WorkspaceToolName = "list" | "read" | "search" | "execute" | "apply";
 
 export interface WorkspaceAccessGrant {
+  grantId?: string;
+  sessionId?: string;
   rootPath: string;
   mode: WorkspaceAccessMode;
-  tools: ReadonlyArray<"list" | "read" | "search">;
+  tools: ReadonlyArray<WorkspaceToolName>;
+  allowedCommands?: ReadonlyArray<string>;
+  expiresAt?: string;
+  approvalRequired?: boolean;
   maxReadBytes?: number;
 }
 
@@ -46,12 +52,28 @@ export class WorkspaceTools {
     if (grant.tools.length === 0) {
       throw new WorkspaceAccessError("Workspace grant must include at least one tool");
     }
+    if (grant.expiresAt && Number.isNaN(Date.parse(grant.expiresAt))) {
+      throw new WorkspaceAccessError("Workspace grant expiry must be a valid timestamp");
+    }
+    if (grant.expiresAt && Date.parse(grant.expiresAt) <= Date.now()) {
+      throw new WorkspaceAccessError("Workspace grant has expired");
+    }
+    if (grant.mode === "read-only" && grant.tools.some((tool) => tool === "execute" || tool === "apply")) {
+      throw new WorkspaceAccessError("Read-only grants cannot include execute or apply tools");
+    }
+    if (grant.mode === "read-write" && grant.tools.includes("apply") && grant.approvalRequired !== true) {
+      throw new WorkspaceAccessError("Read-write apply grants require explicit approval");
+    }
     const rootPath = await fs.realpath(grant.rootPath);
     return new WorkspaceTools(rootPath, { ...grant, rootPath });
   }
 
   getGrant(): WorkspaceAccessGrant {
-    return { ...this.grant, tools: [...this.grant.tools] };
+    return {
+      ...this.grant,
+      tools: [...this.grant.tools],
+      allowedCommands: this.grant.allowedCommands ? [...this.grant.allowedCommands] : undefined,
+    };
   }
 
   async readFile(relativePath: string): Promise<{ path: string; content: string }> {
@@ -123,6 +145,9 @@ export class WorkspaceTools {
   }
 
   private requireTool(tool: "list" | "read" | "search"): void {
+    if (this.grant.expiresAt && Date.parse(this.grant.expiresAt) <= Date.now()) {
+      throw new WorkspaceAccessError("Workspace grant has expired");
+    }
     if (!this.grant.tools.includes(tool)) {
       throw new WorkspaceAccessError(`Workspace tool not granted: ${tool}`);
     }
