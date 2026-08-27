@@ -25,7 +25,7 @@ import { createProvider } from "../core/types/provider.js";
 import type { ProviderConfig } from "../core/types/provider.js";
 import type { AskPayload, AskResponsePayload } from "../ipc-protocol.js";
 import { WorkspaceTools } from "../workspace-tools.js";
-import type { WorkspaceReadPayload, WorkspaceReadResponsePayload } from "../ipc-protocol.js";
+import type { WorkspaceReadPayload, WorkspaceReadResponsePayload, WorkspaceListPayload, WorkspaceSearchPayload } from "../ipc-protocol.js";
 
 // ============================================================================
 // Runtime State
@@ -265,6 +265,16 @@ export class Runtime {
     });
     const result = await tools.readFile(payload.relativePath);
     return { rootPath: payload.rootPath, relativePath: payload.relativePath, content: result.content };
+  }
+
+  async listAuthorizedWorkspace(payload: WorkspaceListPayload): Promise<unknown> {
+    const tools = await WorkspaceTools.create({ rootPath: payload.rootPath, mode: "read-only", tools: ["list"] });
+    return tools.list(payload.relativePath ?? ".");
+  }
+
+  async searchAuthorizedWorkspace(payload: WorkspaceSearchPayload): Promise<string[]> {
+    const tools = await WorkspaceTools.create({ rootPath: payload.rootPath, mode: "read-only", tools: ["search"] });
+    return tools.search(payload.query);
   }
 
   /**

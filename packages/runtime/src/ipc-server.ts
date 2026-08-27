@@ -98,6 +98,16 @@ export class IpcServer extends EventEmitter {
           throw new Error("WorkspaceRead requires rootPath and relativePath");
         }
         return rt.readAuthorizedWorkspace(payload);
+      case IPCCommand.WorkspaceList:
+        if (typeof payload !== "object" || payload === null || !("rootPath" in payload)) {
+          throw new Error("WorkspaceList requires rootPath");
+        }
+        return rt.listAuthorizedWorkspace(payload);
+      case IPCCommand.WorkspaceSearch:
+        if (typeof payload !== "object" || payload === null || !("rootPath" in payload) || !("query" in payload)) {
+          throw new Error("WorkspaceSearch requires rootPath and query");
+        }
+        return rt.searchAuthorizedWorkspace(payload);
 	case IPCCommand.LogsGet: {
 		const lm = rt.getLogManager();
 		if (!lm) {

@@ -276,6 +276,38 @@ program
   });
 
 program
+  .command('workspace:list')
+  .description('List entries in an explicitly authorized workspace')
+  .argument('<root>', 'Absolute workspace root')
+  .argument('[path]', 'Relative directory path', '.')
+  .action(async (root: string, directoryPath: string) => {
+    if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
+    const client = await getIpcClient();
+    try {
+      const response = await client.call(IPCCommand.WorkspaceList, { rootPath: root, relativePath: directoryPath });
+      if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace list failed.');
+      console.log(JSON.stringify(response.data, null, 2));
+    } catch (error) { console.error(`Workspace list failed: ${error instanceof Error ? error.message : String(error)}`); process.exitCode = 1; }
+    finally { client.disconnect(); }
+  });
+
+program
+  .command('workspace:search')
+  .description('Search an explicitly authorized workspace')
+  .argument('<root>', 'Absolute workspace root')
+  .argument('<query>', 'Text to search for')
+  .action(async (root: string, query: string) => {
+    if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
+    const client = await getIpcClient();
+    try {
+      const response = await client.call(IPCCommand.WorkspaceSearch, { rootPath: root, query });
+      if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace search failed.');
+      console.log(JSON.stringify(response.data, null, 2));
+    } catch (error) { console.error(`Workspace search failed: ${error instanceof Error ? error.message : String(error)}`); process.exitCode = 1; }
+    finally { client.disconnect(); }
+  });
+
+program
   .command('create-html')
   .description('Create a simple HTML page in the workspace')
   .argument('[target]', 'Relative output path', 'prototype/hello-world.html')
