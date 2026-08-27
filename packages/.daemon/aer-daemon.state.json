@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "pid": 25108,
+  "state": "running",
+  "healthy": true,
+  "startedAt": "2026-08-27T08:41:18.298Z",
+  "uptimeSeconds": 0.013,
+  "health": {
+    "healthy": true,
+    "state": "running",
+    "uptimeSeconds": 0.013,
+    "startedAt": "2026-08-27T08:41:18.298Z",
+    "components": {
+      "eventBus": true,
+      "workspace": true,
+      "knowledge": true,
+      "metrics": true,
+      "logging": true
+    },
+    "resources": {
+      "memoryUsageMB": 9
+    },
+    "errors": []
+  },
+  "metrics": {
+    "counters": {},
+    "gauges": {
+      "runtime.events_total": 0,
+      "runtime.errors_total": 0,
+      "runtime.uptime_seconds": 0
+    },
+    "histograms": {},
+    "timers": {}
+  },
+  "capturedAt": "2026-08-27T08:41:18.311Z"
+}

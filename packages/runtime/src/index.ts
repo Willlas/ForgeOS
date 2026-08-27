@@ -145,6 +145,9 @@ export type {
 // IPC Communication exports
 export { IpcTransport, getIpcSocketPath } from "./ipc-transport.js";
 export { IpcServer } from "./ipc-server.js";
+export { WorkspaceTools, WorkspaceAccessError } from "./workspace-tools.js";
+export type { WorkspaceAccessGrant, WorkspaceAccessMode, WorkspaceEntry } from "./workspace-tools.js";
+import "./providers/registry.js";
 export {
   IPCCommand,
   IPCErrorCode,
@@ -159,6 +162,10 @@ export type {
   RuntimeStatusPayload,
   HealthCheckPayload,
   ConfigGetPayload,
+  AskPayload,
+  AskResponsePayload,
+  WorkspaceReadPayload,
+  WorkspaceReadResponsePayload,
 } from "./ipc-protocol.js";
 
 // Runtime Core exports

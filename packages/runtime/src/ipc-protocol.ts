@@ -41,6 +41,10 @@ export enum IPCCommand {
 
   // Config
   ConfigGet = "config:get",
+
+  // Inference
+  Ask = "inference:ask",
+  WorkspaceRead = "workspace:read",
 }
 
 // ============================================================================
@@ -139,12 +143,41 @@ export interface ConfigGetPayload {
   config: Record<string, unknown>;
 }
 
+export interface AskPayload {
+  prompt: string;
+  history?: Array<{ role: "user" | "assistant"; content: string }>;
+  modelId?: string;
+  providerId?: string;
+  temperature?: number;
+  maxTokens?: number;
+}
+
+export interface AskResponsePayload {
+  content: string;
+  modelId: string;
+  tokensUsed: number;
+  latencyMs: number;
+}
+
+export interface WorkspaceReadPayload {
+  rootPath: string;
+  relativePath: string;
+  mode?: "read-only" | "read-write";
+}
+
+export interface WorkspaceReadResponsePayload {
+  rootPath: string;
+  relativePath: string;
+  content: string;
+}
+
 // ============================================================================
 // Timeout Configuration
 // ============================================================================
 
 const DEFAULT_TIMEOUT = 5000;
 const LONG_OPERATION_TIMEOUT = 30000;
+const INFERENCE_TIMEOUT = 120000;
 
 export const COMMAND_TIMEOUTS: Record<IPCCommand, number> = {
   [IPCCommand.RuntimeStart]: LONG_OPERATION_TIMEOUT,
@@ -163,6 +196,8 @@ export const COMMAND_TIMEOUTS: Record<IPCCommand, number> = {
   [IPCCommand.LogsGet]: DEFAULT_TIMEOUT,
   [IPCCommand.LogLevelSet]: DEFAULT_TIMEOUT,
   [IPCCommand.ConfigGet]: DEFAULT_TIMEOUT,
+  [IPCCommand.Ask]: INFERENCE_TIMEOUT,
+  [IPCCommand.WorkspaceRead]: DEFAULT_TIMEOUT,
 };
 
 export function getTimeoutForCommand(command: IPCCommand): number {

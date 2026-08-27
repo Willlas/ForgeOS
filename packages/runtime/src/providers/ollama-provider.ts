@@ -158,7 +158,7 @@ export class OllamaProvider implements IProvider {
     >;
 
     const normalizedBaseUrl = ollamaConfig.baseUrl || "http://localhost:11434";
-    const normalizedDefaultModel = ollamaConfig.defaultModel || "qwen2.5-coder:7b";
+    const normalizedDefaultModel = ollamaConfig.defaultModel || "Qwen3-Coder:latest";
     const normalizedTimeoutMs = ollamaConfig.timeoutMs ?? 60_000;
     const normalizedMaxRetries = ollamaConfig.maxRetries ?? 3;
 

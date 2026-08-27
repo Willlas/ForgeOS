@@ -7,6 +7,7 @@ import { promises as fs } from 'node:fs';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { dirname, resolve, relative } from 'node:path';
+import { createInterface } from 'node:readline';
 import { Command } from 'commander';
 
 const execFileAsync = promisify(execFile);
@@ -149,6 +150,126 @@ program
       }
     } catch (error) {
       console.error('IPC error:', error);
+    } finally {
+      client.disconnect();
+    }
+  });
+
+program
+  .command('ask')
+  .description('Ask the Runtime a one-shot question')
+  .argument('<prompt>', 'Question or instruction for the Runtime')
+  .option('-m, --model <model>', 'Model identifier')
+  .action(async (prompt: string, options: { model?: string }) => {
+    if (!isRunning()) {
+      console.error('Daemon is not running. Start it first.');
+      process.exitCode = 1;
+      return;
+    }
+    const client = await getIpcClient();
+    try {
+      const resp = await client.call(IPCCommand.Ask, { prompt, modelId: options.model });
+      if (!resp.success || !resp.data) {
+        console.error(resp.error?.message ?? 'Ask failed.');
+        process.exitCode = 1;
+        return;
+      }
+      const data = resp.data as { content: string };
+      console.log(data.content);
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : typeof error === 'object' && error !== null && 'message' in error
+          ? String((error as { message: unknown }).message)
+          : String(error);
+      console.error(`Ask failed: ${message}`);
+      process.exitCode = 1;
+    } finally {
+      client.disconnect();
+    }
+  });
+
+program
+  .command('chat')
+  .description('Start an interactive conversation with the Runtime')
+  .argument('[initial-prompt]', 'Optional first message')
+  .option('-m, --model <model>', 'Model identifier')
+  .action(async (initialPrompt: string | undefined, options: { model?: string }) => {
+    if (!isRunning()) {
+      console.error('Daemon is not running. Start it first.');
+      process.exitCode = 1;
+      return;
+    }
+
+    const client = await getIpcClient();
+    const history: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+    const ask = async (prompt: string): Promise<void> => {
+      const resp = await client.call(IPCCommand.Ask, {
+        prompt,
+        modelId: options.model,
+        history,
+      });
+      if (!resp.success || !resp.data) throw new Error(resp.error?.message ?? 'Chat request failed.');
+      const content = (resp.data as { content: string }).content;
+      history.push({ role: 'user', content: prompt }, { role: 'assistant', content });
+      console.log(`assistant> ${content}`);
+    };
+
+    try {
+      console.log('Chat started. Press Ctrl+C or send EOF to exit.');
+      if (initialPrompt) await ask(initialPrompt);
+      const input = createInterface({ input: process.stdin, output: process.stdout, prompt: 'you> ' });
+      input.prompt();
+      for await (const line of input) {
+        const prompt = line.trim();
+        if (prompt) await ask(prompt);
+        input.prompt();
+      }
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : typeof error === 'object' && error !== null && 'message' in error
+          ? String((error as { message: unknown }).message)
+          : String(error);
+      console.error(`Chat failed: ${message}`);
+      process.exitCode = 1;
+    } finally {
+      client.disconnect();
+    }
+  });
+
+program
+  .command('workspace:read')
+  .description('Read a file from an explicitly authorized workspace')
+  .argument('<root>', 'Absolute workspace root')
+  .argument('<path>', 'Relative file path')
+  .action(async (root: string, filePath: string) => {
+    if (!isRunning()) {
+      console.error('Daemon is not running. Start it first.');
+      process.exitCode = 1;
+      return;
+    }
+    const client = await getIpcClient();
+    try {
+      const resp = await client.call(IPCCommand.WorkspaceRead, {
+        rootPath: root,
+        relativePath: filePath,
+        mode: 'read-only',
+      });
+      if (!resp.success || !resp.data) {
+        console.error(resp.error?.message ?? 'Workspace read failed.');
+        process.exitCode = 1;
+        return;
+      }
+      console.log((resp.data as { content: string }).content);
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : typeof error === 'object' && error !== null && 'message' in error
+          ? String((error as { message: unknown }).message)
+          : String(error);
+      console.error(`Workspace read failed: ${message}`);
+      process.exitCode = 1;
     } finally {
       client.disconnect();
     }

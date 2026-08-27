@@ -21,6 +21,11 @@ import { MetricsCollector, RuntimeMetrics } from "./metrics.js";
 import { LogManager, LogLevel, InMemoryLogTarget, ConsoleLogTarget } from "./logging.js";
 import type { RuntimeStateSnapshot } from "../persistence/state-store.js";
 import { SNAPSHOT_SCHEMA_VERSION } from "../persistence/state-store.js";
+import { createProvider } from "../core/types/provider.js";
+import type { ProviderConfig } from "../core/types/provider.js";
+import type { AskPayload, AskResponsePayload } from "../ipc-protocol.js";
+import { WorkspaceTools } from "../workspace-tools.js";
+import type { WorkspaceReadPayload, WorkspaceReadResponsePayload } from "../ipc-protocol.js";
 
 // ============================================================================
 // Runtime State
@@ -210,6 +215,56 @@ export class Runtime {
       await this.logSelf("error", `Failed to start Runtime: ${errMsg}`);
       throw error;
     }
+  }
+
+  async ask(payload: AskPayload): Promise<AskResponsePayload> {
+    if (this.state !== RuntimeState.Running) {
+      throw new Error(`Runtime is not running (state=${this.state})`);
+    }
+    if (!payload.prompt.trim()) {
+      throw new Error("Ask prompt must not be empty");
+    }
+
+    const startedAt = Date.now();
+    const providerConfig: ProviderConfig = {
+      name: payload.providerId ?? "ollama",
+      type: payload.providerId ?? "ollama",
+      baseUrl: process.env.OLLAMA_BASE_URL ?? "http://localhost:11434",
+      defaultModel: payload.modelId ?? process.env.WORKER_MODEL ?? "qwen2.5-coder:7b",
+    };
+    const provider = createProvider(providerConfig);
+    await provider.initialize();
+    try {
+      const response = await provider.generate({
+        requestId: `ask_${Date.now()}`,
+        correlationId: `ask_${Date.now()}`,
+        modelId: payload.modelId ?? process.env.WORKER_MODEL ?? "qwen2.5-coder:7b",
+        messages: [
+          ...(payload.history ?? []),
+          { role: "user", content: payload.prompt },
+        ],
+        constraints: { maxTokens: payload.maxTokens },
+        sampling: { temperature: payload.temperature },
+      });
+      return {
+        content: response.content ?? "",
+        modelId: response.modelId,
+        tokensUsed: response.usage.totalTokens,
+        latencyMs: response.latencyMs || Date.now() - startedAt,
+      };
+    } finally {
+      await provider.shutdown();
+    }
+  }
+
+  async readAuthorizedWorkspace(payload: WorkspaceReadPayload): Promise<WorkspaceReadResponsePayload> {
+    const tools = await WorkspaceTools.create({
+      rootPath: payload.rootPath,
+      mode: payload.mode ?? "read-only",
+      tools: ["read"],
+    });
+    const result = await tools.readFile(payload.relativePath);
+    return { rootPath: payload.rootPath, relativePath: payload.relativePath, content: result.content };
   }
 
   /**

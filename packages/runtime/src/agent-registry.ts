@@ -486,7 +486,7 @@ export function registerDefaultAgents(registry?: AgentRegistry): void {
       name: "Worker Agent",
       systemPrompt: "You are a software developer. Implement code, create files, and execute tasks.",
       providerId: "ollama",
-      modelId: "qwen2.5-coder:7b",
+      modelId: "Qwen3-Coder:latest",
       baseUrl: "http://localhost:11434",
       role: "worker",
       capabilities: [

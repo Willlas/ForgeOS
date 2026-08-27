@@ -88,7 +88,7 @@ export function createDefaultAgentConfig(overrides?: Partial<AgentConfig>): Agen
     name: "Default Agent",
     systemPrompt: "You are a helpful assistant.",
     providerId: "ollama",
-    modelId: "qwen2.5-coder:7b",
+    modelId: "Qwen3-Coder:latest",
     baseUrl: "http://localhost:11434",
     temperature: 0.7,
     maxTokens: 4096,

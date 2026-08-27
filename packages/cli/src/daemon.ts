@@ -3,6 +3,7 @@
  */
 
 import { spawn } from "child_process";
+import { existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -11,6 +12,8 @@ import {
   writePidFile,
   removePidFile,
   isPidAlive,
+  IpcTransport,
+  getIpcSocketPath,
   CrashDetector,
   CrashRecoveryManager,
   LifecycleState,
@@ -25,7 +28,9 @@ let crashDetector: CrashDetector | null = null;
 let crashRecoveryManager: CrashRecoveryManager | null = null;
 
 function getDaemonEntryPath(): string {
-  return join(__dirname, "daemon-entry.js");
+  const compiledEntryPath = join(__dirname, "daemon-entry.js");
+  if (existsSync(compiledEntryPath)) return compiledEntryPath;
+  return join(__dirname, "..", "dist", "daemon-entry.js");
 }
 
 interface DaemonOptions {
@@ -57,6 +62,26 @@ function installCrashSupervisor(): void {
 
   crashDetector = detector;
   crashRecoveryManager = recovery;
+}
+
+async function waitForDaemonReady(timeoutMs = 5000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  let lastError: unknown;
+
+  while (Date.now() < deadline) {
+    const transport = new IpcTransport();
+    try {
+      await transport.connect(getIpcSocketPath());
+      transport.close();
+      return;
+    } catch (error) {
+      lastError = error;
+      transport.close();
+      await new Promise<void>((resolve) => setTimeout(resolve, 50));
+    }
+  }
+
+  throw new Error(`Daemon did not become ready within ${timeoutMs}ms: ${String(lastError)}`);
 }
 
 export async function startDaemon(options?: DaemonOptions): Promise<void> {
@@ -97,6 +122,7 @@ export async function startDaemon(options?: DaemonOptions): Promise<void> {
     writePidFile(daemonProcess.pid);
     daemonProcess.unref();
     installCrashSupervisor();
+    await waitForDaemonReady();
   }
 }
 

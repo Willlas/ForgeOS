@@ -12,6 +12,7 @@ import fs from "fs";
 export function getIpcSocketPath(): string {
   const custom = process.env.AER_IPC_SOCKET;
   if (custom) return custom;
+  if (process.platform === "win32") return "\\\\.\\pipe\\aer-daemon";
   return path.join(os.tmpdir(), "aer-daemon.sock");
 }
 

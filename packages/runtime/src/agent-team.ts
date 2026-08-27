@@ -67,7 +67,7 @@ export function createDefaultTeamConfig(overrides?: Partial<TeamConfig>): TeamCo
     id: "team-default",
     name: "Default Team",
     maxAgents: 10,
-    defaultModelId: "qwen2.5-coder:7b",
+    defaultModelId: "Qwen3-Coder:latest",
     defaultProviderId: "ollama",
     contextCapacity: 1000,
     maxTaskQueueSize: 100,
@@ -319,7 +319,7 @@ export class AgentTeam {
       config.providerId = this._config.defaultProviderId ?? "ollama";
     }
     if (!config.modelId) {
-      config.modelId = this._config.defaultModelId ?? "qwen2.5-coder:7b";
+      config.modelId = this._config.defaultModelId ?? "Qwen3-Coder:latest";
     }
 
     // Register agent via registry (which creates the Agent instance)

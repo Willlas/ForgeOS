@@ -88,6 +88,16 @@ export class IpcServer extends EventEmitter {
 	}
       case IPCCommand.ConfigGet:
         return rt.getConfig();
+      case IPCCommand.Ask:
+        if (typeof payload !== "object" || payload === null || !("prompt" in payload)) {
+          throw new Error("Ask requires a payload with 'prompt' field");
+        }
+        return rt.ask(payload);
+      case IPCCommand.WorkspaceRead:
+        if (typeof payload !== "object" || payload === null || !("rootPath" in payload) || !("relativePath" in payload)) {
+          throw new Error("WorkspaceRead requires rootPath and relativePath");
+        }
+        return rt.readAuthorizedWorkspace(payload);
 	case IPCCommand.LogsGet: {
 		const lm = rt.getLogManager();
 		if (!lm) {
