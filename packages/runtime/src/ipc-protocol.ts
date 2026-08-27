@@ -88,6 +88,9 @@ export interface IPCRequest {
 
   /** Optional timeout override in ms */
   timeout?: number;
+
+  /** Optional session used to isolate tool grants and conversation state. */
+  sessionId?: string;
 }
 
 export interface IPCResponse {
@@ -117,6 +120,34 @@ export interface IPCEvent {
 
   /** Timestamp */
   timestamp: number;
+}
+
+export interface IPCToolCall {
+  id: string;
+  sessionId: string;
+  tool: string;
+  input: unknown;
+}
+
+export interface IPCToolResult {
+  id: string;
+  sessionId: string;
+  tool: string;
+  success: boolean;
+  output?: unknown;
+  error?: IPCError;
+}
+
+export interface ToolApprovalRequest {
+  toolCallId: string;
+  sessionId: string;
+  summary: string;
+  requestedAt: number;
+}
+
+export interface ToolCancelRequest {
+  toolCallId: string;
+  sessionId: string;
 }
 
 // ============================================================================
