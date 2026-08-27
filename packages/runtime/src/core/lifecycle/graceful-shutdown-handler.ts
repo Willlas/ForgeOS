@@ -53,6 +53,7 @@ export class GracefulShutdownHandler {
   private readonly _coordinator: CleanupCoordinator;
   private readonly _fsm: LifecycleStateMachine;
   private readonly _logger: Logger;
+  private readonly _onExit: (code: number) => void;
 
   private _isShuttingDown = false;
   private _deadlineTimer: ReturnType<typeof setTimeout> | null = null;
@@ -68,10 +69,12 @@ export class GracefulShutdownHandler {
     coordinator: CleanupCoordinator,
     stateMachine: LifecycleStateMachine,
     logger: Logger = console,
+    onExit: (code: number) => void = (code) => process.exit(code),
   ) {
     this._coordinator = coordinator;
     this._fsm = stateMachine;
     this._logger = logger;
+    this._onExit = onExit;
   }
 
   public initialize(timeoutMs: number): void {
@@ -110,7 +113,7 @@ export class GracefulShutdownHandler {
         '[shutdown] Deadline exceeded after %d ms — force exit',
         this._timeoutMs,
       );
-      process.exit(exitCodeFor(reason));
+      this._onExit(exitCodeFor(reason));
     }, this._timeoutMs);
 
     try {
@@ -135,9 +138,9 @@ export class GracefulShutdownHandler {
     }
 
     // After cleanup completes (whether clean or with failures), exit with
-    // the appropriate code.  The deadline timer handles the overrun case;
+    // the appropriate code. The deadline timer handles the overrun case;
     // this is the normal-completion path.
-    process.exit(exitCodeFor(reason));
+    this._onExit(exitCodeFor(reason));
   }
 
   public dispose(): void {
