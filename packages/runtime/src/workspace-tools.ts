@@ -1,5 +1,6 @@
 import { promises as fs } from "node:fs";
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import path from "node:path";
 
 export type WorkspaceAccessMode = "read-only" | "read-write";
@@ -14,6 +15,7 @@ export interface WorkspaceAccessGrant {
   allowedCommands?: ReadonlyArray<string>;
   expiresAt?: string;
   approvalRequired?: boolean;
+  approvalToken?: string;
   maxReadBytes?: number;
 }
 
@@ -35,6 +37,13 @@ export interface WorkspaceCommandResult {
   stdout: string;
   stderr: string;
   timedOut: boolean;
+}
+
+export interface WorkspaceApplyRequest {
+  relativePath: string;
+  content: string;
+  expectedHash: string;
+  approvalToken: string;
 }
 
 export class WorkspaceAccessError extends Error {
@@ -159,6 +168,28 @@ export class WorkspaceTools {
         resolve({ command, args, exitCode, stdout, stderr, timedOut });
       });
     });
+  }
+
+  async apply(request: WorkspaceApplyRequest): Promise<{ path: string; hash: string }> {
+    this.requireTool("apply");
+    if (this.grant.mode !== "read-write") throw new WorkspaceAccessError("Read-only grants cannot apply changes");
+    if (this.grant.approvalRequired !== true || !this.grant.approvalToken || request.approvalToken !== this.grant.approvalToken) {
+      throw new WorkspaceAccessError("Approved change token is required");
+    }
+    const filePath = await this.resolveExistingPath(request.relativePath);
+    const currentContent = await fs.readFile(filePath);
+    const currentHash = createHash("sha256").update(currentContent).digest("hex");
+    if (currentHash !== request.expectedHash) throw new WorkspaceAccessError("Workspace file changed since approval");
+    const nextHash = createHash("sha256").update(request.content).digest("hex");
+    const temporaryPath = `${filePath}.aer-tmp-${process.pid}`;
+    await fs.writeFile(temporaryPath, request.content, "utf8");
+    try {
+      await fs.rename(temporaryPath, filePath);
+    } catch (error) {
+      await fs.rm(temporaryPath, { force: true });
+      throw error;
+    }
+    return { path: request.relativePath, hash: nextHash };
   }
 
   private async searchDirectory(directoryPath: string, query: string, matches: string[]): Promise<void> {
