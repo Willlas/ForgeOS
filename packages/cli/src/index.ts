@@ -308,6 +308,31 @@ program
   });
 
 program
+  .command('workspace:execute')
+  .description('Run an explicitly allowlisted command in a workspace')
+  .argument('<root>', 'Absolute workspace root')
+  .argument('<command>', 'Allowlisted executable')
+  .argument('[args...]', 'Command arguments')
+  .action(async (root: string, command: string, args: string[]) => {
+    if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
+    const client = await getIpcClient();
+    try {
+      const response = await client.call(IPCCommand.WorkspaceExecute, { rootPath: root, command, args });
+      if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace execution failed.');
+      console.log(JSON.stringify(response.data, null, 2));
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : typeof error === 'object' && error !== null && 'message' in error
+          ? String((error as { message: unknown }).message)
+          : String(error);
+      console.error(`Workspace execution failed: ${message}`);
+      process.exitCode = 1;
+    }
+    finally { client.disconnect(); }
+  });
+
+program
   .command('create-html')
   .description('Create a simple HTML page in the workspace')
   .argument('[target]', 'Relative output path', 'prototype/hello-world.html')

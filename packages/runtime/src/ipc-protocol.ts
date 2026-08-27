@@ -47,6 +47,7 @@ export enum IPCCommand {
   WorkspaceRead = "workspace:read",
   WorkspaceList = "workspace:list",
   WorkspaceSearch = "workspace:search",
+  WorkspaceExecute = "workspace:execute",
 }
 
 // ============================================================================
@@ -214,6 +215,13 @@ export interface WorkspaceSearchPayload {
   query: string;
 }
 
+export interface WorkspaceExecutePayload {
+  rootPath: string;
+  command: string;
+  args?: string[];
+  timeoutMs?: number;
+}
+
 // ============================================================================
 // Timeout Configuration
 // ============================================================================
@@ -243,6 +251,7 @@ export const COMMAND_TIMEOUTS: Record<IPCCommand, number> = {
   [IPCCommand.WorkspaceRead]: DEFAULT_TIMEOUT,
   [IPCCommand.WorkspaceList]: DEFAULT_TIMEOUT,
   [IPCCommand.WorkspaceSearch]: LONG_OPERATION_TIMEOUT,
+  [IPCCommand.WorkspaceExecute]: LONG_OPERATION_TIMEOUT,
 };
 
 export function getTimeoutForCommand(command: IPCCommand): number {

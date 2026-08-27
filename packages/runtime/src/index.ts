@@ -168,6 +168,7 @@ export type {
   WorkspaceReadResponsePayload,
   WorkspaceListPayload,
   WorkspaceSearchPayload,
+  WorkspaceExecutePayload,
   IPCToolCall,
   IPCToolResult,
   ToolApprovalRequest,

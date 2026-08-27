@@ -108,6 +108,11 @@ export class IpcServer extends EventEmitter {
           throw new Error("WorkspaceSearch requires rootPath and query");
         }
         return rt.searchAuthorizedWorkspace(payload);
+      case IPCCommand.WorkspaceExecute:
+        if (typeof payload !== "object" || payload === null || !("rootPath" in payload) || !("command" in payload)) {
+          throw new Error("WorkspaceExecute requires rootPath and command");
+        }
+        return rt.executeAuthorizedWorkspace(payload);
 	case IPCCommand.LogsGet: {
 		const lm = rt.getLogManager();
 		if (!lm) {

@@ -25,7 +25,7 @@ import { createProvider } from "../core/types/provider.js";
 import type { ProviderConfig } from "../core/types/provider.js";
 import type { AskPayload, AskResponsePayload } from "../ipc-protocol.js";
 import { WorkspaceTools } from "../workspace-tools.js";
-import type { WorkspaceReadPayload, WorkspaceReadResponsePayload, WorkspaceListPayload, WorkspaceSearchPayload } from "../ipc-protocol.js";
+import type { WorkspaceReadPayload, WorkspaceReadResponsePayload, WorkspaceListPayload, WorkspaceSearchPayload, WorkspaceExecutePayload } from "../ipc-protocol.js";
 
 // ============================================================================
 // Runtime State
@@ -275,6 +275,20 @@ export class Runtime {
   async searchAuthorizedWorkspace(payload: WorkspaceSearchPayload): Promise<string[]> {
     const tools = await WorkspaceTools.create({ rootPath: payload.rootPath, mode: "read-only", tools: ["search"] });
     return tools.search(payload.query);
+  }
+
+  async executeAuthorizedWorkspace(payload: WorkspaceExecutePayload): Promise<unknown> {
+    const allowedCommands = (process.env.AER_ALLOWED_COMMANDS ?? "dotnet")
+      .split(",")
+      .map((command) => command.trim())
+      .filter(Boolean);
+    const tools = await WorkspaceTools.create({
+      rootPath: payload.rootPath,
+      mode: "read-write",
+      tools: ["execute"],
+      allowedCommands,
+    });
+    return tools.execute(payload.command, payload.args ?? [], { timeoutMs: payload.timeoutMs });
   }
 
   /**

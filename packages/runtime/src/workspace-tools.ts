@@ -1,4 +1,5 @@
 import { promises as fs } from "node:fs";
+import { spawn } from "node:child_process";
 import path from "node:path";
 
 export type WorkspaceAccessMode = "read-only" | "read-write";
@@ -25,6 +26,15 @@ export interface WorkspaceReadPayload {
   rootPath: string;
   relativePath: string;
   mode?: WorkspaceAccessMode;
+}
+
+export interface WorkspaceCommandResult {
+  command: string;
+  args: string[];
+  exitCode: number | null;
+  stdout: string;
+  stderr: string;
+  timedOut: boolean;
 }
 
 export class WorkspaceAccessError extends Error {
@@ -109,6 +119,48 @@ export class WorkspaceTools {
     return matches;
   }
 
+  async execute(command: string, args: string[] = [], options?: { timeoutMs?: number; maxOutputBytes?: number }): Promise<WorkspaceCommandResult> {
+    this.requireTool("execute");
+    if (this.grant.mode === "read-only") throw new WorkspaceAccessError("Read-only grants cannot execute commands");
+    if (!this.grant.allowedCommands?.includes(command)) {
+      throw new WorkspaceAccessError(`Command not granted: ${command}`);
+    }
+    const timeoutMs = options?.timeoutMs ?? 120_000;
+    const maxOutputBytes = options?.maxOutputBytes ?? 1_048_576;
+
+    return new Promise((resolve, reject) => {
+      const child = spawn(command, args, {
+        cwd: this.rootPath,
+        shell: false,
+        windowsHide: true,
+        env: { PATH: process.env.PATH ?? "", SystemRoot: process.env.SystemRoot ?? "" },
+      });
+      let stdout = "";
+      let stderr = "";
+      let timedOut = false;
+      let outputBytes = 0;
+      const append = (target: "stdout" | "stderr", chunk: Buffer): void => {
+        if (outputBytes >= maxOutputBytes) return;
+        const remaining = maxOutputBytes - outputBytes;
+        const text = chunk.subarray(0, remaining).toString("utf8");
+        outputBytes += Buffer.byteLength(text, "utf8");
+        if (target === "stdout") stdout += text;
+        else stderr += text;
+      };
+      const timer = setTimeout(() => {
+        timedOut = true;
+        child.kill();
+      }, timeoutMs);
+      child.stdout.on("data", (chunk: Buffer) => append("stdout", chunk));
+      child.stderr.on("data", (chunk: Buffer) => append("stderr", chunk));
+      child.on("error", reject);
+      child.on("close", (exitCode) => {
+        clearTimeout(timer);
+        resolve({ command, args, exitCode, stdout, stderr, timedOut });
+      });
+    });
+  }
+
   private async searchDirectory(directoryPath: string, query: string, matches: string[]): Promise<void> {
     const entries = await fs.readdir(directoryPath, { withFileTypes: true });
     for (const entry of entries) {
@@ -144,7 +196,7 @@ export class WorkspaceTools {
     return canonicalPath;
   }
 
-  private requireTool(tool: "list" | "read" | "search"): void {
+  private requireTool(tool: WorkspaceToolName): void {
     if (this.grant.expiresAt && Date.parse(this.grant.expiresAt) <= Date.now()) {
       throw new WorkspaceAccessError("Workspace grant has expired");
     }
