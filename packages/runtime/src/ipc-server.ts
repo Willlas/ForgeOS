@@ -115,6 +115,24 @@ export class IpcServer extends EventEmitter {
           throw new Error("WorkspaceExecute requires rootPath and command");
         }
         return rt.executeAuthorizedWorkspace(payload, sid);
+      case IPCCommand.WorkspacePreview: {
+        if (typeof payload !== "object" || payload === null || !("rootPath" in payload) || !("changes" in payload)) {
+          throw new Error("WorkspacePreview requires rootPath and changes");
+        }
+        return rt.previewAuthorizedWorkspace(payload, sid);
+      }
+      case IPCCommand.WorkspaceApprove: {
+        if (typeof payload !== "object" || payload === null || !("rootPath" in payload) || !("diffHash" in payload)) {
+          throw new Error("WorkspaceApprove requires rootPath and diffHash");
+        }
+        return rt.approveAuthorizedWorkspace(payload, sid);
+      }
+      case IPCCommand.WorkspaceApply: {
+        if (typeof payload !== "object" || payload === null || !("rootPath" in payload) || !("approvalId" in payload) || !("changes" in payload)) {
+          throw new Error("WorkspaceApply requires rootPath, approvalId and changes");
+        }
+        return rt.applyAuthorizedWorkspace(payload, sid);
+      }
       // ---- Session Grant Management ----
       case IPCCommand.WorkspaceGrant: {
         if (typeof payload !== "object" || payload === null || !("rootPath" in payload)) {

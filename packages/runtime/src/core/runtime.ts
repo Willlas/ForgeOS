@@ -27,7 +27,13 @@ import type { AskPayload, AskResponsePayload } from "../ipc-protocol.js";
 import { WorkspaceTools } from "../workspace-tools.js";
 import { SessionGrantManager, getSessionGrantManager } from "../session-grant-manager.js";
 import type { SessionGrantRegisterPayload, SessionGrantResult, SessionGrantListResponse } from "../session-grant-manager.js";
-import type { WorkspaceReadPayload, WorkspaceReadResponsePayload, WorkspaceListPayload, WorkspaceSearchPayload, WorkspaceExecutePayload } from "../ipc-protocol.js";
+import type {
+  WorkspaceReadPayload, WorkspaceReadResponsePayload, WorkspaceListPayload,
+  WorkspaceSearchPayload, WorkspaceExecutePayload,
+  WorkspacePreviewPayload, WorkspacePreviewResponsePayload,
+  WorkspaceApprovePayload, WorkspaceApproveResponsePayload,
+  WorkspaceApplyPayload, WorkspaceApplyResponsePayload,
+} from "../ipc-protocol.js";
 
 // ============================================================================
 // Runtime State
@@ -149,6 +155,13 @@ export class Runtime {
 
   // Session grant isolation (per-session workspace access control)
   private readonly sessionGrantManager: SessionGrantManager;
+
+  // Pending workspace approvals (single-use approvalId -> session-scoped binding).
+  // Only audit-safe data is stored here; the secret approval token stays on the grant.
+  private pendingWorkspaceApprovals = new Map<string, { sessionId: string; rootPath: string; diffHash: string; grantId?: string; createdAt: string; expiresAt: string }>();
+  private workspaceApprovalCounter = 0;
+  private static readonly WORKSPACE_APPROVAL_DEFAULT_TTL_SECONDS = 300;
+  private static readonly WORKSPACE_APPROVAL_MAX_TTL_SECONDS = 3600;
 
   // Health check timer
   private healthCheckTimer?: ReturnType<typeof setInterval>;
@@ -365,6 +378,146 @@ export class Runtime {
       allowedCommands,
     });
     return tools.execute(payload.command, payload.args ?? [], { timeoutMs: payload.timeoutMs });
+  }
+
+  // ========================================================================
+  // Authorized Workspace Mutation Lifecycle (Preview -> Approve -> Apply)
+  // ========================================================================
+
+  /**
+   * Preview a batch of proposed changes without writing anything to disk.
+   *
+   * Requires a read-write grant that includes the `apply` tool. Computes a
+   * deterministic `diffHash` over the resolved change set (each file's baseline
+   * hash + new content) that the caller must bind to when approving.
+   */
+  async previewAuthorizedWorkspace(payload: WorkspacePreviewPayload, sessionId: string): Promise<WorkspacePreviewResponsePayload> {
+    const grant = this.sessionGrantManager.getGrant(sessionId, payload.rootPath);
+    if (!grant.tools.includes("apply")) {
+      throw new Error("Workspace tool 'apply' is not granted for this session");
+    }
+    const tools = await WorkspaceTools.create({
+      rootPath: payload.rootPath,
+      mode: grant.mode,
+      tools: grant.tools,
+      allowedCommands: grant.allowedCommands,
+      expiresAt: grant.expiresAt,
+      approvalRequired: grant.approvalRequired,
+      approvalToken: grant.approvalToken,
+      maxReadBytes: grant.maxReadBytes,
+    });
+    const result = await tools.preview(payload.changes);
+    return { rootPath: payload.rootPath, diffHash: result.diffHash, files: result.files };
+  }
+
+  /**
+   * Approve a previously previewed change set.
+   *
+   * Issues a single-use `approvalId` bound to this session, rootPath and the exact
+   * `diffHash` that was previewed. The secret approval token is never stored here —
+   * it stays on the grant and is only re-validated at apply time.
+   */
+  async approveAuthorizedWorkspace(payload: WorkspaceApprovePayload, sessionId: string): Promise<WorkspaceApproveResponsePayload> {
+    const grant = this.sessionGrantManager.getGrant(sessionId, payload.rootPath);
+    if (!grant.tools.includes("apply")) {
+      throw new Error("Workspace tool 'apply' is not granted for this session");
+    }
+    if (typeof payload.diffHash !== "string" || payload.diffHash.length === 0) {
+      throw new Error("Approve requires a non-empty diffHash from a prior preview");
+    }
+
+    const now = Date.now();
+    const ttlSeconds = (typeof payload.expiresInSeconds === "number" && Number.isFinite(payload.expiresInSeconds) && payload.expiresInSeconds > 0)
+      ? Math.min(payload.expiresInSeconds, Runtime.WORKSPACE_APPROVAL_MAX_TTL_SECONDS)
+      : Runtime.WORKSPACE_APPROVAL_DEFAULT_TTL_SECONDS;
+    const createdAt = new Date(now).toISOString();
+    const expiresAt = new Date(now + ttlSeconds * 1000).toISOString();
+    const approvalId = `wsa_${sessionId.slice(0, 8)}_${now}_${++this.workspaceApprovalCounter}`;
+    const grantId = this.resolveGrantId(sessionId, payload.rootPath);
+
+    this.pendingWorkspaceApprovals.set(approvalId, {
+      sessionId,
+      rootPath: payload.rootPath,
+      diffHash: payload.diffHash,
+      grantId,
+      createdAt,
+      expiresAt,
+    });
+    return { approvalId, sessionId, grantId, rootPath: payload.rootPath, diffHash: payload.diffHash, createdAt, expiresAt };
+  }
+
+  /**
+   * Apply a previously approved change set.
+   *
+   * The `approvalId` is single-use: it is validated against the requesting session,
+   * the bound rootPath and diffHash, checked for expiry, then consumed. The write
+   * itself is delegated to {@link WorkspaceTools.applyBatch}, which re-verifies the
+   * secret token and per-file expected hashes and rolls back any files already
+   * written if the batch fails part-way.
+   */
+  async applyAuthorizedWorkspace(payload: WorkspaceApplyPayload, sessionId: string): Promise<WorkspaceApplyResponsePayload> {
+    const stored = this.pendingWorkspaceApprovals.get(payload.approvalId);
+    if (!stored) {
+      throw new Error("Unknown or already-consumed approvalId");
+    }
+    if (stored.sessionId !== sessionId) {
+      throw new Error("Approval belongs to a different session");
+    }
+    if (stored.rootPath !== payload.rootPath) {
+      throw new Error("Approval rootPath does not match the requested rootPath");
+    }
+    if (Date.parse(stored.expiresAt) <= Date.now()) {
+      this.pendingWorkspaceApprovals.delete(payload.approvalId);
+      throw new Error("Approval has expired");
+    }
+
+    const grant = this.sessionGrantManager.getGrant(sessionId, payload.rootPath);
+    if (!grant.tools.includes("apply")) {
+      throw new Error("Workspace tool 'apply' is not granted for this session");
+    }
+    const tools = await WorkspaceTools.create({
+      rootPath: payload.rootPath,
+      mode: grant.mode,
+      tools: grant.tools,
+      allowedCommands: grant.allowedCommands,
+      expiresAt: grant.expiresAt,
+      approvalRequired: grant.approvalRequired,
+      approvalToken: grant.approvalToken,
+      maxReadBytes: grant.maxReadBytes,
+      sessionId,
+      grantId: stored.grantId,
+    });
+    const result = await tools.applyBatch(payload.changes, {
+      sessionId,
+      grantId: stored.grantId,
+      diffHash: stored.diffHash,
+      token: grant.approvalToken,
+    });
+
+    // Approvals are single-use: consume the record only after a successful apply.
+    this.pendingWorkspaceApprovals.delete(payload.approvalId);
+    return {
+      rootPath: payload.rootPath,
+      applied: result.applied,
+      rolledBack: result.rolledBack,
+      restored: result.restored,
+      files: result.files,
+      diffHash: result.diffHash,
+    };
+  }
+
+  /**
+   * Resolve the grantId for a session + rootPath. `SessionGrantManager.getGrant`
+   * strips the id for audit safety, so it is recovered from the audit list here.
+   */
+  private resolveGrantId(sessionId: string, rootPath: string): string {
+    const normalize = (p: string) => p.replace(/\\/g, "/").toLowerCase().replace(/\/+$/, "");
+    const target = normalize(rootPath);
+    const { grants } = this.sessionGrantManager.listGrants(sessionId);
+    for (const g of grants) {
+      if (normalize(g.rootPath) === target) return g.grantId;
+    }
+    return `grant_${sessionId.slice(0, 8)}_${rootPath}`;
   }
 
   /**

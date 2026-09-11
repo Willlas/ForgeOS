@@ -130,4 +130,26 @@ describe("SessionGrantManager", () => {
     expect(manager.getGrant(clientA, "c:/work/project").rootPath).toBe("C:\\Work\\Project");
     expect(manager.hasGrant(clientA, "C:/WORK/PROJECT")).toBe(true);
   });
+
+  it("denies read, list, and search for a session with no registered grants (deny-by-default)", () => {
+    const manager = new SessionGrantManager();
+    const freshSession = "session_fresh_no_grants";
+    // No grants registered at all for this session
+    expect(() => manager.getGrant(freshSession, root)).toThrow(WorkspaceAccessError);
+    expect(manager.hasGrant(freshSession, root)).toBe(false);
+    expect(manager.listGrants(freshSession).grants).toHaveLength(0);
+  });
+
+  it("denies workspace operations immediately after all grants are revoked", () => {
+    const manager = new SessionGrantManager();
+    manager.registerGrant(clientA, { rootPath: root, mode: "read-only", tools: ["read", "list", "search"] });
+    expect(manager.hasGrant(clientA, root)).toBe(true);
+
+    // Revoke all grants for the session
+    manager.revokeGrant(clientA);
+
+    // All workspace operations should now be denied
+    expect(() => manager.getGrant(clientA, root)).toThrow(WorkspaceAccessError);
+    expect(manager.hasGrant(clientA, root)).toBe(false);
+  });
 });

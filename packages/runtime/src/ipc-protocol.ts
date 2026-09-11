@@ -48,6 +48,9 @@ export enum IPCCommand {
   WorkspaceList = "workspace:list",
   WorkspaceSearch = "workspace:search",
   WorkspaceExecute = "workspace:execute",
+  WorkspacePreview = "workspace:preview",
+  WorkspaceApprove = "workspace:approve",
+  WorkspaceApply = "workspace:apply",
 
   // Session Grant Management
   WorkspaceGrant = "workspace:grant",
@@ -69,6 +72,14 @@ export enum IPCErrorCode {
   InternalError = 6,
   SerializationError = 7,
   ConnectionRefused = 8,
+  /** The workspace file changed since the approval was issued (expected-hash mismatch). */
+  HashConflict = 9,
+  /** A read-write change requires an explicit approval that was not provided. */
+  ApprovalRequired = 10,
+  /** The approval is missing, expired, or does not bind this session/grant/diff. */
+  ApprovalRejected = 11,
+  /** A write failed and restoring the pre-change state also failed. */
+  RollbackFailed = 12,
 }
 
 export interface IPCError {
@@ -227,6 +238,68 @@ export interface WorkspaceExecutePayload {
   timeoutMs?: number;
 }
 
+// ----------------------------------------------------------------------------
+// Workspace Apply flow (preview -> approve -> apply)
+// ----------------------------------------------------------------------------
+
+/** A single proposed file mutation. `expectedHash` is the sha256 of the file
+ *  content the change is based on (defaults to the current content hash). */
+export interface WorkspaceApplyChangePayload {
+  relativePath: string;
+  content: string;
+  expectedHash?: string;
+}
+
+export interface WorkspacePreviewPayload {
+  rootPath: string;
+  changes: WorkspaceApplyChangePayload[];
+}
+
+export interface WorkspacePreviewFileInfoPayload {
+  relativePath: string;
+  expectedHash: string;
+  size: number;
+}
+
+export interface WorkspacePreviewResponsePayload {
+  rootPath: string;
+  /** Deterministic fingerprint of the change set — bind the approval to this. */
+  diffHash: string;
+  files: WorkspacePreviewFileInfoPayload[];
+}
+
+export interface WorkspaceApprovePayload {
+  rootPath: string;
+  diffHash: string;
+  expiresInSeconds?: number;
+}
+
+/** Audit-safe approval record. The secret token is never included. */
+export interface WorkspaceApproveResponsePayload {
+  approvalId: string;
+  sessionId: string;
+  grantId: string;
+  rootPath: string;
+  diffHash: string;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface WorkspaceApplyPayload {
+  rootPath: string;
+  approvalId: string;
+  changes: WorkspaceApplyChangePayload[];
+}
+
+export interface WorkspaceApplyResponsePayload {
+  rootPath: string;
+  applied: boolean;
+  rolledBack: boolean;
+  restored: string[];
+  files: Array<{ relativePath: string; previousHash: string; newHash: string }>;
+  diffHash: string;
+}
+
 // ============================================================================
 // Timeout Configuration
 // ============================================================================
@@ -260,6 +333,9 @@ export const COMMAND_TIMEOUTS: Record<IPCCommand, number> = {
   [IPCCommand.WorkspaceGrant]: DEFAULT_TIMEOUT,
   [IPCCommand.WorkspaceRevoke]: DEFAULT_TIMEOUT,
   [IPCCommand.WorkspaceGrantList]: DEFAULT_TIMEOUT,
+  [IPCCommand.WorkspacePreview]: DEFAULT_TIMEOUT,
+  [IPCCommand.WorkspaceApprove]: DEFAULT_TIMEOUT,
+  [IPCCommand.WorkspaceApply]: LONG_OPERATION_TIMEOUT,
 };
 
 export function getTimeoutForCommand(command: IPCCommand): number {
