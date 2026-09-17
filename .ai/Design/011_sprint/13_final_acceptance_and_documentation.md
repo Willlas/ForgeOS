@@ -3,6 +3,9 @@
 ## Objective
 Verify and formally close Sprint 011 after tasks 08-12.
 
+## Current Status
+The technical implementation for tasks 10 and 11 is already verified in runtime/tests. This document records the honest remaining work: finish the final hardening evidence for task 12 and close the sprint review with the actual implemented state, without claiming an unverified full closure.
+
 ## Verification
 Run `npm run build`, `npm run lint`, focused security tests and the full suite. Repeat Windows daemon/CLI smoke tests for explicit grants, traversal, restricted commands, apply approval, rollback, cancellation, provider failure and concurrent clients.
 

@@ -91,6 +91,8 @@ export interface WorkspaceExecuteOptions {
   maxOutputBytes?: number;
   /** Stream captured output as it arrives (ordered, in emission order). */
   onOutput?: (stream: "stdout" | "stderr", chunk: string, totalBytes: number) => void;
+  /** Invoked exactly once when the execution is cancelled. */
+  onCancel?: () => void;
   /** Cancellation token; cancelling kills the child process tree. */
   cancellation?: CommandCancellation;
 }
@@ -248,7 +250,10 @@ export class WorkspaceTools {
       throw new WorkspaceAccessError("Read-write apply grants require explicit approval");
     }
     const rootPath = await fs.realpath(grant.rootPath);
-    return new WorkspaceTools(rootPath, { ...grant, rootPath });
+    const allowedCommands = grant.allowedCommands
+      ? grant.allowedCommands.map((command) => WorkspaceTools.normalizeCommand(command))
+      : undefined;
+    return new WorkspaceTools(rootPath, { ...grant, rootPath, allowedCommands });
   }
 
   getGrant(): WorkspaceAccessGrant {
@@ -295,22 +300,26 @@ export class WorkspaceTools {
   async execute(command: string, args: string[] = [], options?: WorkspaceExecuteOptions): Promise<WorkspaceCommandResult> {
     this.requireTool("execute");
     if (this.grant.mode === "read-only") throw new WorkspaceAccessError("Read-only grants cannot execute commands");
-    if (!this.grant.allowedCommands?.includes(command)) {
+    const resolvedCommand = await this.resolveExecutableCommand(command);
+    const allowedCommands = (this.grant.allowedCommands ?? []).map((allowed) => WorkspaceTools.normalizeCommand(allowed));
+    if (!allowedCommands.includes(resolvedCommand)) {
       throw new WorkspaceAccessError(`Command not granted: ${command}`);
     }
     const timeoutMs = options?.timeoutMs ?? 120_000;
     const maxOutputBytes = options?.maxOutputBytes ?? 1_048_576;
     const cancellation = options?.cancellation;
-    if (cancellation?.cancelled) {
-      throw new WorkspaceAccessError("Operation was cancelled before it started");
-    }
 
     return new Promise((resolve, reject) => {
-      const child = spawn(command, args, {
+      const child = spawn(resolvedCommand, args, {
         cwd: this.rootPath,
         shell: false,
         windowsHide: true,
-        env: { PATH: process.env.PATH ?? "", SystemRoot: process.env.SystemRoot ?? "" },
+        env: {
+          PATH: process.env.PATH ?? "",
+          SystemRoot: process.env.SystemRoot ?? "",
+          TEMP: process.env.TEMP ?? process.env.TMP ?? "",
+          TMP: process.env.TMP ?? process.env.TEMP ?? "",
+        },
       });
       let stdout = "";
       let stderr = "";
@@ -337,6 +346,7 @@ export class WorkspaceTools {
       const requestCancel = (): void => {
         if (cancelled || timedOut) return;
         cancelled = true;
+        options?.onCancel?.();
         killProcessTree();
       };
       if (cancellation) cancellation.onCancellation(requestCancel);
@@ -503,6 +513,42 @@ export class WorkspaceTools {
       restored.push(file.relativePath);
     }
     return { restored, diffHash: manifest.diffHash };
+  }
+
+  private static normalizeCommand(command: string): string {
+    const normalized = command.trim();
+    if (!normalized) return normalized;
+    const real = path.normalize(normalized);
+    return process.platform === "win32" ? real.toLowerCase() : real;
+  }
+
+  private async resolveExecutableCommand(command: string): Promise<string> {
+    const trimmed = command.trim();
+    if (!trimmed) {
+      throw new WorkspaceAccessError("Command must not be empty");
+    }
+
+    const candidates = new Set<string>();
+    if (path.isAbsolute(trimmed)) {
+      candidates.add(trimmed);
+    } else {
+      for (const entry of (process.env.PATH ?? "").split(path.delimiter)) {
+        if (!entry) continue;
+        candidates.add(path.join(entry, trimmed));
+      }
+      candidates.add(trimmed);
+    }
+
+    for (const candidate of candidates) {
+      try {
+        const resolved = await fs.realpath(candidate);
+        return WorkspaceTools.normalizeCommand(resolved);
+      } catch {
+        // Continue searching; the final candidate is kept for a transparent error.
+      }
+    }
+
+    return WorkspaceTools.normalizeCommand(trimmed);
   }
 
   private async searchDirectory(directoryPath: string, query: string, matches: string[]): Promise<void> {

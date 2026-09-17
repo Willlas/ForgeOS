@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { WorkspaceAccessError, WorkspaceTools } from "../workspace-tools.js";
+import { WorkspaceAccessError, WorkspaceTools, CommandCancellationToken } from "../workspace-tools.js";
 import { createHash } from "node:crypto";
 
 let temporaryRoots: string[] = [];
@@ -79,6 +79,24 @@ describe("WorkspaceTools", () => {
     await expect(tools.execute("not-allowed", [])).rejects.toThrow("Command not granted");
   });
 
+  it("accepts an allowlisted command through a case-normalized path that resolves to the same executable", async () => {
+    const rootPath = await mkdtemp(path.join(os.tmpdir(), "aer-workspace-tools-case-"));
+    temporaryRoots.push(rootPath);
+    const allowedCommand = process.platform === "win32" ? process.execPath.toLowerCase() : process.execPath;
+    const commandVariant = process.platform === "win32" ? process.execPath.toUpperCase() : process.execPath;
+
+    const tools = await WorkspaceTools.create({
+      rootPath,
+      mode: "read-write",
+      tools: ["execute"],
+      allowedCommands: [allowedCommand],
+    });
+
+    const result = await tools.execute(commandVariant, ["-e", "process.stdout.write('case-ok')"]);
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toBe("case-ok");
+  });
+
   it("applies only an approved change matching the expected hash", async () => {
     const rootPath = await mkdtemp(path.join(os.tmpdir(), "aer-workspace-tools-"));
     temporaryRoots.push(rootPath);
@@ -101,5 +119,83 @@ describe("WorkspaceTools", () => {
     const result = await tools.apply({ relativePath: "README.md", content: "after", expectedHash, approvalToken: "approved-1" });
     expect(result.hash).toBe(createHash("sha256").update("after").digest("hex"));
     expect(await tools.read("README.md")).toBe("after");
+  });
+
+  it("streams output in emission order with a cumulative byte total (EOF close)", async () => {
+    const rootPath = await mkdtemp(path.join(os.tmpdir(), "wst-exec-stream-"));
+    temporaryRoots.push(rootPath);
+    const tools = await WorkspaceTools.create({ rootPath, mode: "read-write", tools: ["execute"], allowedCommands: [process.execPath] });
+    const chunks: Array<{ stream: "stdout" | "stderr"; chunk: string; totalBytes: number }> = [];
+    const result = await tools.execute(
+      process.execPath,
+      ["-e", "process.stdout.write('ab'); process.stderr.write('cd');"],
+      { onOutput: (stream, chunk, totalBytes) => chunks.push({ stream, chunk, totalBytes }) },
+    );
+    // A clean EOF (child close) yields a resolved result with both streams captured.
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("ab");
+    expect(result.stderr).toContain("cd");
+    expect(chunks.length).toBeGreaterThan(0);
+    let running = 0;
+    for (const entry of chunks) {
+      running += Buffer.byteLength(entry.chunk, "utf8");
+      expect(entry.totalBytes).toBe(running);
+    }
+  });
+
+  it("cancels an in-flight command, terminating the child process and firing the cancel callback once", async () => {
+    const rootPath = await mkdtemp(path.join(os.tmpdir(), "wst-exec-cancel-"));
+    temporaryRoots.push(rootPath);
+    const tools = await WorkspaceTools.create({ rootPath, mode: "read-write", tools: ["execute"], allowedCommands: [process.execPath] });
+    const token = new CommandCancellationToken();
+    let cancelCalls = 0;
+    const promise = tools.execute(
+      process.execPath,
+      ["-e", "setTimeout(() => process.stdout.write('done'), 2000);"],
+      {
+        timeoutMs: 5000,
+        cancellation: token,
+        onCancel: () => {
+          cancelCalls += 1;
+        },
+      },
+    );
+    token.cancel();
+    token.cancel(); // idempotent: second cancel is a no-op
+    const result = await promise;
+    expect(result.cancelled).toBe(true);
+    expect(result.timedOut).toBe(false);
+    expect(result.stdout).not.toContain("done");
+    expect(cancelCalls).toBe(1);
+  });
+
+  it("terminates a long-running command within the timeout bound", async () => {
+    const rootPath = await mkdtemp(path.join(os.tmpdir(), "wst-exec-timeout-"));
+    temporaryRoots.push(rootPath);
+    const tools = await WorkspaceTools.create({ rootPath, mode: "read-write", tools: ["execute"], allowedCommands: [process.execPath] });
+    const started = Date.now();
+    const result = await tools.execute(
+      process.execPath,
+      ["-e", "setTimeout(() => process.stdout.write('done'), 5000);"],
+      { timeoutMs: 300 },
+    );
+    expect(result.timedOut).toBe(true);
+    expect(result.cancelled).toBe(false);
+    expect(result.stdout).not.toContain("done");
+    expect(Date.now() - started).toBeLessThan(5000);
+  });
+
+  it("caps captured output at maxOutputBytes", async () => {
+    const rootPath = await mkdtemp(path.join(os.tmpdir(), "wst-exec-cap-"));
+    temporaryRoots.push(rootPath);
+    const tools = await WorkspaceTools.create({ rootPath, mode: "read-write", tools: ["execute"], allowedCommands: [process.execPath] });
+    const payload = "x".repeat(4096);
+    const result = await tools.execute(
+      process.execPath,
+      ["-e", `process.stdout.write(${JSON.stringify(payload)});`],
+      { maxOutputBytes: 1024 },
+    );
+    expect(result.exitCode).toBe(0);
+    expect(Buffer.byteLength(result.stdout, "utf8")).toBeLessThanOrEqual(1024);
   });
 });

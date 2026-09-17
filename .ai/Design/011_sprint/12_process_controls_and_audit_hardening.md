@@ -3,6 +3,9 @@
 ## Objective
 Close remaining defense-in-depth gaps around restricted commands, output handling and audit records.
 
+## Status
+This item is partially implemented and in audit-hardening pass: the runtime keeps `shell: false`, uses allowlisted commands, canonicalizes command paths, normalizes the root path, and enforces output bounds. The remaining work is to record the exact redaction and process-hardening evidence in the final acceptance notes.
+
 ## Scope
 - Verify executable and argument allowlists cannot be bypassed by path aliases or environment changes.
 - Enforce authorized cwd containment after canonicalization, including junctions and symlinks.
