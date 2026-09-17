@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { WorkspaceAccessError, WorkspaceTools, CommandCancellationToken } from "../workspace-tools.js";
@@ -95,6 +95,32 @@ describe("WorkspaceTools", () => {
     const result = await tools.execute(commandVariant, ["-e", "process.stdout.write('case-ok')"]);
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toBe("case-ok");
+  });
+
+  it("previews and applies a newly created file within the authorized workspace", async () => {
+    const rootPath = await mkdtemp(path.join(os.tmpdir(), "aer-workspace-tools-new-file-"));
+    temporaryRoots.push(rootPath);
+    const relativePath = "docs/new-file.txt";
+    const tools = await WorkspaceTools.create({
+      rootPath,
+      mode: "read-write",
+      tools: ["read", "apply"],
+      approvalRequired: true,
+      approvalToken: "approved-new-file",
+    });
+
+    const preview = await tools.preview([{ relativePath, content: "hello from preview" }]);
+    expect(preview.files[0].expectedHash).toBe(createHash("sha256").update("").digest("hex"));
+
+    const result = await tools.applyBatch([{ relativePath, content: "hello from preview", expectedHash: preview.files[0].expectedHash }], {
+      sessionId: "console-session",
+      grantId: "grant-console",
+      diffHash: preview.diffHash,
+      token: "approved-new-file",
+    });
+
+    expect(result.applied).toBe(true);
+    expect(await readFile(path.join(rootPath, relativePath), "utf8")).toBe("hello from preview");
   });
 
   it("applies only an approved change matching the expected hash", async () => {

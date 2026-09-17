@@ -370,11 +370,12 @@ export class WorkspaceTools {
     if (this.grant.approvalRequired !== true || !this.grant.approvalToken || request.approvalToken !== this.grant.approvalToken) {
       throw new WorkspaceAccessError("Approved change token is required");
     }
-    const filePath = await this.resolveExistingPath(request.relativePath);
-    const currentContent = await fs.readFile(filePath);
+    const { filePath, exists } = await this.resolveWriteTarget(request.relativePath);
+    const currentContent = exists ? await fs.readFile(filePath) : Buffer.alloc(0);
     const currentHash = createHash("sha256").update(currentContent).digest("hex");
     if (currentHash !== request.expectedHash) throw new WorkspaceAccessError("Workspace file changed since approval");
     const nextHash = createHash("sha256").update(request.content).digest("hex");
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
     const temporaryPath = `${filePath}.aer-tmp-${process.pid}`;
     await fs.writeFile(temporaryPath, request.content, "utf8");
     try {
@@ -459,6 +460,7 @@ export class WorkspaceTools {
           throw new WorkspaceApplyError(`Workspace file changed since approval: ${change.relativePath}`, IPCErrorCode.HashConflict);
         }
         const nextHash = sha256(change.content);
+        await fs.mkdir(path.dirname(change.filePath), { recursive: true });
         const temporaryPath = `${change.filePath}.aer-tmp-${process.pid}`;
         await fs.writeFile(temporaryPath, change.content, "utf8");
         await fs.rename(temporaryPath, change.filePath);
@@ -586,6 +588,30 @@ export class WorkspaceTools {
     return canonicalPath;
   }
 
+  private async resolveWriteTarget(relativePath: string): Promise<{ filePath: string; exists: boolean }> {
+    if (!relativePath || path.isAbsolute(relativePath)) {
+      throw new WorkspaceAccessError("Only relative workspace paths are allowed");
+    }
+    const candidatePath = path.resolve(this.rootPath, relativePath);
+    const candidateRelativePath = path.relative(this.rootPath, candidatePath);
+    if (candidateRelativePath.startsWith(`..${path.sep}`) || path.isAbsolute(candidateRelativePath) || candidateRelativePath === "..") {
+      throw new WorkspaceAccessError("Workspace path escapes the granted root");
+    }
+    try {
+      const canonicalPath = await fs.realpath(candidatePath);
+      const relativeToRoot = path.relative(this.rootPath, canonicalPath);
+      if (relativeToRoot.startsWith(`..${path.sep}`) || path.isAbsolute(relativeToRoot) || relativeToRoot === "..") {
+        throw new WorkspaceAccessError("Workspace path escapes the granted root");
+      }
+      return { filePath: canonicalPath, exists: true };
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException)?.code !== "ENOENT") {
+        throw error;
+      }
+      return { filePath: candidatePath, exists: false };
+    }
+  }
+
   private async resolveChanges(changes: WorkspaceApplyChange[]): Promise<ResolvedChange[]> {
     if (!Array.isArray(changes) || changes.length === 0) {
       throw new WorkspaceApplyError("At least one change is required", IPCErrorCode.InvalidPayload);
@@ -602,18 +628,18 @@ export class WorkspaceTools {
       if (typeof change.content !== "string") {
         throw new WorkspaceApplyError("Each change requires a content value", IPCErrorCode.InvalidPayload);
       }
-      const filePath = await this.resolveExistingPath(change.relativePath);
+      const { filePath, exists } = await this.resolveWriteTarget(change.relativePath);
       const relativePath = path.relative(this.rootPath, filePath);
       if (seen.has(relativePath)) {
         throw new WorkspaceApplyError(`Duplicate change for path ${change.relativePath}`, IPCErrorCode.InvalidPayload);
       }
       seen.add(relativePath);
-      const currentBody = await fs.readFile(filePath);
+      const currentBody = exists ? await fs.readFile(filePath) : Buffer.alloc(0);
       const currentHash = sha256(currentBody);
       const expectedHash = typeof change.expectedHash === "string" && change.expectedHash.length > 0
         ? change.expectedHash
         : currentHash;
-      if (expectedHash !== currentHash) {
+      if (exists && expectedHash !== currentHash) {
         throw new WorkspaceApplyError(`Workspace file changed since preview: ${change.relativePath}`, IPCErrorCode.HashConflict);
       }
       resolved.push({

@@ -5,6 +5,8 @@
  * Each IPC session must register a workspace grant before any workspace operation.
  */
 
+import { randomBytes } from "node:crypto";
+
 import {
   WorkspaceAccessGrant,
   WorkspaceAccessError,
@@ -39,8 +41,8 @@ export interface SessionGrantResult {
 export interface SessionGrantRegisterPayload {
   rootPath: string;
   mode: WorkspaceAccessMode;
-  tools: WorkspaceToolName[];
-  allowedCommands?: string[];
+  tools: WorkspaceToolName[] | string;
+  allowedCommands?: string[] | string;
   expiresAt?: string;
   approvalRequired?: boolean;
   approvalToken?: string;
@@ -74,8 +76,45 @@ function generateGrantId(sessionId: string): string {
   return `grant_${sessionId.slice(0, 8)}_${Date.now()}_${grantCounter}`;
 }
 
+function generateApprovalToken(sessionId: string): string {
+  return `approval_${sessionId.slice(0, 8)}_${randomBytes(12).toString("hex")}`;
+}
+
 function normalizeRootPath(rootPath: string): string {
   return rootPath.replace(/\\/g, "/").toLowerCase().replace(/\/+$/, "");
+}
+
+function normalizeToolList(tools: unknown): WorkspaceToolName[] {
+  if (typeof tools === "string") {
+    return tools
+      .split(/[\s,]+/)
+      .map((tool) => tool.trim())
+      .filter(Boolean)
+      .filter((tool): tool is WorkspaceToolName =>
+        ["list", "read", "search", "execute", "apply"].includes(tool as WorkspaceToolName)
+      ) as WorkspaceToolName[];
+  }
+  if (Array.isArray(tools)) {
+    return tools
+      .flatMap((tool) => (typeof tool === "string" ? tool.split(/[\s,]+/) : [tool]))
+      .map((tool) => String(tool).trim())
+      .filter(Boolean)
+      .filter((tool): tool is WorkspaceToolName =>
+        ["list", "read", "search", "execute", "apply"].includes(tool as WorkspaceToolName)
+      ) as WorkspaceToolName[];
+  }
+  return [];
+}
+
+function normalizeAllowedCommands(commands: unknown): string[] | undefined {
+  if (!commands) return undefined;
+  const values = Array.isArray(commands)
+    ? commands
+    : String(commands).split(/[\s,]+/);
+  const normalized = values
+    .map((value) => String(value).trim())
+    .filter(Boolean);
+  return normalized.length ? normalized : undefined;
 }
 
 // ============================================================================
@@ -93,28 +132,42 @@ export class SessionGrantManager {
     if (!grant.rootPath || typeof grant.rootPath !== "string") {
       throw new WorkspaceAccessError("rootPath is required for grant registration");
     }
-    if (!grant.tools || grant.tools.length === 0) {
+
+    const normalizedTools = normalizeToolList(grant.tools);
+    const normalizedAllowedCommands = normalizeAllowedCommands(grant.allowedCommands);
+
+    if (normalizedTools.length === 0) {
       throw new WorkspaceAccessError("At least one workspace tool must be granted");
     }
+
     if (grant.expiresAt) {
       const exp = Date.parse(grant.expiresAt);
       if (Number.isNaN(exp)) throw new WorkspaceAccessError("expiresAt must be a valid ISO timestamp");
       if (exp <= Date.now()) throw new WorkspaceAccessError("expiresAt must be in the future");
     }
-    if (grant.mode === "read-only" && grant.tools.some((t) => t === "execute" || t === "apply")) {
+    if (grant.mode === "read-only" && normalizedTools.some((t) => t === "execute" || t === "apply")) {
       throw new WorkspaceAccessError("Read-only grants cannot include execute or apply tools");
     }
-    if (grant.mode === "read-write" && grant.tools.includes("apply") && grant.approvalRequired !== true) {
+    if (grant.mode === "read-write" && normalizedTools.includes("apply") && grant.approvalRequired !== true) {
       throw new WorkspaceAccessError("Read-write apply grants require explicit approval");
     }
 
     const grantId = generateGrantId(sessionId);
     const registeredAt = new Date().toISOString();
+    const approvalRequired = grant.approvalRequired === true;
+    const approvalToken = approvalRequired && !grant.approvalToken
+      ? generateApprovalToken(sessionId)
+      : grant.approvalToken;
     const record: SessionGrantRecord = {
       ...grant,
       sessionId,
       grantId,
       registeredAt,
+      rootPath: grant.rootPath,
+      tools: normalizedTools,
+      allowedCommands: normalizedAllowedCommands,
+      approvalRequired,
+      approvalToken,
     };
 
     const key = normalizeRootPath(grant.rootPath);

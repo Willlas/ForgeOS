@@ -16,6 +16,36 @@ describe("SessionGrantManager", () => {
       .toThrow("workspace tool must be");
   });
 
+  it("normalizes tools coming as a comma- or space-separated string payload", () => {
+    const manager = new SessionGrantManager();
+
+    const result = manager.registerGrant(clientA, {
+      rootPath: root,
+      mode: "read-write",
+      tools: "apply, read, list, search" as unknown as any,
+      approvalRequired: true,
+    });
+
+    expect(result.grantId).toBeTruthy();
+    const grant = manager.getGrant(clientA, root);
+    expect(grant.tools).toEqual(["apply", "read", "list", "search"]);
+  });
+
+  it("automatically generates an approval token for read-write apply grants", () => {
+    const manager = new SessionGrantManager();
+    const result = manager.registerGrant(clientA, {
+      rootPath: root,
+      mode: "read-write",
+      tools: ["apply"],
+      approvalRequired: true,
+    });
+
+    expect(result.grantId).toBeTruthy();
+    const grant = manager.getGrant(clientA, root);
+    expect(grant.approvalRequired).toBe(true);
+    expect(grant.approvalToken).toMatch(/^approval_/);
+  });
+
   it("enforces mode/tool and approval constraints", () => {
     const manager = new SessionGrantManager();
     expect(() =>
