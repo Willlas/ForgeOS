@@ -401,9 +401,23 @@ export class IpcServer extends EventEmitter {
           if (!socket) return;
           this.emitToolEvent(socket, opId, sessionId, payload.command, "progress", { stream, chunk, totalBytes });
         },
+        onCancel: () => {
+          if (!socket) return;
+          this.emitToolEvent(socket, opId, sessionId, payload.command, "cancel", { message: "Operation cancelled" });
+        },
       });
       if (socket) {
-        this.emitToolEvent(socket, opId, sessionId, payload.command, "result", { result });
+        // A cancelled operation terminates with the `cancel` phase (not `result`)
+        // so a client can distinguish it from a successful run by phase alone.
+        // The contract stays "start → progress* → exactly one terminal phase".
+        if (result && typeof result === "object" && (result as { cancelled?: boolean }).cancelled) {
+          this.emitToolEvent(socket, opId, sessionId, payload.command, "cancel", {
+            message: "Operation cancelled",
+            result,
+          });
+        } else {
+          this.emitToolEvent(socket, opId, sessionId, payload.command, "result", { result });
+        }
       }
       return result;
     }).catch((error) => {

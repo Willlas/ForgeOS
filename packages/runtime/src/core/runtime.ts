@@ -409,6 +409,7 @@ export class Runtime {
         timeoutMs: options?.timeoutMs ?? payload.timeoutMs,
         maxOutputBytes: options?.maxOutputBytes ?? payload.maxOutputBytes,
         onOutput: options?.onOutput,
+        onCancel: options?.onCancel,
         cancellation,
       });
     } finally {

@@ -312,9 +312,13 @@ export interface IPCToolEventData {
   opId: string;
   sessionId: string;
   command: string;
-  /** Cumulative captured output bytes (progress phase only). */
-  bytes?: number;
-  /** Final result payload (result phase only). */
+  /** progress phase: which stream the chunk arrived on. */
+  stream?: "stdout" | "stderr";
+  /** progress phase: the captured text chunk. */
+  chunk?: string;
+  /** progress phase: cumulative captured output bytes. */
+  totalBytes?: number;
+  /** Final result payload (result and cancel phases). */
   result?: unknown;
   /** Error / cancellation reason (error and cancel phases). */
   message?: string;
