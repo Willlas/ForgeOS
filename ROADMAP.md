@@ -27,13 +27,39 @@
 | Sprint 2 | Runtime Infrastructure | ✅ Complete |
 | Sprint 3 | Provider Layer | ✅ Complete |
 | Sprint 4 | Dispatcher Infrastructure | ✅ Complete |
-| Sprint 5 | Execution Runtime | 🟡 Next |
-| Sprint 6 | Agent Runtime | ⏳ Planned |
+| Sprint 5 | Execution Runtime | ✅ Complete |
+| Sprint 6 | Agent Runtime | ✅ Complete |
 | Sprint 7 | Multi-Agent Runtime | ✅ Complete |
-| Sprint 8 | Workflow Runtime | ⏳ Planned |
-| Sprint 9 | CLI | ⏳ Planned |
+| Sprint 8 | Workflow Runtime | ✅ Complete |
+| Sprint 9 | CLI | ✅ Complete |
 | Sprint 10 | VS Code Extension | ⏳ Planned |
 | Sprint 11 | GUI | ⏳ Planned |
+| Sprint 12 | Documentation alignment and product definition | 🔄 Active |
+
+---
+
+# Sprint 12 — Documentation alignment and product definition
+
+Status: Active
+
+Purpose:
+- reconcile the project narrative with the code that actually exists
+- document the validated runtime and CLI workflow realistically
+- define MVP scope, boundaries and next milestone priorities
+- reduce confusion between experimental prototypes, stable runtime code and roadmap claims
+
+Scope:
+- unify README, PROJECT_STATE and ROADMAP
+- document the actual runtime and CLI capabilities already verified
+- clarify what is stable, what is experimental and what remains planned
+- define the next execution milestone after Sprint 12
+
+Exit criteria:
+- [ ] README explains the real project in one page
+- [ ] PROJECT_STATE matches the active branch and sprint
+- [ ] ROADMAP reflects current status without stale contradictions
+- [ ] Sprint 12 summary exists as a standalone planning document
+- [ ] next milestone is explicit and actionable
 
 ---
 
