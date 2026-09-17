@@ -4,12 +4,22 @@
  */
 
 import { EventEmitter } from "events";
+import net from "net";
 import { IpcTransport, getIpcSocketPath } from "./ipc-transport.js";
 import {
   IPCCommand,
   IPCRequest,
   IPCResponse,
+  IPCEvent,
   IPCErrorCode,
+  IpcProtocolError,
+} from "./ipc-protocol.js";
+import type {
+  WorkspaceExecutePayload,
+  SessionHelloPayload,
+  SessionHelloResponsePayload,
+  WorkspaceCancelPayload,
+  IPCToolEventData,
 } from "./ipc-protocol.js";
 
 export class IpcServer extends EventEmitter {
@@ -18,11 +28,39 @@ export class IpcServer extends EventEmitter {
   private runtimeInstance: any = null;
   private socketPath: string;
 
+  // Per-socket session binding (sprint011 task 10). A socket may use only the
+  // session id it bound at `session:hello`; concurrent clients are isolated by
+  // socket, and responses + streamed events route to the owning socket only.
+  private boundSessions = new Map<net.Socket, string>();
+  /** session id -> the live socket that claims it (impersonation guard). */
+  private sessionOwners = new Map<string, net.Socket>();
+  /** opId -> owning socket, so `workspace:cancel` is isolated per session. */
+  private operationOwners = new Map<string, net.Socket>();
+
+  /** Commands that operate on session-scoped state and require a bound session. */
+  private static readonly sessionRequired = new Set<IPCCommand>([
+    IPCCommand.WorkspaceRead,
+    IPCCommand.WorkspaceList,
+    IPCCommand.WorkspaceSearch,
+    IPCCommand.WorkspaceExecute,
+    IPCCommand.WorkspaceCancel,
+    IPCCommand.WorkspacePreview,
+    IPCCommand.WorkspaceApprove,
+    IPCCommand.WorkspaceApply,
+    IPCCommand.WorkspaceGrant,
+    IPCCommand.WorkspaceRevoke,
+    IPCCommand.WorkspaceGrantList,
+  ]);
+
   constructor(socketPath?: string) {
     super();
     this.transport = new IpcTransport();
     this.socketPath = socketPath || getIpcSocketPath();
-    this.transport.on("message", (msg) => this.handleMessage(msg));
+    this.transport.on("message", (msg, socket) => {
+      void this.handleMessage(msg, socket);
+    });
+    this.transport.on("clientConnected", (socket) => this.handleClientConnected(socket));
+    this.transport.on("clientDisconnected", (socket) => this.handleClientDisconnected(socket));
     this.transport.on("error", (err) => this.emit("error", err));
   }
 
@@ -36,13 +74,24 @@ export class IpcServer extends EventEmitter {
   }
 
   /** Dispatch an IPC request to the appropriate Runtime method. */
-  private async dispatchRequest(command: IPCCommand, payload?: unknown, sessionId?: string): Promise<unknown> {
+  private async dispatchRequest(command: IPCCommand, payload?: unknown, claimedSessionId?: string, socket?: net.Socket): Promise<unknown> {
     if (!this.runtimeInstance) {
-      throw new Error("Runtime not initialized");
+      throw new IpcProtocolError(IPCErrorCode.RuntimeNotInitialized, "Runtime not initialized");
     }
     const rt = this.runtimeInstance;
-    // Resolve sessionId — required for all workspace and grant operations
-    const sid = sessionId ?? "anonymous";
+
+    // Authenticated handshake binds the socket to a session before any stateful
+    // command is accepted.
+    if (command === IPCCommand.SessionHello) {
+      return this.bindSession(socket, payload as SessionHelloPayload | undefined);
+    }
+
+    // Resolve the effective session id. Stateful commands are ALWAYS resolved
+    // from the socket's bound session (the claimed id is only a cross-check);
+    // other commands fall back to the claimed id or a shared "anonymous" scope.
+    const sid = IpcServer.sessionRequired.has(command)
+      ? this.resolveBoundSession(socket, claimedSessionId)
+      : (claimedSessionId ?? "anonymous");
 
     switch (command) {
       case IPCCommand.RuntimeStart:
@@ -114,7 +163,25 @@ export class IpcServer extends EventEmitter {
         if (typeof payload !== "object" || payload === null || !("rootPath" in payload) || !("command" in payload)) {
           throw new Error("WorkspaceExecute requires rootPath and command");
         }
-        return rt.executeAuthorizedWorkspace(payload, sid);
+        return this.executeWithStreaming(payload as WorkspaceExecutePayload, sid, socket);
+      case IPCCommand.WorkspaceCancel: {
+        const opId = (typeof payload === "object" && payload !== null && "opId" in payload)
+          ? String((payload as WorkspaceCancelPayload).opId)
+          : "";
+        if (!opId) {
+          throw new IpcProtocolError(IPCErrorCode.InvalidPayload, "workspace:cancel requires an opId");
+        }
+        // Per-session cancellation isolation: only the socket that owns the
+        // in-flight operation may cancel it.
+        const owner = this.operationOwners.get(opId);
+        if (owner && owner !== socket) {
+          throw new IpcProtocolError(IPCErrorCode.SessionMismatch, "workspace:cancel rejected: operation is owned by another session");
+        }
+        if (typeof rt.cancelWorkspaceOperation !== "function") {
+          throw new IpcProtocolError(IPCErrorCode.InternalError, "Runtime does not support workspace cancellation");
+        }
+        return rt.cancelWorkspaceOperation(opId);
+      }
       case IPCCommand.WorkspacePreview: {
         if (typeof payload !== "object" || payload === null || !("rootPath" in payload) || !("changes" in payload)) {
           throw new Error("WorkspacePreview requires rootPath and changes");
@@ -197,10 +264,24 @@ export class IpcServer extends EventEmitter {
   }
 
   close(): void {
+    // Cancel any in-flight workspace operations so a shutting-down daemon never
+    // leaves a child process tree running.
+    if (this.runtimeInstance) {
+      for (const sid of new Set(this.boundSessions.values())) {
+        try {
+          this.runtimeInstance.cancelWorkspaceOperationsForSession?.(sid);
+        } catch {
+          // best-effort cancellation
+        }
+      }
+    }
+    this.boundSessions.clear();
+    this.sessionOwners.clear();
+    this.operationOwners.clear();
     this.transport.close();
   }
 
-  private async handleMessage(msg: unknown): Promise<void> {
+  private async handleMessage(msg: unknown, socket?: net.Socket): Promise<void> {
     if (typeof msg !== "object" || msg === null || !("id" in msg) || !("command" in msg)) {
       console.warn("[IPC Server] Received invalid message");
       return;
@@ -216,7 +297,7 @@ export class IpcServer extends EventEmitter {
       if (customHandler) {
         result = await customHandler(request.payload);
       } else {
-        result = await this.dispatchRequest(request.command, request.payload, request.sessionId);
+        result = await this.dispatchRequest(request.command, request.payload, request.sessionId, socket);
       }
       response = {
         id: request.id,
@@ -226,14 +307,129 @@ export class IpcServer extends EventEmitter {
       };
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
+      const code = err instanceof IpcProtocolError ? err.code : IPCErrorCode.InternalError;
       response = {
         id: request.id,
         success: false,
-        error: { code: IPCErrorCode.InternalError, message: errorMsg },
+        error: { code, message: errorMsg, details: err instanceof IpcProtocolError ? err.details : undefined },
         timestamp: Date.now(),
       };
     }
 
-    this.transport.send(response);
+    this.transport.send(response, socket);
+  }
+
+  private handleClientConnected(socket: net.Socket): void {
+    // The actual binding is completed by `session:hello`; connected sockets are
+    // only marked as active until they authenticate. This keeps a clean
+    // disconnect lifecycle without creating orphaned grant/session state.
+    void socket;
+  }
+
+  private handleClientDisconnected(socket: net.Socket): void {
+    const sessionId = this.boundSessions.get(socket);
+    if (sessionId) {
+      this.sessionOwners.delete(sessionId);
+      this.boundSessions.delete(socket);
+      if (this.runtimeInstance?.cancelWorkspaceOperationsForSession) {
+        try {
+          this.runtimeInstance.cancelWorkspaceOperationsForSession(sessionId);
+        } catch {
+          // Best-effort cleanup during disconnect.
+        }
+      }
+    }
+    for (const [opId, owner] of this.operationOwners.entries()) {
+      if (owner === socket) {
+        this.operationOwners.delete(opId);
+      }
+    }
+  }
+
+  private bindSession(socket: net.Socket | undefined, payload?: SessionHelloPayload): SessionHelloResponsePayload {
+    if (!socket) {
+      throw new IpcProtocolError(IPCErrorCode.Unauthenticated, "Session hello requires a live socket");
+    }
+    const declared = (payload && typeof payload === "object" && "declaredSessionId" in payload)
+      ? String((payload as SessionHelloPayload).declaredSessionId ?? "").trim()
+      : "";
+    if (!declared) {
+      throw new IpcProtocolError(IPCErrorCode.Unauthenticated, "session:hello requires a declaredSessionId");
+    }
+    const existing = this.boundSessions.get(socket);
+    if (existing) {
+      if (existing !== declared) {
+        throw new IpcProtocolError(IPCErrorCode.SessionMismatch, `Socket is already bound to session '${existing}'`);
+      }
+      return { sessionId: existing, issuedAt: new Date().toISOString() };
+    }
+    const currentOwner = this.sessionOwners.get(declared);
+    if (currentOwner && currentOwner !== socket) {
+      throw new IpcProtocolError(IPCErrorCode.SessionInUse, `Session '${declared}' is already claimed by another socket`);
+    }
+
+    this.boundSessions.set(socket, declared);
+    this.sessionOwners.set(declared, socket);
+    return { sessionId: declared, issuedAt: new Date().toISOString() };
+  }
+
+  private resolveBoundSession(socket: net.Socket | undefined, claimedSessionId?: string): string {
+    const bound = socket ? this.boundSessions.get(socket) : undefined;
+    if (!bound) {
+      throw new IpcProtocolError(IPCErrorCode.Unauthenticated, "Socket has not completed the session:hello handshake");
+    }
+    if (claimedSessionId && claimedSessionId !== bound) {
+      throw new IpcProtocolError(IPCErrorCode.SessionMismatch, `Requested sessionId '${claimedSessionId}' does not match the authenticated session '${bound}'`);
+    }
+    return bound;
+  }
+
+  private executeWithStreaming(payload: WorkspaceExecutePayload, sessionId: string, socket?: net.Socket): Promise<unknown> {
+    const opId = `wsop_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+    if (socket) {
+      this.operationOwners.set(opId, socket);
+      this.emitToolEvent(socket, opId, sessionId, payload.command, "start");
+    }
+    return Promise.resolve().then(async () => {
+      const runtime = this.runtimeInstance;
+      if (!runtime || typeof runtime.executeAuthorizedWorkspace !== "function") {
+        throw new IpcProtocolError(IPCErrorCode.RuntimeNotInitialized, "Runtime does not support workspace execution");
+      }
+      const result = await runtime.executeAuthorizedWorkspace(payload, sessionId, {
+        opId,
+        onOutput: (stream: "stdout" | "stderr", chunk: string, totalBytes: number) => {
+          if (!socket) return;
+          this.emitToolEvent(socket, opId, sessionId, payload.command, "progress", { stream, chunk, totalBytes });
+        },
+      });
+      if (socket) {
+        this.emitToolEvent(socket, opId, sessionId, payload.command, "result", { result });
+      }
+      return result;
+    }).catch((error) => {
+      if (socket) {
+        this.emitToolEvent(socket, opId, sessionId, payload.command, "error", { message: error instanceof Error ? error.message : String(error) });
+      }
+      throw error;
+    }).finally(() => {
+      if (socket) {
+        this.operationOwners.delete(opId);
+      }
+    });
+  }
+
+  private emitToolEvent(socket: net.Socket, opId: string, sessionId: string, command: string, phase: IPCToolEventData["phase"], extra: Record<string, unknown> = {}): void {
+    const event: IPCEvent = {
+      type: "tool:event",
+      data: {
+        phase,
+        opId,
+        sessionId,
+        command,
+        ...extra,
+      },
+      timestamp: Date.now(),
+    };
+    this.transport.send(event, socket);
   }
 }

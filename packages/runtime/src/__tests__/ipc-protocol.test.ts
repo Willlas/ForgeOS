@@ -3,11 +3,13 @@ import {
   generateRequestId,
   IPCCommand,
   IPCErrorCode,
+  IpcProtocolError,
   type IPCRequest,
   type ToolApprovalRequest,
   type IPCToolCall,
   type IPCToolResult,
 } from "../ipc-protocol.js";
+import { IpcServer } from "../ipc-server.js";
 
 describe("IPC tool protocol", () => {
   it("preserves session metadata and tool call fields in a request envelope", () => {
@@ -60,5 +62,21 @@ describe("IPC tool protocol", () => {
 
     expect(approval.sessionId).toBe("session-2");
     expect(approval.summary).toContain("source change");
+  });
+
+  it("binds a socket to a real session and rejects impersonation or session reuse", () => {
+    const server = new IpcServer();
+    const socketA = { writable: true } as any;
+    const socketB = { writable: true } as any;
+
+    const helloA = (server as any).bindSession(socketA, { declaredSessionId: "session-1" });
+    expect(helloA.sessionId).toBe("session-1");
+    expect((server as any).resolveBoundSession(socketA, "session-1")).toBe("session-1");
+
+    expect(() => (server as any).resolveBoundSession(socketB, "session-1")).toThrow(IpcProtocolError);
+    expect(() => (server as any).bindSession(socketB, { declaredSessionId: "session-1" })).toThrow(IpcProtocolError);
+
+    expect(() => (server as any).bindSession(socketA, { declaredSessionId: "session-2" })).toThrow(IpcProtocolError);
+    expect(() => (server as any).bindSession(socketB, { declaredSessionId: "" })).toThrow("session:hello requires a declaredSessionId");
   });
 });

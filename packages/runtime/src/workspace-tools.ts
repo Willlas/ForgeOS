@@ -1,5 +1,5 @@
 import { promises as fs } from "node:fs";
-import { spawn } from "node:child_process";
+import { spawn, execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import os from "node:os";
 import path from "node:path";
@@ -40,6 +40,59 @@ export interface WorkspaceCommandResult {
   stdout: string;
   stderr: string;
   timedOut: boolean;
+  /** True when the operation was cancelled (client cancel, disconnect, or daemon stop). */
+  cancelled: boolean;
+}
+
+/**
+ * Cancellation contract for in-flight workspace operations. A token is
+ * threaded from the IPC server (or a test) through `execute()`; cancelling it
+ * kills the child process tree and resolves the operation with
+ * `cancelled: true` instead of throwing.
+ */
+export interface CommandCancellation {
+  /** True once `cancel()` has been called. */
+  readonly cancelled: boolean;
+  /** Request cancellation (idempotent). */
+  cancel(): void;
+  /** Register a one-shot callback invoked exactly once when cancellation fires. */
+  onCancellation(handler: () => void): void;
+}
+
+/** Default in-memory implementation of {@link CommandCancellation}. */
+export class CommandCancellationToken implements CommandCancellation {
+  private _cancelled = false;
+  private handler: (() => void) | null = null;
+
+  get cancelled(): boolean {
+    return this._cancelled;
+  }
+
+  cancel = (): void => {
+    if (this._cancelled) return;
+    this._cancelled = true;
+    const handler = this.handler;
+    this.handler = null;
+    if (handler) handler();
+  };
+
+  onCancellation = (handler: () => void): void => {
+    if (this._cancelled) {
+      handler();
+      return;
+    }
+    this.handler = handler;
+  };
+}
+
+/** Options for `WorkspaceTools.execute` (timeout, output cap, streaming, cancellation). */
+export interface WorkspaceExecuteOptions {
+  timeoutMs?: number;
+  maxOutputBytes?: number;
+  /** Stream captured output as it arrives (ordered, in emission order). */
+  onOutput?: (stream: "stdout" | "stderr", chunk: string, totalBytes: number) => void;
+  /** Cancellation token; cancelling kills the child process tree. */
+  cancellation?: CommandCancellation;
 }
 
 export interface WorkspaceApplyRequest {
@@ -239,7 +292,7 @@ export class WorkspaceTools {
     return matches;
   }
 
-  async execute(command: string, args: string[] = [], options?: { timeoutMs?: number; maxOutputBytes?: number }): Promise<WorkspaceCommandResult> {
+  async execute(command: string, args: string[] = [], options?: WorkspaceExecuteOptions): Promise<WorkspaceCommandResult> {
     this.requireTool("execute");
     if (this.grant.mode === "read-only") throw new WorkspaceAccessError("Read-only grants cannot execute commands");
     if (!this.grant.allowedCommands?.includes(command)) {
@@ -247,6 +300,10 @@ export class WorkspaceTools {
     }
     const timeoutMs = options?.timeoutMs ?? 120_000;
     const maxOutputBytes = options?.maxOutputBytes ?? 1_048_576;
+    const cancellation = options?.cancellation;
+    if (cancellation?.cancelled) {
+      throw new WorkspaceAccessError("Operation was cancelled before it started");
+    }
 
     return new Promise((resolve, reject) => {
       const child = spawn(command, args, {
@@ -258,6 +315,7 @@ export class WorkspaceTools {
       let stdout = "";
       let stderr = "";
       let timedOut = false;
+      let cancelled = false;
       let outputBytes = 0;
       const append = (target: "stdout" | "stderr", chunk: Buffer): void => {
         if (outputBytes >= maxOutputBytes) return;
@@ -266,17 +324,32 @@ export class WorkspaceTools {
         outputBytes += Buffer.byteLength(text, "utf8");
         if (target === "stdout") stdout += text;
         else stderr += text;
+        options?.onOutput?.(target, text, outputBytes);
       };
+      const killProcessTree = (): void => {
+        // child.kill() only signals the direct child; on Windows escalate with
+        // taskkill /T so spawned grandchildren are not orphaned.
+        if (process.platform === "win32" && child.pid !== undefined) {
+          execFile("taskkill", ["/pid", String(child.pid), "/T", "/F"], () => { /* best-effort */ });
+        }
+        child.kill();
+      };
+      const requestCancel = (): void => {
+        if (cancelled || timedOut) return;
+        cancelled = true;
+        killProcessTree();
+      };
+      if (cancellation) cancellation.onCancellation(requestCancel);
       const timer = setTimeout(() => {
         timedOut = true;
-        child.kill();
+        killProcessTree();
       }, timeoutMs);
       child.stdout.on("data", (chunk: Buffer) => append("stdout", chunk));
       child.stderr.on("data", (chunk: Buffer) => append("stderr", chunk));
       child.on("error", reject);
       child.on("close", (exitCode) => {
         clearTimeout(timer);
-        resolve({ command, args, exitCode, stdout, stderr, timedOut });
+        resolve({ command, args, exitCode, stdout, stderr, timedOut, cancelled });
       });
     });
   }

@@ -28,12 +28,12 @@ Enable `ask` and `chat` to work with an explicitly authorized external workspace
 | 01-05 | Implemented and tested |
 | 06 | Partially implemented and smoke-tested |
 | 07 | In progress |
-| 08 | Planned |
-| 09 | Planned |
-| 10 | Planned |
-| 11 | Planned |
-| 12 | Planned |
-| 13 | Planned |
+| 08 | Implemented in explicit grant flow; CLI self-grant removed from command surface |
+| 09 | Partially implemented in runtime/IPC/CLI: preview, approve and apply commands exist; end-to-end evidence needs completion |
+| 10 | Planned: authenticated session identity and multi-client transport hardening |
+| 11 | Planned: streaming events and bounded cancellation |
+| 12 | Planned: process-control and audit redaction hardening |
+| 13 | Planned: final acceptance evidence and formal closure |
 
 ## Scope Boundary
 No access is granted by prompt text alone. External roots, commands and mutations require explicit user/host authorization.

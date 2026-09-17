@@ -48,6 +48,17 @@ export enum IPCCommand {
   WorkspaceList = "workspace:list",
   WorkspaceSearch = "workspace:search",
   WorkspaceExecute = "workspace:execute",
+  /**
+   * Cancel an in-flight workspace operation by its opId (idempotent).
+   * The first call triggers cancellation; later calls report
+   * `alreadyFinished: true` without side effects.
+   */
+  WorkspaceCancel = "workspace:cancel",
+  /**
+   * Authenticated handshake: a socket must complete this before any other
+   * request is accepted. Unauthenticated requests are rejected.
+   */
+  SessionHello = "session:hello",
   WorkspacePreview = "workspace:preview",
   WorkspaceApprove = "workspace:approve",
   WorkspaceApply = "workspace:apply",
@@ -80,12 +91,38 @@ export enum IPCErrorCode {
   ApprovalRejected = 11,
   /** A write failed and restoring the pre-change state also failed. */
   RollbackFailed = 12,
+  /** Socket has not completed the `session:hello` handshake. */
+  Unauthenticated = 13,
+  /** Requested sessionId does not match the session bound to the socket. */
+  SessionMismatch = 14,
+  /** Command rejected by policy (allowlist, read-only mode, unsafe command). */
+  CommandRejected = 15,
+  /** A session id is already claimed by another active socket (impersonation guard). */
+  SessionInUse = 16,
 }
 
 export interface IPCError {
   code: IPCErrorCode;
   message: string;
   details?: unknown;
+}
+
+/**
+ * Error carrying a stable IPC protocol error code. Server-side code throws
+ * these so a specific code reaches the client (e.g. unknown command →
+ * `ProtocolViolation`) instead of always degrading to
+ * {@link IPCErrorCode.InternalError}.
+ */
+export class IpcProtocolError extends Error {
+  readonly code: IPCErrorCode;
+  readonly details?: unknown;
+
+  constructor(code: IPCErrorCode, message: string, details?: unknown) {
+    super(message);
+    this.name = "IpcProtocolError";
+    this.code = code;
+    if (details !== undefined) this.details = details;
+  }
 }
 
 // ============================================================================
@@ -236,6 +273,51 @@ export interface WorkspaceExecutePayload {
   command: string;
   args?: string[];
   timeoutMs?: number;
+  maxOutputBytes?: number;
+}
+
+export interface SessionHelloPayload {
+  /** Optional client-declared session id (e.g. `AER_SESSION_ID`). */
+  declaredSessionId?: string;
+}
+
+export interface SessionHelloResponsePayload {
+  /** The session id the server bound to this socket. */
+  sessionId: string;
+  issuedAt: string;
+}
+
+export interface WorkspaceCancelPayload {
+  opId: string;
+  reason?: string;
+}
+
+export interface WorkspaceCancelResponsePayload {
+  cancelled: boolean;
+  alreadyFinished: boolean;
+}
+
+/**
+ * Ordered lifecycle phase for an in-flight workspace operation:
+ * `start` → `progress`* → exactly one final phase (`result` | `error` | `cancel`).
+ * Events are written to the owning socket in emission order, so a consumer
+ * observes a single deterministic sequence per operation.
+ */
+export type IPCToolEventPhase = "start" | "progress" | "result" | "error" | "cancel";
+
+/** Payload for the daemon → client `tool:event` stream (one IPCEvent per phase). */
+export interface IPCToolEventData {
+  phase: IPCToolEventPhase;
+  /** Correlates all phases of one operation (also usable for `workspace:cancel`). */
+  opId: string;
+  sessionId: string;
+  command: string;
+  /** Cumulative captured output bytes (progress phase only). */
+  bytes?: number;
+  /** Final result payload (result phase only). */
+  result?: unknown;
+  /** Error / cancellation reason (error and cancel phases). */
+  message?: string;
 }
 
 // ----------------------------------------------------------------------------
@@ -336,6 +418,8 @@ export const COMMAND_TIMEOUTS: Record<IPCCommand, number> = {
   [IPCCommand.WorkspacePreview]: DEFAULT_TIMEOUT,
   [IPCCommand.WorkspaceApprove]: DEFAULT_TIMEOUT,
   [IPCCommand.WorkspaceApply]: LONG_OPERATION_TIMEOUT,
+  [IPCCommand.WorkspaceCancel]: DEFAULT_TIMEOUT,
+  [IPCCommand.SessionHello]: DEFAULT_TIMEOUT,
 };
 
 export function getTimeoutForCommand(command: IPCCommand): number {

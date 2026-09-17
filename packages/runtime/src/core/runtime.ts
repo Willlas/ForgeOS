@@ -24,7 +24,15 @@ import { SNAPSHOT_SCHEMA_VERSION } from "../persistence/state-store.js";
 import { createProvider } from "../core/types/provider.js";
 import type { ProviderConfig } from "../core/types/provider.js";
 import type { AskPayload, AskResponsePayload } from "../ipc-protocol.js";
-import { WorkspaceTools } from "../workspace-tools.js";
+import {
+  WorkspaceTools,
+  CommandCancellationToken,
+} from "../workspace-tools.js";
+import type {
+  WorkspaceExecuteOptions,
+  WorkspaceCommandResult,
+  CommandCancellation,
+} from "../workspace-tools.js";
 import { SessionGrantManager, getSessionGrantManager } from "../session-grant-manager.js";
 import type { SessionGrantRegisterPayload, SessionGrantResult, SessionGrantListResponse } from "../session-grant-manager.js";
 import type {
@@ -162,6 +170,14 @@ export class Runtime {
   private workspaceApprovalCounter = 0;
   private static readonly WORKSPACE_APPROVAL_DEFAULT_TTL_SECONDS = 300;
   private static readonly WORKSPACE_APPROVAL_MAX_TTL_SECONDS = 3600;
+
+  // In-flight workspace execute operations (sprint011 task 11). The Runtime
+  // owns cancellation so `stop()` and per-session cleanup stay authoritative;
+  // the IPC server delegates `workspace:cancel` here and drives the streamed
+  // events. opId -> cancellation token, with the owning session for grouping.
+  private workspaceOperations = new Map<string, CommandCancellation>();
+  private workspaceOperationSessions = new Map<string, string>();
+  private workspaceOperationCounter = 0;
 
   // Health check timer
   private healthCheckTimer?: ReturnType<typeof setInterval>;
@@ -364,7 +380,11 @@ export class Runtime {
     return tools.search(payload.query);
   }
 
-  async executeAuthorizedWorkspace(payload: WorkspaceExecutePayload, sessionId: string): Promise<unknown> {
+  async executeAuthorizedWorkspace(
+    payload: WorkspaceExecutePayload,
+    sessionId: string,
+    options?: WorkspaceExecuteOptions & { opId?: string },
+  ): Promise<WorkspaceCommandResult> {
     const grant = this.sessionGrantManager.getGrant(sessionId, payload.rootPath);
     if (!grant.tools.includes("execute")) {
       throw new Error("Workspace tool 'execute' is not granted for this session");
@@ -377,7 +397,59 @@ export class Runtime {
       tools: ["execute"],
       allowedCommands,
     });
-    return tools.execute(payload.command, payload.args ?? [], { timeoutMs: payload.timeoutMs });
+    // Register the operation so cancellation is authoritative here: the IPC
+    // server delegates `workspace:cancel` and disconnect cleanup to the runtime,
+    // and `stop()` force-kills anything still in flight (sprint011 task 11).
+    const opId = options?.opId ?? this.nextWorkspaceOperationId();
+    const cancellation = options?.cancellation ?? new CommandCancellationToken();
+    this.workspaceOperations.set(opId, cancellation);
+    this.workspaceOperationSessions.set(opId, sessionId);
+    try {
+      return await tools.execute(payload.command, payload.args ?? [], {
+        timeoutMs: options?.timeoutMs ?? payload.timeoutMs,
+        maxOutputBytes: options?.maxOutputBytes ?? payload.maxOutputBytes,
+        onOutput: options?.onOutput,
+        cancellation,
+      });
+    } finally {
+      this.workspaceOperations.delete(opId);
+      this.workspaceOperationSessions.delete(opId);
+    }
+  }
+
+  /**
+   * Cancel an in-flight workspace operation by id. Idempotent — safe to call
+   * repeatedly and on already-finished operations (sprint011 task 11).
+   */
+  cancelWorkspaceOperation(opId: string): { cancelled: boolean; alreadyFinished: boolean } {
+    const token = this.workspaceOperations.get(opId);
+    if (!token) return { cancelled: false, alreadyFinished: true };
+    if (token.cancelled) return { cancelled: true, alreadyFinished: true };
+    token.cancel();
+    return { cancelled: true, alreadyFinished: false };
+  }
+
+  /** Cancel every in-flight operation owned by a session (used on disconnect). */
+  cancelWorkspaceOperationsForSession(sessionId: string): number {
+    let count = 0;
+    for (const [opId, sid] of this.workspaceOperationSessions) {
+      if (sid === sessionId && this.cancelWorkspaceOperation(opId).cancelled) count++;
+    }
+    return count;
+  }
+
+  /** Cancel every in-flight workspace operation (used on stop / close). */
+  cancelAllWorkspaceOperations(): number {
+    let count = 0;
+    for (const opId of [...this.workspaceOperations.keys()]) {
+      if (this.cancelWorkspaceOperation(opId).cancelled) count++;
+    }
+    return count;
+  }
+
+  private nextWorkspaceOperationId(): string {
+    this.workspaceOperationCounter++;
+    return `wsop_${this.workspaceOperationCounter}`;
   }
 
   // ========================================================================
@@ -532,6 +604,10 @@ export class Runtime {
 
     try {
       await this.logSelf("info", "Stopping Autonomous Engineering Runtime...");
+
+      // Kill any in-flight workspace command process trees first so stopping
+      // cannot leak orphaned children (sprint011 task 11).
+      this.cancelAllWorkspaceOperations();
 
       // Stop health checks
       if (this.config.healthCheckEnabled) {

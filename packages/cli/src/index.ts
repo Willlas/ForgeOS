@@ -435,6 +435,135 @@ program
     } finally { client.disconnect(); }
   });
 
+// ---- workspace mutation lifecycle (preview -> approve -> apply) ----
+
+// Commander v12 repeatable-option collector.
+function collect(value: string, previous: string[]): string[] {
+  return previous.concat([value]);
+}
+
+// Build the ordered change set from repeatable --file/--content/--hash options.
+function buildWorkspaceChanges(options: { file: string[]; content: string[]; hash: string[] }): Array<{
+  relativePath: string;
+  content: string;
+  expectedHash?: string;
+}> {
+  const fileCount = options.file.length;
+  const contentCount = options.content.length;
+  if (fileCount === 0) {
+    throw new Error('Provide at least one --file and one --content pair.');
+  }
+  if (fileCount !== contentCount) {
+    throw new Error(
+      `--file and --content must appear the same number of times (got ${fileCount} file(s), ${contentCount} content(s)).`,
+    );
+  }
+  if (options.hash.length !== 0 && options.hash.length !== fileCount) {
+    throw new Error(
+      `--hash must be omitted entirely or provided exactly once per --file (got ${options.hash.length} hash(es) for ${fileCount} file(s)).`,
+    );
+  }
+  return options.file.map((relativePath, index) => ({
+    relativePath,
+    content: options.content[index],
+    ...(options.hash[index] !== undefined ? { expectedHash: options.hash[index] } : {}),
+  }));
+}
+
+program
+  .command('workspace:preview')
+  .description('Preview workspace file changes without writing anything (requires an apply grant)')
+  .argument('<root>', 'Absolute workspace root')
+  .option('-f, --file <relPath>', 'File to create or update; repeat once per change, in order', collect, [])
+  .option('-c, --content <text>', 'New content for each --file; repeat in the same order', collect, [])
+  .option('--hash <sha256>', 'Expected sha256 baseline for an existing file; optional, repeat per file', collect, [])
+  .action(async (root: string, options: { file: string[]; content: string[]; hash: string[] }) => {
+    if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
+    const client = await getIpcClient();
+    try {
+      const changes = buildWorkspaceChanges(options);
+      const response = await client.call(IPCCommand.WorkspacePreview, { rootPath: root, changes });
+      if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace preview failed.');
+      const data = response.data as { diffHash: string; files: Array<{ relativePath: string; expectedHash: string; size: number }> };
+      console.log(JSON.stringify(data, null, 2));
+      console.error(`Use this diffHash with workspace:approve: ${data.diffHash}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`Workspace preview failed: ${message}`);
+      process.exitCode = 1;
+    } finally { client.disconnect(); }
+  });
+
+program
+  .command('workspace:approve')
+  .description('Approve a previewed diff; returns a single-use approvalId (requires confirmation)')
+  .argument('<root>', 'Absolute workspace root')
+  .argument('<diffHash>', 'diffHash returned by workspace:preview')
+  .option('-t, --ttl <seconds>', 'Approval TTL in seconds (capped at 300)', '60')
+  .option('--yes', 'Skip the read-write confirmation prompt')
+  .action(async (root: string, diffHash: string, options: { ttl: string; yes?: boolean }) => {
+    if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
+    const ttl = Number(options.ttl);
+    if (!Number.isFinite(ttl) || ttl <= 0) {
+      console.error('--ttl must be a positive number of seconds');
+      process.exitCode = 1;
+      return;
+    }
+    const confirmed = options.yes
+      ? true
+      : await confirmAction(`Approve applying changes to ${root} (diffHash ${diffHash})? (yes/no) `);
+    if (!confirmed) { console.log('Aborted by user.'); process.exitCode = 1; return; }
+    const client = await getIpcClient();
+    try {
+      const response = await client.call(IPCCommand.WorkspaceApprove, {
+        rootPath: root,
+        diffHash,
+        expiresInSeconds: ttl,
+      });
+      if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace approval failed.');
+      // Audit-safe: the response carries no secret token.
+      console.log(JSON.stringify(response.data, null, 2));
+      const data = response.data as { approvalId: string };
+      console.error(`Use this approvalId with workspace:apply: ${data.approvalId}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`Workspace approval failed: ${message}`);
+      process.exitCode = 1;
+    } finally { client.disconnect(); }
+  });
+
+program
+  .command('workspace:apply')
+  .description('Apply a previously approved diff using its single-use approvalId (requires confirmation)')
+  .argument('<root>', 'Absolute workspace root')
+  .argument('<approvalId>', 'approvalId returned by workspace:approve')
+  .option('-f, --file <relPath>', 'File to create or update; repeat once per change, in order', collect, [])
+  .option('-c, --content <text>', 'New content for each --file; repeat in the same order', collect, [])
+  .option('--hash <sha256>', 'Expected sha256 baseline for an existing file; optional, repeat per file', collect, [])
+  .option('--yes', 'Skip the apply confirmation prompt')
+  .action(async (root: string, approvalId: string, options: { file: string[]; content: string[]; hash: string[]; yes?: boolean }) => {
+    if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
+    const confirmed = options.yes
+      ? true
+      : await confirmAction(`Apply approved changes (approvalId ${approvalId}) to ${root}? (yes/no) `);
+    if (!confirmed) { console.log('Aborted by user.'); process.exitCode = 1; return; }
+    const client = await getIpcClient();
+    try {
+      const changes = buildWorkspaceChanges(options);
+      const response = await client.call(IPCCommand.WorkspaceApply, {
+        rootPath: root,
+        approvalId,
+        changes,
+      });
+      if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace apply failed.');
+      console.log(JSON.stringify(response.data, null, 2));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`Workspace apply failed: ${message}`);
+      process.exitCode = 1;
+    } finally { client.disconnect(); }
+  });
+
 program
   .command('review-workspace')
   .description('Inspect an authorized workspace and ask the Runtime for a review')
