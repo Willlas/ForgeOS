@@ -52,7 +52,9 @@ export class IpcTransport extends EventEmitter {
       sock.on("error", (err) => {
         this.connected = false;
         if (!sock.readable && !sock.writable) reject(err);
-        this.emit("error", err, sock);
+        if (this.listenerCount("error") > 0) {
+          this.emit("error", err, sock);
+        }
       });
       this.outgoing = sock;
     });
@@ -130,6 +132,10 @@ export class IpcTransport extends EventEmitter {
         }
       }
     });
-    sock.on("error", (err) => this.emit("error", err, sock));
+    sock.on("error", (err) => {
+      if (this.listenerCount("error") > 0) {
+        this.emit("error", err, sock);
+      }
+    });
   }
 }

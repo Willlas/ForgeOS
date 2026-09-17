@@ -84,9 +84,22 @@ async function waitForDaemonReady(timeoutMs = 5000): Promise<void> {
   throw new Error(`Daemon did not become ready within ${timeoutMs}ms: ${String(lastError)}`);
 }
 
+async function isSocketListening(): Promise<boolean> {
+  const transport = new IpcTransport();
+  try {
+    await transport.connect(getIpcSocketPath());
+    return true;
+  } catch {
+    return false;
+  } finally {
+    transport.close();
+  }
+}
+
 export async function startDaemon(options?: DaemonOptions): Promise<void> {
   const existingPid = readPidFile();
   if (existingPid > 0 && isPidAlive(existingPid)) return;
+  if (await isSocketListening()) return;
 
   removePidFile();
 

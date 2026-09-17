@@ -22,13 +22,32 @@ interface PidManagerOptions {
   pidDir?: string | undefined;
 }
 
+function findProjectRoot(startDir: string): string {
+  let current = startDir;
+  for (let i = 0; i < 12; i++) {
+    const pkgJson = path.join(current, "package.json");
+    if (fs.existsSync(pkgJson)) {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(pkgJson, "utf-8"));
+        if (pkg?.workspaces || pkg?.name === "@aer/root") {
+          return current;
+        }
+      } catch {
+        // ignore malformed package manifests and keep walking upward
+      }
+    }
+    const next = path.dirname(current);
+    if (next === current) break;
+    current = next;
+  }
+  return path.join(__dirname, "..", "..", "..");
+}
+
 function resolvePidDir(options?: PidManagerOptions): string {
   if (options?.pidDir) return options.pidDir;
   const customDir = process.env.AER_DAEMON_PID_DIR;
   if (customDir) return customDir;
-  // Default: <repo>/.daemon  (runtime-lib lives under packages/runtime/src,
-  // so go up three levels to reach the repo root).
-  const projectRoot = path.join(__dirname, "..", "..", "..");
+  const projectRoot = findProjectRoot(__dirname);
   return path.join(projectRoot, ".daemon");
 }
 
