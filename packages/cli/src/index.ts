@@ -373,14 +373,15 @@ program
   .option('-t, --tools <tools>', 'Comma-separated tools: list,read,search,execute,apply', 'list,read,search')
   .option('-a, --allowed <commands>', 'Comma-separated allowlisted executables (for execute)')
   .option('-e, --expires <iso>', 'Optional ISO expiration timestamp')
-  .action(async (root: string, options: { mode: string; tools: string; allowed?: string; expires?: string }) => {
+  .option('--yes', 'Skip the read-write confirmation prompt')
+  .action(async (root: string, options: { mode: string; tools: string; allowed?: string; expires?: string; yes?: boolean }) => {
     if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
     const mode = (options.mode === 'read-write' ? 'read-write' : 'read-only') as WorkspaceMode;
     const tools = options.tools.split(',').map((t) => t.trim()).filter(Boolean) as WorkspaceTool[];
     const allowedCommands = options.allowed?.split(',').map((c) => c.trim()).filter(Boolean);
     const approvalRequired = mode === 'read-write' && tools.includes('apply');
     if (mode === 'read-write') {
-      const confirmed = await confirmAction(`Grant READ-WRITE access to ${root} for this CLI session? (yes/no) `);
+      const confirmed = options.yes ? true : await confirmAction(`Grant READ-WRITE access to ${root} for this CLI session? (yes/no) `);
       if (!confirmed) { console.log('Aborted by user.'); process.exitCode = 1; return; }
     }
     const client = await getIpcClient();
