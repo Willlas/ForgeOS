@@ -1,11 +1,11 @@
 # PROJECT_STATE
 
-Last Updated: 2026-09-17
+Last Updated: 2026-09-18
 Repository Status: STABLE
 Build Status: PASSING
-Tests: PASSING
-Branch: develop
-Last Stable Commit: Merge feature/main_implementation_core_cli_gui into develop
+Tests: PASSING (402/402, 27 files)
+Branch: sprint12
+Last Stable Commit: 8fe01fe — docs: Update project goals and next milestone in README for clarity
 
 ---
 
@@ -44,137 +44,45 @@ Known blockers: None
 
 ---
 
-# Components
+# Delivery Status
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Runtime Core | Stable | Main loop implemented |
-| WorkGraph | Stable | Compiler issues resolved |
-| Scheduler | Complete | Full implementation with tests |
-| Dispatcher | **Complete** | Full implementation with tests |
-| Provider API | **Complete** | Interface + capabilities model |
-| Ollama Provider | **Complete** | Full IProvider implementation |
-| Provider Worker | **Complete** | IWorker bridge adapter |
-| Provider Registry | **Complete** | Auto-registration pattern |
-| CLI | **In Progress** | Implementation started |
-| VS Code Extension | Planned | Design only |
-| GUI | Planned | Design only |
+## Completed
 
----
+Sprints 1–9 deliverables — implemented, compiled, and covered by the test suite:
 
-# Completed During This Session - Sprint: Agent Runtime (Sprint 6)
+- **Runtime Core** — stable; main loop and runtime primitives (Sprint 2)
+- **WorkGraph** — stable; compiler issues resolved (Sprint 1)
+- **Scheduler** — complete; priority-based task scheduling with EventBus and logging (Sprint 2)
+- **Dispatcher** — complete; worker management, routing, retry, cancellation (Sprint 4)
+- **Provider API** — complete; interface + capabilities model (Sprint 3)
+- **Ollama Provider** — complete; full IProvider implementation with streaming and health checks (Sprint 3)
+- **Provider Worker** — complete; IWorker bridge adapter (Sprint 3)
+- **Provider Registry** — complete; auto-registration pattern (Sprint 3)
+- **Agent Runtime** — complete; agent abstraction, registry, team coordination, execution coordinator (Sprint 6)
+- **Multi-Agent Runtime** — complete (Sprint 7)
+- **Workflow Runtime** — complete (Sprint 8)
+- **CLI** — complete; validated grant → preview → approve → apply flow (Sprint 9)
 
-## Agent Runtime Implementation
+## Pending
 
-### Agent Abstraction (src/runtime/agent.ts)
-- Full agent lifecycle (create, start, stop, pause, resume)
-- Prompt management with system prompts and user messages
-- Conversation context handling with message history
-- Memory abstraction with short-term and long-term storage
-- Tool execution hooks for external integrations
-- Capability registry and role-based access
+Unvalidated work and open gaps:
 
-### Agent Registry (src/runtime/agent-registry.ts)
-- Central registry for managing agents with lifecycle coordination
-- Capability-based agent lookup
-- Role-based agent routing
-- Health monitoring and automatic degradation
-- Team composition (AgentTeam abstraction)
-- Integration with the existing WorkerRegistry for dispatcher compatibility
+- Multi-agent coordination: implemented but not yet a validated end-to-end workflow
+- Additional provider backends (OpenAI, Anthropic) not yet implemented
+- Provider capability detection is static (no model-specific overrides)
+- Unchecked Sprint 12 completion criteria:
+  - [ ] unify project documentation around the real architecture and current status
+  - [ ] define MVP scope and product boundaries
+  - [ ] reconcile README, ROADMAP, PROJECT_STATE and sprint notes
+  - [ ] document the validated CLI workflow and remaining gaps
+  - [ ] prepare the next engineering milestone from the stable branch
 
-### Agent Team Coordination (src/runtime/agent-team.ts)
-- Team lifecycle management (create → running → suspended → stopped)
-- Role-based agent assignment (Architect, Worker, Reviewer, Generalist)
-- Shared execution context with scoping
-- Task decomposition and distribution
-- Agent coordination via shared context events
-- Team-level metrics and monitoring
-- Event-driven state transitions
+## Planned
 
-### Agent Execution Coordinator (src/runtime/agent-execution-coordinator.ts)
-- Coordinates agent execution requests with the existing runtime infrastructure
-- Bridges agent abstraction to execution framework
-- Capability-based agent selection
-- Execution request/response handling
+Post-MVP work:
 
-### Unit Tests (src/runtime/__tests__/agent-team.test.ts)
-- 41 comprehensive tests covering all agent team functionality:
-  - Lifecycle management (create, start, stop, suspend, resume)
-  - Agent management (add, remove, get agents by role)
-  - Task decomposition and assignment
-  - Shared context operations
-  - Metrics and summary generation
-  - Event emission and handling
-
-## Test Results
-- All 205 tests passing (0 failures)
-- Agent team tests: 41 tests covering all sprint exit criteria
-- Previous test suites intact (Scheduler 35 + EventBus 33 + Logging 32 + Metrics 43 + Provider 17 + Dispatcher 38 + Agent Team 41)
-
----
-
-# Sprint 6 Summary
-
-The Agent Runtime has been fully implemented with comprehensive support for:
-
-1. **Agent Abstraction**: Full agent lifecycle management with capabilities, memory, and tool execution
-2. **Agent Registry**: Centralized management with health monitoring and capability-based discovery
-3. **Team Coordination**: Multi-agent team orchestration with shared context and task decomposition
-4. **Execution Integration**: Bridge between agents and the existing runtime infrastructure
-5. **Testing**: Comprehensive test coverage for all agent components
-
----
-
-# Previous Sprints
-
-## Sprint 5 - Execution Runtime (Complete)
-- WorkerRuntime implementation in src/runtime/worker-runtime.ts
-- Execution framework for task execution
-- Worker lifecycle management
-- Heartbeat and watchdog mechanisms
-- Recovery and resume capabilities
-- Runtime events integration
-- Cancellation token support
-- State snapshot functionality
-
-## Sprint 4 - Dispatcher Infrastructure (Complete)
-- TaskDispatcher: Full dispatcher with worker management, routing, retry, cancellation
-- WorkerRegistry: Worker map with capability indexing and health monitoring
-- Worker Selection Strategies: least_connections and round_robin
-- Comprehensive Test Suite: 38 dispatcher tests covering all exit criteria
-- Integration: ProviderWorker registration, metrics, logging integration
-
-## Sprint 3 - Provider Layer (Complete)
-- OllamaProvider: Full IProvider interface with streaming, health checks, model listing
-- ProviderWorker: IWorker adapter bridging provider to scheduler task execution
-- ProviderRegistry: Auto-registration pattern with factory support
-- Test Suite: 17 provider tests covering registry, factory, and configuration variations
-- Config Normalization: Provider defaults applied at construction time
-
-## Sprint 2 - Runtime Infrastructure (Complete)
-- Scheduler: Full priority-based task scheduling
-- EventBus: Event-driven communication layer
-- Logging: Comprehensive logging system
-- Metrics: Collection and reporting infrastructure
-- Runtime primitives: Core runtime components
-
-## Sprint 1 - Repository Recovery (Complete)
-- Repository restoration with 174 TypeScript errors fixed
-- Stable WorkGraph recovery
-- Healthy baseline commit creation
-
----
-
-# Current Objective
-
-Sprint 6 (Agent Runtime) is complete. Moving to Sprint 7 planning.
-
-Key accomplishments:
-- Full agent abstraction system implemented
-- Agent lifecycle management complete
-- Team coordination capabilities implemented
-- Integration with existing runtime infrastructure
-- Comprehensive test coverage for all agent components
+- **VS Code Extension** — design only (Sprint 10)
+- **GUI** — design only (Sprint 11)
 
 ---
 
@@ -194,7 +102,6 @@ Key accomplishments:
 
 - Provider capability detection is static (no model-specific overrides)
 - Only Ollama provider registered (OpenAI, Anthropic pending)
-- CLI tooling not yet implemented
 - VSCode Extension not yet implemented
 
 ---
@@ -211,14 +118,6 @@ Key accomplishments:
 # Active Experiments
 
 None
-
----
-
-# Recommended Next Tasks (Sprint 7)
-
-Priority 1: Implement Multi-Agent Runtime coordination
-Priority 2: Implement Workflow Runtime for engineering workflows
-Priority 3: Implement CLI tooling for runtime management
 
 ---
 
