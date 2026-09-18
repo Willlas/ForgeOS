@@ -11,24 +11,23 @@ Last Stable Commit: 8fe01fe — docs: Update project goals and next milestone in
 
 # Current Mission
 
-Build a reliable autonomous engineering runtime that can coordinate agents, providers, workflows and CLI-driven operations around a secure workspace model.
+Build a reliable autonomous engineering runtime that coordinates agents, providers, workflows, and CLI-driven operations around a secure workspace model.
 
-Current implementation phase:
-
-Documentation alignment and product clarification (Sprint 12)
+Sprint 12 aligns the project documentation and product framing with the actual state of the repository, defines a realistic MVP boundary, and prepares a clear path to the next milestone without overstating current maturity.
 
 ## Current Sprint
 
-Sprint: Documentation alignment and product definition (Sprint 12)
+Sprint: **12** — Documentation alignment and product definition
 
 Status: **ACTIVE**
 
+Canonical sprint reference: [.ai/backlogs/012_sprint/README.md](.ai/backlogs/012_sprint/README.md)
+
 Completion Criteria:
-- [ ] unify project documentation around the real architecture and current status
-- [ ] define MVP scope and product boundaries
-- [ ] reconcile README, ROADMAP, PROJECT_STATE and sprint notes
-- [ ] document the validated CLI workflow and remaining gaps
-- [ ] prepare the next engineering milestone from the stable develop branch
+- [ ] **Documentation alignment** — unify PROJECT_STATE, ROADMAP, README, ARCHITECTURE, ADRs, and RFCs around the real architecture and current status
+- [ ] **Product framing and MVP definition** — define MVP scope and explicit product boundaries (stable, experimental, planned)
+- [ ] **Usage and risk documentation** — document the validated CLI workflow, usage, and remaining gaps and risks
+- [ ] **Next milestone preparation** — prepare the next engineering milestone (objective, scope, exit criteria) from the stable develop branch
 
 ---
 
