@@ -4,11 +4,11 @@
   "state": "running",
   "healthy": true,
   "startedAt": "2026-09-17T13:13:41.521Z",
-  "uptimeSeconds": 375.496,
+  "uptimeSeconds": 5532.722,
   "health": {
     "healthy": true,
     "state": "running",
-    "uptimeSeconds": 375.496,
+    "uptimeSeconds": 5532.722,
     "startedAt": "2026-09-17T13:13:41.521Z",
     "components": {
       "eventBus": true,
@@ -32,5 +32,5 @@
     "histograms": {},
     "timers": {}
   },
-  "capturedAt": "2026-09-17T13:19:57.017Z"
+  "capturedAt": "2026-09-17T14:45:54.243Z"
 }
