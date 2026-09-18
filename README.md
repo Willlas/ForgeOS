@@ -8,10 +8,10 @@ The grant → preview → approve → apply flow for workspace operations is the
 
 ## Current status
 
-- Branch: `develop`
-- Current focus: documentation alignment and product definition for Sprint 12
-- Runtime layers: runtime core, scheduler, dispatcher, provider abstraction, workflow engine, CLI
-- Verified: grant / preview / approve / apply workflow and CLI interaction path
+- **Status: pre-MVP** — the project is under active development and not yet at a minimum viable product
+- Branch: `sprint12`
+- Current focus: Sprint 12 — documentation alignment, product framing, and MVP definition
+- Validated path (only verified workflow): grant → preview → approve → apply CLI flow
 
 ## Project goals
 
