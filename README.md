@@ -15,9 +15,9 @@ The grant → preview → approve → apply flow for workspace operations is the
 
 ## Project goals
 
-- Provide a provider-independent autonomous runtime
-- Coordinate multiple agents and workers around engineering tasks
-- Offer a CLI to interact with daemon-backed runtime workflows
+- Build a provider-independent autonomous runtime
+- Take multi-agent coordination from implemented to a validated end-to-end workflow
+- Keep the `aer` CLI and daemon-backed workflow path simple and stable
 - Keep the repository healthy, testable, and resumable by sprint
 
 ## Repository structure
@@ -40,4 +40,9 @@ The grant → preview → approve → apply flow for workspace operations is the
 
 ## Next milestone
 
-Sprint 12 is focused on documenting what is already real, what is experimental, and what remains as the next product milestone.
+Sprint 12 (documentation alignment and product framing) ends when:
+
+- README, PROJECT_STATE and ROADMAP are consistent with the active branch
+- A short, honest mission statement and an explicit, narrow MVP boundary exist
+- Stable, experimental and planned work are clearly classified
+- The next milestone is scoped with objective, scope, and exit criteria
