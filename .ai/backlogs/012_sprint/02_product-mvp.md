@@ -1,5 +1,8 @@
 # Epic 2 — Product framing and MVP definition
 
+> Atomized tasks: [02_product-mvp-tasks.md](02_product-mvp-tasks.md)
+> Epic summary: [02_product-mvp-summary.md](02_product-mvp-summary.md)
+
 ## Objective
 
 Define the product mission and the real MVP boundary so the project is not described as larger than it is.

@@ -1,5 +1,7 @@
 # Epic 4 — Next milestone preparation
 
+> Atomized tasks: [04_next-milestone-tasks.md](04_next-milestone-tasks.md)
+
 ## Objective
 
 Define the next milestone after Sprint 12 so the project has a clear forward direction.

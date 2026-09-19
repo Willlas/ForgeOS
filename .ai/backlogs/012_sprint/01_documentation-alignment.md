@@ -1,5 +1,7 @@
 # Epic 1 — Documentation alignment
 
+> Atomized tasks: [01_documentation-alignment-tasks.md](01_documentation-alignment-tasks.md)
+
 ## Objective
 
 Make the top-level documentation honest, coherent, and aligned with the actual repository state.

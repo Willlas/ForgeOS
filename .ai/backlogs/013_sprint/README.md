@@ -29,7 +29,7 @@ The repository is now on the `develop` branch after merging Sprint 12, and a new
 
 ## Goal for Sprint 13
 
-Define and execute the next milestone after documentation alignment. The objective is to convert repository clarity into useful product progress without overreaching beyond what is already validated.
+Sprint 13 focuses on hardening the pre-MVP Aer Runtime by establishing robust end-to-end test coverage for the validated secure workflow and standardizing CLI exit codes. The aim is to lock in the stability of the core path, prevent regressions, and improve scriptability before broader product features are pursued.
 
 ## Recommended direction
 
@@ -39,17 +39,19 @@ The most valuable next milestone should be narrow, buildable, and testable. The 
 - implement the minimal feature set required to demonstrate a clear user-facing flow
 - keep the work aligned with the runtime + CLI + workspace grant model already validated
 - document the deliverables, risks, and exit criteria explicitly
+- harden the validated core CLI workflow with E2E coverage and consistent exit codes
 
 ## Deliverables expected from the model
 
 The agent receiving this handoff should:
 
 1. Review the repository state and architecture as implemented.
-2. Identify the single most realistic milestone to pursue immediately after Sprint 12.
+2. Define the single most realistic milestone to pursue immediately after Sprint 12.
 3. Produce a precise backlog for Sprint 13 with epics, user stories, and tasks.
 4. Recommend the first implementation slice that can be built and verified in one sprint.
 5. Produce the acceptance criteria and test strategy for the milestone.
-6. Propose any required documentation updates to keep the repository honest.
+6. Include a robust E2E plan for the secure workflow and CLI exit-code standardization.
+7. Propose any required documentation updates to keep the repository honest.
 
 ## Constraints
 

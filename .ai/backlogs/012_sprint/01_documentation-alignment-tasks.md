@@ -22,7 +22,7 @@
 - **Verification:** Each path listed in `## Repository structure` resolves on disk (`Test-Path .\packages\runtime`, `Test-Path .\packages\cli`, `Test-Path .\.daemon` all return `True`), and no listed path returns `False`.
 
 ### Task 4: Add an explicit pre-MVP status and current-focus block
-- **Action:** In `README.md`, replace the `## Current status` section (lines 5–10) with a section that (a) declares the project as **pre-MVP** on the first bullet, (b) states the current branch (`develop` — re-check with `git branch --show-current`), (c) names Sprint 12 (documentation alignment, product framing, MVP definition) as the active focus, and (d) lists the validated path (grant / preview / approve / apply CLI flow) as the only verified workflow.
+- **Action:** In `README.md`, replace the `## Current status` section (lines 5–10) with a section that (a) declares the project as **pre-MVP** on the first bullet, (b) states the current branch (`sprint12` — re-check with `git branch --show-current`), (c) names Sprint 12 (documentation alignment, product framing, MVP definition) as the active focus, and (d) lists the validated path (grant / preview / approve / apply CLI flow) as the only verified workflow.
 - **Target File/Location:** `c:\Proyects\MultiAgentDev\README.md` (lines 5–10)
 - **Verification:** `Select-String -Path README.md -Pattern "pre-MVP"` returns a match in the status section; the branch name in the file equals the output of `git branch --show-current`.
 
@@ -39,7 +39,7 @@
 ## Atomized Tasks: US-02 — PROJECT_STATE matches the branch reality
 
 ### Task 7: Validate the branch and health headers
-- **Action:** Run `git branch --show-current`, `git log -1 --oneline`, `npm run build`, and `npx vitest run` in the repo root. Compare each result against the header of `PROJECT_STATE.md` (lines 1–8: `Last Updated`, `Repository Status: STABLE`, `Build Status: PASSING`, `Tests: PASSING`, `Branch: develop`, `Last Stable Commit`). Correct any header field that does not match the command output, and refresh `Last Updated` to today's date.
+- **Action:** Run `git branch --show-current`, `git log -1 --oneline`, `npm run build`, and `npx vitest run` in the repo root. Compare each result against the header of `PROJECT_STATE.md` (lines 1–8: `Last Updated`, `Repository Status: STABLE`, `Build Status: PASSING`, `Tests: PASSING`, `Branch: sprint12`, `Last Stable Commit`). Correct any header field that does not match the command output, and refresh `Last Updated` to today's date.
 - **Target File/Location:** `c:\Proyects\MultiAgentDev\PROJECT_STATE.md` (lines 1–8)
 - **Verification:** The branch and commit in `PROJECT_STATE.md` header equal the `git branch --show-current` and `git log -1` outputs; build and test command outputs are both green; `Last Updated` is today's date.
 
@@ -64,14 +64,14 @@
 - **Verification:** `Select-String -Path PROJECT_STATE.md -Pattern "012_sprint"` returns a link match; the four primary workstreams from the sprint README are each represented in the completion criteria.
 
 ### Task 12: Cross-check PROJECT_STATE against README and ROADMAP
-- **Action:** Run `Select-String -Path README.md,PROJECT_STATE.md,ROADMAP.md -Pattern "CLI|Sprint 12|develop|pre-MVP"` and review every hit side by side. Fix any remaining contradiction (branch name, CLI maturity, sprint status, test counts — e.g. `205/205` test count in old sections vs `## Repository Health` lines 37–43). Then run `npm run build` and `npx vitest run` one final time and update the `## Repository Health` numbers to the actual output.
+- **Action:** Run `Select-String -Path README.md,PROJECT_STATE.md,ROADMAP.md -Pattern "CLI|Sprint 12|sprint12|pre-MVP"` and review every hit side by side. Fix any remaining contradiction (branch name, CLI maturity, sprint status, test counts — e.g. `205/205` test count in old sections vs `## Repository Health` lines 37–43). Then run `npm run build` and `npx vitest run` one final time and update the `## Repository Health` numbers to the actual output.
 - **Target File/Location:** `c:\Proyects\MultiAgentDev\README.md`, `PROJECT_STATE.md`, `ROADMAP.md`
 - **Verification:** No contradicting statement remains across the three files for branch, CLI status, or Sprint 12 status; the `## Repository Health` test count equals the latest `npx vitest run` output; all four US-02 acceptance criteria are visibly satisfied.
 
 ## Atomized Tasks: US-03 — ROADMAP is consistent with delivery reality
 
 ### Task 13: Audit sprint status table against delivery reality
-- **Action:** In `ROADMAP.md`, verify each row of the `# Current Progress` table (lines 22–37) against reality: Sprints 1–9 should read `✅ Complete` only if their exit criteria were met (cross-check with the per-sprint sections below the table and `PROJECT_STATE.md`), Sprints 10–11 `⏳ Planned`, Sprint 12 `🔄 Active`. Add a `**Historical**` label row-note under the table stating that Sprints 1–9 are historical records. Fix any row that misstates status.
+- **Action:** In `ROADMAP.md`, verify each row of the `# Current Progress` table (lines 22–37) against reality: Sprints 1–9 should read `✅ Complete` only if their exit criteria were met (cross-check with the per-sprint sections below the table and `PROJECT_STATE.md`), Sprints 10–11 `⏳ Planned`, Sprint 12 `🔄 Active` during execution and `✅ Complete` once the sprint is closed. Add a `**Historical**` label row-note under the table stating that Sprints 1–9 are historical records. Fix any row that misstates status.
 - **Target File/Location:** `c:\Proyects\MultiAgentDev\ROADMAP.md` (lines 22–37)
 - **Verification:** The table contains exactly 12 sprint rows, each with a status symbol; the historical label is present; `Select-String -Path ROADMAP.md -Pattern "Historical"` returns at least one match near the table.
 

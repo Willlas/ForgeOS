@@ -1,5 +1,7 @@
 # Epic 3 — Usage and risk documentation
 
+> Atomized tasks: [03_usage-risk-docs-tasks.md](03_usage-risk-docs-tasks.md)
+
 ## Objective
 
 Document the validated workflows realistically and make the project risks explicit so it is not presented as more complete than it is.
