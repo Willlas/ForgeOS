@@ -35,7 +35,7 @@ Completion Criteria:
 
 Compilation: ✅ Passing
 
-Tests: ✅ Passing (205/205)
+Tests: ✅ Passing (402/402, 27 files)
 
 Formatting: ✅ Clean
 
@@ -69,12 +69,7 @@ Unvalidated work and open gaps:
 - Multi-agent coordination: implemented but not yet a validated end-to-end workflow
 - Additional provider backends (OpenAI, Anthropic) not yet implemented
 - Provider capability detection is static (no model-specific overrides)
-- Unchecked Sprint 12 completion criteria:
-  - [ ] unify project documentation around the real architecture and current status
-  - [ ] define MVP scope and product boundaries
-  - [ ] reconcile README, ROADMAP, PROJECT_STATE and sprint notes
-  - [ ] document the validated CLI workflow and remaining gaps
-  - [ ] prepare the next engineering milestone from the stable branch
+- Unchecked Sprint 12 completion criteria (canonical list tracked in `## Current Sprint` above) — all four workstreams remain open
 
 ## Planned
 
