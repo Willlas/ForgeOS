@@ -34,13 +34,13 @@
 | Sprint 9 | CLI | ✅ Complete |
 | Sprint 10 | VS Code Extension | ⏳ Planned |
 | Sprint 11 | GUI | ⏳ Planned |
-| Sprint 12 | Documentation alignment and product definition | 🔄 Active |
+| Sprint 12 | Documentation alignment and product definition | ✅ Complete |
 
 ---
 
 # Sprint 12 — Documentation alignment and product definition
 
-Status: Active
+Status: Complete
 
 Purpose:
 - reconcile the project narrative with the code that actually exists
@@ -55,11 +55,11 @@ Scope:
 - define the next execution milestone after Sprint 12
 
 Exit criteria:
-- [ ] README explains the real project in one page
-- [ ] PROJECT_STATE matches the active branch and sprint
-- [ ] ROADMAP reflects current status without stale contradictions
-- [ ] Sprint 12 summary exists as a standalone planning document
-- [ ] next milestone is explicit and actionable
+- [x] README explains the real project in one page
+- [x] PROJECT_STATE matches the active branch and sprint
+- [x] ROADMAP reflects current status without stale contradictions
+- [x] Sprint 12 summary exists as a standalone planning document
+- [x] next milestone is explicit and actionable
 
 ---
 

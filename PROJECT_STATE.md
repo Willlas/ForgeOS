@@ -19,15 +19,15 @@ Sprint 12 aligns the project documentation and product framing with the actual s
 
 Sprint: **12** — Documentation alignment and product definition
 
-Status: **ACTIVE**
+Status: **COMPLETED**
 
 Canonical sprint reference: [.ai/backlogs/012_sprint/README.md](.ai/backlogs/012_sprint/README.md)
 
 Completion Criteria:
-- [ ] **Documentation alignment** — unify PROJECT_STATE, ROADMAP, README, ARCHITECTURE, ADRs, and RFCs around the real architecture and current status
-- [ ] **Product framing and MVP definition** — define MVP scope and explicit product boundaries (stable, experimental, planned)
-- [ ] **Usage and risk documentation** — document the validated CLI workflow, usage, and remaining gaps and risks
-- [ ] **Next milestone preparation** — prepare the next engineering milestone (objective, scope, exit criteria) from the stable develop branch
+- [x] **Documentation alignment** — unify PROJECT_STATE, ROADMAP, README, ARCHITECTURE, ADRs, and RFCs around the real architecture and current status
+- [x] **Product framing and MVP definition** — define MVP scope and explicit product boundaries (stable, experimental, planned)
+- [x] **Usage and risk documentation** — document the validated CLI workflow, usage, and remaining gaps and risks
+- [x] **Next milestone preparation** — prepare the next engineering milestone (objective, scope, exit criteria) from the stable develop branch
 
 ---
 
@@ -69,7 +69,7 @@ Unvalidated work and open gaps:
 - Multi-agent coordination: implemented but not yet a validated end-to-end workflow
 - Additional provider backends (OpenAI, Anthropic) not yet implemented
 - Provider capability detection is static (no model-specific overrides)
-- Unchecked Sprint 12 completion criteria (canonical list tracked in `## Current Sprint` above) — all four workstreams remain open
+- Sprint 12 documentation alignment has been completed and closed; remaining work is tracked as the next milestone or future exploration
 
 ## Planned
 

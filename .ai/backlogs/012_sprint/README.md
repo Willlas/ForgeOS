@@ -18,13 +18,17 @@ By the end of the sprint:
 - Stable, experimental and planned work are clearly classified.
 - The next milestone is actionable and well-scoped.
 
+## Status
+
+Status: Complete
+
 ## Success criteria
 
-- The top-level docs are consistent with the active branch.
-- The project mission is clear in a few lines.
-- The MVP is stated as a realistic, narrow scope.
-- The CLI / workflow path is documented as validated only where it has been executed.
-- The next milestone has objective, scope, and exit criteria.
+- [x] The top-level docs are consistent with the active branch.
+- [x] The project mission is clear in a few lines.
+- [x] The MVP is stated as a realistic, narrow scope.
+- [x] The CLI / workflow path is documented as validated only where it has been executed.
+- [x] The next milestone has objective, scope, and exit criteria.
 
 ## Primary workstreams
 
