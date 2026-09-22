@@ -13,4 +13,4 @@ This epic defines the product framing and the realistic MVP boundary so the proj
 
 ## Deliverable
 
-The repo should keep a short, honest mission statement and a narrow MVP definition that is aligned with the validated runtime capability.
+The repo should keep a short, honest mission statement and a narrow MVP definition aligned with the validated runtime capability.

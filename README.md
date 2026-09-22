@@ -6,12 +6,49 @@ It is a TypeScript monorepo: `packages/runtime` contains the runtime core (agent
 
 The grant → preview → approve → apply flow for workspace operations is the validated core path, covered end-to-end by the test suite.
 
+## Mission
+
+Aer is a modular, provider-independent runtime that coordinates multiple agents and workers around a shared workspace, so that developers can run autonomous engineering workflows with grant-controlled, auditable operations.
+The `aer` CLI and `aer-daemon` are the runtime's execution surface; `prototype/` and `experiments/` are explorations, not product.
+Aer is pre-MVP: the only validated path today is the CLI grant → preview → approve → apply flow.
+
 ## Current status
 
 - **Status: pre-MVP** — the project is under active development and not yet at a minimum viable product
 - Branch: `sprint12`
 - Current focus: Sprint 12 — documentation alignment, product framing, and MVP definition
 - Validated path (only verified workflow): grant → preview → approve → apply CLI flow
+
+## MVP boundary
+
+The MVP is deliberately narrow: the daemon-backed, CLI-driven workspace operations loop on top of the modular runtime.
+
+**In scope**
+
+- The `aer` CLI and `aer-daemon` over IPC as the sole operator surface
+- The grant → preview → approve → apply lifecycle with session-scoped grants and single-use approvals
+- Grant-gated workspace tools (`list`, `read`, `search`, `execute`) backed by the runtime core (scheduler, dispatcher, workflow engine)
+- The Ollama provider as the only implemented backend, behind the provider-independent `IProvider` interface
+
+**Intentionally out of scope**
+
+- Additional provider backends (OpenAI, Anthropic) — interface types only, not implemented
+- Multi-agent coordination as a validated end-to-end workflow — implemented and unit-tested, not yet a validated product path
+- The VS Code extension and GUI — design-only work from Sprints 10–11, not MVP components
+
+**Minimum value**
+
+- A developer can start the daemon, register a session grant, and drive preview → approve → apply for workspace changes with an auditable trail; anything outside that loop is bonus, not MVP
+
+## Maturity classification
+
+For new contributors — what you can rely on, what is in flight, and what is still to be built:
+
+- **Stable (production-ready)** — runtime core, scheduler, dispatcher, execution runtime, single-agent runtime, provider abstraction, Ollama provider, `aer` CLI, `aer-daemon`. Implemented and covered by the test suite; the CLI grant → preview → approve → apply loop is the validated product path.
+- **Experimental (implemented, not yet validated)** — multi-agent coordination and the workflow engine (unit-tested, no validated end-to-end workflow), plus `prototype/`, `experiments/`, and the root `tests/` helper scripts (explorations, not product, not part of the pipeline).
+- **Planned (designed or on the roadmap, not implemented)** — additional provider backends (OpenAI, Anthropic), the VS Code extension (Sprint 10), the GUI (Sprint 11).
+
+Full, evidence-backed tables: `PROJECT_STATE.md` — `## Component Maturity Matrix` and `## Workstream Maturity Audit`.
 
 ## Project goals
 
@@ -29,9 +66,9 @@ The grant → preview → approve → apply flow for workspace operations is the
 - `.ai/` — agent documentation and sprint backlogs
 - `docs/` — roadmap, RFCs, ADRs and project records
 - `templates/` — document templates (ADR, task, feature, experiment, research, commit)
-- `tests/` — root-level verification scripts (DoD and health-check)
-- `prototype/` — UI prototypes and examples
-- `experiments/` — exploratory work and test fixtures
+- `tests/` — root-level verification scripts (DoD and health-check) — Experimental, not wired to the build/test pipeline
+- `prototype/` — UI prototypes and examples — Experimental, not product
+- `experiments/` — exploratory work and test fixtures — Experimental, not product
 - `dist/` — build output
 - `logs/` — runtime logs
 - `.tmp/` — temporary scratch files
@@ -46,3 +83,53 @@ Sprint 12 (documentation alignment and product framing) ends when:
 - A short, honest mission statement and an explicit, narrow MVP boundary exist
 - Stable, experimental and planned work are clearly classified
 - The next milestone is scoped with objective, scope, and exit criteria
+
+## Usage — validated CLI flow
+
+The only validated end-to-end flow is the four-step workspace-change loop: **grant → preview → approve → apply**. Every step talks to `aer-daemon` over IPC and is bound to the CLI session (`AER_SESSION_ID` environment variable, or a generated one).
+
+**Prerequisites**
+
+- Build: `npm run build` (root) — at minimum `packages/cli` must be built
+- Daemon running: `aer start` (check with `aer status`)
+- A workspace root — an absolute path to the directory you will operate on
+
+**Step 1 — register a session grant**
+
+```
+aer workspace:grant <root> -m read-write -t list,read,search,apply --yes
+```
+
+- The default grant is **read-only** with tools `list,read,search`; a change flow must explicitly request read-write mode and the `apply` tool, or the later preview fails with `Workspace tool 'apply' is not granted for this session`
+- Without `--yes`, read-write grants prompt `Grant READ-WRITE access to ...? (yes/no)`
+- Success looks like: `{ "session": "...", "grantId": "grant_...", "registeredAt": "..." }`
+
+**Step 2 — preview the change (nothing is written)**
+
+```
+aer workspace:preview <root> -f <relPath> -c "<new content>"
+```
+
+- `-f/--file` and `-c/--content` are repeatable, paired in order (one pair per file); `--hash <sha256>` pins the expected baseline of an existing file
+- Success looks like: `{ "diffHash": "...", "files": [{ "relativePath": "...", "expectedHash": "...", "size": 0 }] }` plus a `Use this diffHash with workspace:approve: ...` line
+
+**Step 3 — approve the preview (produces a single-use approvalId)**
+
+```
+aer workspace:approve <root> <diffHash> --yes
+```
+
+- The approval is bound to session + grant + diffHash; TTL is 60 s by default (`-t/--ttl`, capped at 300 s)
+- Success looks like: `{ "approvalId": "wsa_...", "createdAt": "...", "expiresAt": "..." }` plus a `Use this approvalId with workspace:apply: ...` line
+
+**Step 4 — apply the approved diff (consumes the approvalId)**
+
+```
+aer workspace:apply <root> <approvalId> -f <relPath> -c "<new content>" --yes
+```
+
+- The `-f`/`-c` pairs must match the approved diff
+- Success looks like: `{ "applied": true, "rolledBack": false, "files": [{ "relativePath": "...", "previousHash": "...", "newHash": "..." }] }`, with the file actually written inside the workspace root
+- The approvalId is **single-use**: reusing it fails with `Unknown or already-consumed approvalId` (exit 1)
+
+**What the user must supply:** the workspace root, an explicit read-write grant including `apply` for any change, yes/no confirmations (or `--yes` for scripting), the `diffHash` passed from step 2 into step 3, and the `approvalId` passed from step 3 into step 4.

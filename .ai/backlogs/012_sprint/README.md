@@ -28,10 +28,10 @@ By the end of the sprint:
 
 ## Primary workstreams
 
-1. Documentation alignment — [01_documentation-alignment.md](01_documentation-alignment.md)
-2. Product framing and MVP definition — [02_product-mvp.md](02_product-mvp.md)
-3. Usage and risk documentation — [03_usage-risk-docs.md](03_usage-risk-docs.md)
-4. Next milestone preparation — [04_next-milestone.md](04_next-milestone.md)
+1. Documentation alignment — [01_documentation-alignment/01_documentation-alignment.md](01_documentation-alignment/01_documentation-alignment.md)
+2. Product framing and MVP definition — [02_product-mvp/02_product-mvp.md](02_product-mvp/02_product-mvp.md)
+3. Usage and risk documentation — [03_usage-risk-docs/03_usage-risk-docs.md](03_usage-risk-docs/03_usage-risk-docs.md)
+4. Next milestone preparation — [04_next-milestone/04_next-milestone.md](04_next-milestone/04_next-milestone.md)
 
 ## Status
 

@@ -36,6 +36,10 @@
 | Sprint 11 | GUI | ⏳ Planned |
 | Sprint 12 | Documentation alignment and product definition | ✅ Complete |
 
+> MVP note: "Complete" in the table above means the sprint's implementation and tests landed, not a validated end-to-end product path.
+> The canonical MVP boundary is defined in `README.md` (`## MVP boundary`); the only validated product path is the CLI grant → preview → approve → apply flow (see `PROJECT_STATE.md`, Pending).
+> Per-component maturity labels (Stable / Experimental / Planned / Aspirational) are defined in `PROJECT_STATE.md` (`## Component Maturity Matrix`).
+
 ---
 
 # Sprint 12 — Documentation alignment and product definition
