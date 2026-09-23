@@ -1,0 +1,8 @@
+# Task 04: Prioritize the work into a critical path
+
+> Epic: [04_next-milestone.md](../04_next-milestone/04_next-milestone.md) — US-10: The next milestone has prioritized tasks
+> Sprint 12 · Next milestone preparation · documentation-only work
+
+- **Action:** Split the Sprint 13 work into a **critical path** (must-haves that make the milestone achievable) and a **secondary path** (stretch items) in the `# Sprint 13` section of `ROADMAP.md`, and record the same split in `c:\Proyects\MultiAgentDev\.ai\backlogs\012_sprint\04_next-milestone\04_next-milestone.md` (Tasks section). Rules: critical-path items must come before any item that depends on them; at most 50% of the deliverables may sit on the secondary path; every secondary item must be labeled stretch and still leave the repo in a Definition-of-Done state if it is cut. Use the Known Risks register in `PROJECT_STATE.md` as the prioritization source — the CLI error-propagation fix is the only code item currently named as a small, incremental change and belongs on the critical path.
+- **Target File/Location:** `c:\Proyects\MultiAgentDev\ROADMAP.md` (`# Sprint 13` — Critical path / Secondary path) and `c:\Proyects\MultiAgentDev\.ai\backlogs\012_sprint\04_next-milestone\04_next-milestone.md`
+- **Verification:** Both documents show a Critical path list and a Secondary path list; every Deliverable appears in exactly one of the two; the critical path alone is sufficient to satisfy every Exit criterion; no secondary item is a prerequisite for any critical item.

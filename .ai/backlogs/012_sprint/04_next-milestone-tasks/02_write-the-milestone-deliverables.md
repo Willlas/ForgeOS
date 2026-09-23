@@ -1,0 +1,8 @@
+# Task 02: Write the milestone deliverables
+
+> Epic: [04_next-milestone.md](../04_next-milestone/04_next-milestone.md) — US-09: The next milestone has a concrete objective
+> Sprint 12 · Next milestone preparation · documentation-only work
+
+- **Action:** Write 3–5 concrete deliverables for Sprint 13 in the `# Sprint 13` section of `ROADMAP.md`. Each deliverable must be a direct, testable engineering output tied to a file or observable behavior — not a strategic goal. Candidate material is limited to what `PROJECT_STATE.md` already tracks: (a) fix CLI error propagation so daemon rejections print the real message instead of `[object Object]` (`packages/cli/src/index.ts`, per the Known Risks register); (b) surface provider state (Ollama reachability at localhost:11434) in `aer status` output; (c) document the local-Ollama prerequisite wherever provider health is described. Pick at most 3–5 of these or equivalent items already named in the repo docs; invent nothing new.
+- **Target File/Location:** `c:\Proyects\MultiAgentDev\ROADMAP.md` (`# Sprint 13` — Deliverables)
+- **Verification:** The Deliverables list has between 3 and 5 items; every item names a concrete engineering outcome (a file to change, a CLI command whose output changes, or a doc section to add); every item traces back to an entry in `PROJECT_STATE.md` (Pending, Known Risks, or Technical Debt); no item requires a provider backend, the VS Code extension, the GUI, or unimplemented capability.

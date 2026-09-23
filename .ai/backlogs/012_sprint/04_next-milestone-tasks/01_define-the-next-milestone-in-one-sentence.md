@@ -1,0 +1,8 @@
+# Task 01: Define the next milestone in one sentence
+
+> Epic: [04_next-milestone.md](../04_next-milestone/04_next-milestone.md) — US-09: The next milestone has a concrete objective
+> Sprint 12 · Next milestone preparation · documentation-only work
+
+- **Action:** Name the next milestone (Sprint 13) and write a one-sentence objective that describes the exact problem it solves and the intended scope. The objective must be grounded in the current repo state: pre-MVP maturity, the validated CLI grant → preview → approve → apply flow, and the Known Risks register in `PROJECT_STATE.md` (e.g. the CLI error-propagation defect) as the only candidate engineering work. Do not include provider backends, the VS Code extension, the GUI, or any work that depends on a future sprint. Write the name and objective into a new `# Sprint 13` section in `ROADMAP.md` (between `# Current Progress` and the Sprint 12 section) and add it to the sprint table in `# Current Progress` with Status `⏳ Planned`.
+- **Target File/Location:** `c:\Proyects\MultiAgentDev\ROADMAP.md` (new `# Sprint 13` section + `# Current Progress` table) and `c:\Proyects\MultiAgentDev\.ai\backlogs\012_sprint\04_next-milestone\04_next-milestone.md` (Objective section)
+- **Verification:** `ROADMAP.md` shows a Sprint 13 row in the sprint table (Status Planned) and a `# Sprint 13` section containing a milestone name and exactly one-sentence objective; the objective is specific enough to act on in one sprint, names the exact problem it solves, and contains no capability not present in the MVP boundary of `README.md`.

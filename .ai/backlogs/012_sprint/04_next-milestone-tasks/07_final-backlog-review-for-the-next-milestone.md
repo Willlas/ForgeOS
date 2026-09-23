@@ -1,0 +1,8 @@
+# Task 07: Final backlog review for the next milestone
+
+> Epic: [04_next-milestone.md](../04_next-milestone/04_next-milestone.md) — US-09 + US-10: Final gate
+> Sprint 12 · Next milestone preparation · documentation-only work
+
+- **Action:** Do a line-by-line review of `c:\Proyects\MultiAgentDev\.ai\backlogs\012_sprint\04_next-milestone\04_next-milestone.md` and the `# Sprint 13` section of `ROADMAP.md` against every acceptance criterion of US-09 and US-10. Tick each criterion in the epic's acceptance-criteria lists (change `-` to `- [x]` once confirmed) and add a `## Findings` section to this file recording: which document each criterion lives in, anything that had to be rewritten to become verifiable, and any residual gap (a gap blocks closing this epic). Confirm the epic's Tasks list matches the seven files in this folder one-to-one.
+- **Target File/Location:** `c:\Proyects\MultiAgentDev\.ai\backlogs\012_sprint\04_next-milestone\04_next-milestone.md` (acceptance criteria ticks, Tasks list) and this file (`## Findings`)
+- **Verification:** All US-09 and US-10 acceptance criteria are checked off in the epic file with each satisfied by a named section in `ROADMAP.md` or the epic; the `## Findings` section of this file lists one line per criterion plus any residual gap; the epic's atomized-tasks link resolves to the summary file `04_next-milestone-tasks.md` in the epic folder, and [../04_next-milestone-tasks/README.md](../04_next-milestone-tasks/README.md) links to all seven task files, each of which exists in the `04_next-milestone-tasks` folder.

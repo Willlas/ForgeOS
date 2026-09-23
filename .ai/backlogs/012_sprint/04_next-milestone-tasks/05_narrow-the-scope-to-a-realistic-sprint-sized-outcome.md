@@ -1,0 +1,8 @@
+# Task 05: Narrow the scope to a realistic sprint-sized outcome
+
+> Epic: [04_next-milestone.md](../04_next-milestone/04_next-milestone.md) — US-10: The next milestone has prioritized tasks
+> Sprint 12 · Next milestone preparation · documentation-only work
+
+- **Action:** Remove from the Sprint 13 draft any item that requires broad product work, multiple provider integrations, or speculative UI development, and record the removals under an explicit **Out of scope** subsection in the `# Sprint 13` section of `ROADMAP.md`. The out-of-scope list must at minimum repeat what `README.md` (`## MVP boundary`) already excludes: additional provider backends (OpenAI, Anthropic — interface types only), multi-agent coordination as a validated workflow, and the VS Code extension / GUI. Also state that no Sprint 13 item may depend on a future sprint completing first. Keep the milestone limited to the next realistic engineering slice over the validated CLI flow.
+- **Target File/Location:** `c:\Proyects\MultiAgentDev\ROADMAP.md` (`# Sprint 13` — Out of scope) and `c:\Proyects\MultiAgentDev\.ai\backlogs\012_sprint\04_next-milestone\04_next-milestone.md`
+- **Verification:** An Out of scope subsection exists in `ROADMAP.md` Sprint 13; it contains the three exclusions from the README MVP boundary (provider backends, multi-agent as validated workflow, VS Code/GUI); no remaining Deliverable or path item contradicts that list; no Deliverable names a dependency on Sprints 10 or 11.

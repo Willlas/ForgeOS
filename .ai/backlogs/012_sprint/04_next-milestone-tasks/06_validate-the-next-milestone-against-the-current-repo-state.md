@@ -1,0 +1,8 @@
+# Task 06: Validate the next milestone against the current repo state
+
+> Epic: [04_next-milestone.md](../04_next-milestone/04_next-milestone.md) — US-10: The next milestone has prioritized tasks
+> Sprint 12 · Next milestone preparation · documentation-only work
+
+- **Action:** Re-read `README.md` (intro, `## MVP boundary`, `## Maturity classification`, `## Usage — validated CLI flow`), `PROJECT_STATE.md` (Component Maturity Matrix, Pending, Known Risks), and `ROADMAP.md` (Sprint 12 section, Definition of Done), then check every Sprint 13 claim against them. Fix any sentence that: calls multi-agent or workflow work "validated" or "ready"; presents Ollama or a second provider as a sprint dependency; states a test/build number that does not match the repo (currently 402/402, PASSING); or implies the VS Code extension or GUI is in scope. Add a one-line maturity label (**validated** / **experimental** / **planned**) to each Sprint 13 deliverable, using the definitions in `PROJECT_STATE.md`.
+- **Target File/Location:** `c:\Proyects\MultiAgentDev\README.md`, `c:\Proyects\MultiAgentDev\PROJECT_STATE.md`, `c:\Proyects\MultiAgentDev\ROADMAP.md` (read-only checks; edits to `ROADMAP.md` Sprint 13 section only)
+- **Verification:** A pass over the three documents finds no maturity-label conflict with the Sprint 13 section; every Sprint 13 deliverable carries a maturity label consistent with the Component Maturity Matrix; the objective, deliverables, exit criteria, and paths all refer only to the validated CLI flow plus the specific incremental items in the Known Risks register.
