@@ -11,7 +11,7 @@ Last Stable Commit: 8fe01fe — docs: Update project goals and next milestone in
 
 # Mission
 
-Aer is a modular, provider-independent runtime that coordinates multiple agents and workers around a shared workspace, so that developers can run autonomous engineering workflows with grant-controlled, auditable operations.
+Aer is a modular, provider-independent runtime that coordinates multiple agents and workers around a shared workspace (multi-agent coordination is **experimental** — see Component Maturity Matrix), so that developers can run autonomous engineering workflows with grant-controlled, auditable operations.
 The `aer` CLI and `aer-daemon` are the runtime's execution surface; `prototype/` and `experiments/` are explorations, not product.
 Aer is pre-MVP: the only validated path today is the CLI grant → preview → approve → apply flow.
 
@@ -64,7 +64,7 @@ Known blockers: None
 
 ## Completed
 
-Sprints 1–9 deliverables — implemented, compiled, and covered by the test suite:
+Sprints 1–9 deliverables — implemented, compiled, and covered by the test suite (implementation tier: **experimental** under the three-label scheme; only the CLI entry below is **validated**):
 
 - **Runtime Core** — stable; main loop and runtime primitives (Sprint 2)
 - **WorkGraph** — stable; compiler issues resolved (Sprint 1)
@@ -75,8 +75,8 @@ Sprints 1–9 deliverables — implemented, compiled, and covered by the test su
 - **Provider Worker** — complete; IWorker bridge adapter (Sprint 3)
 - **Provider Registry** — complete; auto-registration pattern (Sprint 3)
 - **Agent Runtime** — complete; agent abstraction, registry, team coordination, execution coordinator (Sprint 6)
-- **Multi-Agent Runtime** — complete (Sprint 7)
-- **Workflow Runtime** — complete (Sprint 8)
+- **Multi-Agent Runtime** — complete (Sprint 7) — **experimental**: implemented and unit-tested, not a validated end-to-end workflow (see Pending)
+- **Workflow Runtime** — complete (Sprint 8) — **experimental**: implemented and unit-tested, not a validated end-to-end workflow (see Pending)
 - **CLI** — complete; validated grant → preview → approve → apply flow (Sprint 9)
 
 ## Component Maturity Matrix
@@ -87,6 +87,8 @@ Tier definitions:
 - **Experimental** — implemented and unit-tested, but not yet a validated end-to-end product path
 - **Planned** — designed or on the roadmap, not yet implemented
 - **Aspirational** — not yet on an actionable sprint plan (currently no component is in this tier)
+
+Mapping to the three-label scheme used in `README.md` and `ROADMAP.md`: **validated** = the grant → preview → approve → apply CLI flow (rows marked validated below); **experimental** = the Stable and Experimental tiers (implemented and tested, not a validated end-to-end product path); **planned** = the Planned tier.
 
 | Component | Tier | Repo evidence |
 |---|---|---|
@@ -130,7 +132,7 @@ No workstream is currently **Aspirational** — anything not yet on an actionabl
 Unvalidated work and open gaps:
 
 - Multi-agent coordination: implemented but not yet a validated end-to-end workflow
-- Additional provider backends (OpenAI, Anthropic) not yet implemented
+- Additional provider backends (OpenAI, Anthropic) not yet implemented (**planned**)
 - Provider capability detection is static (no model-specific overrides)
 - Sprint 12 documentation alignment has been completed and closed; remaining work is tracked as the next milestone or future exploration
 
@@ -165,10 +167,19 @@ Post-MVP work:
 
 # Known Risks
 
-- Large files should not be rewritten.
-- Avoid compiler cascades.
-- Prefer incremental refactors.
-- Provider health checks depend on Ollama running locally.
+Risk and gap register — seeded from `## Pending`, `## Technical Debt`, and the Task 01 recorded run (`.ai/backlogs/012_sprint/03_usage-risk-docs-tasks/01_capture-validated-cli-workflow.md`). Statuses use the three-label scheme (validated / experimental / planned) and match the `## Component Maturity Matrix` above.
+
+| Area | Status | Risk or gap | Dependency | Mitigation / next step |
+|---|---|---|---|---|
+| CLI workspace loop (grant → preview → approve → apply) | validated | The only validated product path. The mutation chain requires an explicit read-write grant (`-m read-write -t list,read,search,apply`) — under the default read-only grant, `preview` fails with `apply not granted`; grants are session-scoped and the most recent registration wins (Task 01 real run). | `aer-daemon` running; explicit read-write grant | Follow the README `## Usage — validated CLI flow` (documents the full read-write grant for mutation flows); if `preview` fails, check whether the grant was registered in the current session (session-scoped, most-recent-wins). |
+| CLI error reporting | validated | The CLI swallows daemon errors — e.g. reusing a consumed approvalId prints `[object Object]` instead of `Unknown or already-consumed approvalId` (Task 01 finding; `packages/cli/src/index.ts`). | Fix CLI error propagation (`IpcClient` rejection → message) | Workaround: run `aer-daemon` in a visible terminal — it logs the real cause (`[apply-approval] FAILED: …`); fix by propagating the rejection message to the CLI (small, incremental change in `packages/cli/src/index.ts`). |
+| Multi-agent coordination (AgentTeam + workflow engine) | experimental | Implemented and unit-tested (Sprints 7–8) but not a validated end-to-end workflow (see Pending). | E2E validation run before any capability claim | Run one end-to-end multi-agent workflow, record the result, and promote or demote the status accordingly before claiming product capability. |
+| Provider backends (OpenAI, Anthropic) | planned | Only Ollama is implemented and registered (15 tests); OpenAI/Anthropic are interface types only (see Technical Debt). | Per-backend `IProvider` implementations | Keep new backends behind `IProvider` (additive registry, `provider-registry.ts`) so the core stays provider-agnostic. |
+| Provider capability detection | experimental | Capabilities are static per provider — no model-specific overrides (e.g. embeddings for `nomic-embed-text`, tool calling); asserted in `provider-registry.test.ts`. | Model-level capability override mechanism | Until model-level overrides exist, gate feature use on `provider.capabilities` (never assume embeddings/tool calling); add overrides as a small incremental change to the registry. |
+| Provider health / local inference | experimental | Provider initialization and health checks require Ollama running locally (localhost:11434; `ollama-provider.ts`). | A local Ollama instance with the required model | The README currently names Ollama as the only implemented provider (intro and `## MVP boundary`) but does not state the local-Ollama prerequisite — document it wherever provider health is described; surface provider state in `aer status` output. |
+| VS Code extension / GUI | planned | Design-only (Sprints 10–11), no implementation (see Technical Debt). | Validated MVP runtime path | None yet — tracked as future work (design-only; see `packages/cli/docs/vscode-extension-v1.0.md`). |
+
+> The previous process rules (incremental refactors, no large-file rewrites, avoid compiler cascades) remain day-to-day engineering practice; they are not product risks and are excluded from the register.
 
 ---
 

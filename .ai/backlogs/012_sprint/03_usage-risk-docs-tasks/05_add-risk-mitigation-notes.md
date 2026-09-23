@@ -1,5 +1,7 @@
 # Task 05: Add mitigation notes for each risk
 
+> Status: Complete — 2026-09-22. Added a **Mitigation / next step** column to the 7-row register in `PROJECT_STATE.md` (`# Known Risks`): every row now has a concrete, immediately actionable note (README quickstart grant check, daemon-visible-terminal workaround, one recorded E2E run, additive `IProvider` backends, capability-gating via `provider.capabilities`, local-Ollama prerequisite + `aer status`) or an explicit "none yet — tracked as future work" (VS Code extension / GUI). No dates, versions, or off-roadmap commitments.
+>
 > Epic: [03_usage-risk-docs.md](../03_usage-risk-docs/03_usage-risk-docs.md) — US-08: Known gaps and risks are visible
 > Sprint 12 · Usage and risk documentation · documentation-only work
 

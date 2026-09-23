@@ -39,6 +39,7 @@
 > MVP note: "Complete" in the table above means the sprint's implementation and tests landed, not a validated end-to-end product path.
 > The canonical MVP boundary is defined in `README.md` (`## MVP boundary`); the only validated product path is the CLI grant → preview → approve → apply flow (see `PROJECT_STATE.md`, Pending).
 > Per-component maturity labels (Stable / Experimental / Planned / Aspirational) are defined in `PROJECT_STATE.md` (`## Component Maturity Matrix`).
+> Labels used in this file: **validated** = the CLI grant → preview → approve → apply flow (the only verified product path); **experimental** = implemented and unit-tested, not a validated end-to-end product path (runtime core, multi-agent, workflow); **planned** = designed or on the roadmap, not implemented (OpenAI/Anthropic backends, VS Code extension, GUI).
 
 ---
 
@@ -102,6 +103,8 @@ Status
 
 ✅ Complete
 
+Maturity: **experimental** — implemented and unit-tested, not a validated end-to-end product path (see `PROJECT_STATE.md` Component Maturity Matrix)
+
 Purpose
 
 Build the core runtime services required by every future subsystem.
@@ -134,6 +137,8 @@ Status
 
 ✅ Complete
 
+Maturity: **experimental** — implemented and unit-tested, not a validated end-to-end product path (see `PROJECT_STATE.md` Component Maturity Matrix)
+
 Purpose
 
 Abstract LLM providers from the runtime.
@@ -164,6 +169,8 @@ Exit Criteria
 Status
 
 ✅ Complete
+
+Maturity: **experimental** — implemented and unit-tested, not a validated end-to-end product path (see `PROJECT_STATE.md` Component Maturity Matrix)
 
 Purpose
 
@@ -204,6 +211,8 @@ Exit Criteria
 Status
 
 ✅ Complete
+
+Maturity: **experimental** — implemented and unit-tested, not a validated end-to-end product path (see `PROJECT_STATE.md` Component Maturity Matrix)
 
 Purpose
 
@@ -252,6 +261,8 @@ Exit Criteria
 
 # Sprint 6 — Agent Runtime
 
+Maturity: **experimental** — implemented and unit-tested, not a validated end-to-end product path (see `PROJECT_STATE.md` Component Maturity Matrix)
+
 Purpose
 
 Introduce autonomous agents on top of the execution runtime.
@@ -276,6 +287,8 @@ Exit Criteria
 ---
 
 # Sprint 7 — Multi-Agent Runtime
+
+Maturity: **experimental** — implemented and unit-tested, not a validated end-to-end workflow (see `PROJECT_STATE.md` Pending)
 
 Purpose
 
@@ -306,6 +319,8 @@ Exit Criteria
 - Shared execution context
 - Team orchestration complete
 
+All three were met by implementation and unit tests only — the multi-agent runtime remains **experimental** (see the Maturity line above; only the grant → preview → approve → apply CLI flow is **validated** — see the MVP boundary in `README.md`).
+
 Sprint 7
 │
 ├── 7.1 Multi-Agent Coordinator
@@ -319,6 +334,8 @@ Sprint 7
 ---
 
 # Sprint 8 — Workflow Runtime
+
+Maturity: **experimental** — implemented and unit-tested, not a validated end-to-end workflow (see `PROJECT_STATE.md` Pending)
 
 Purpose
 
@@ -345,6 +362,8 @@ Exit Criteria
 
 # Sprint 9 — CLI
 
+Maturity: **validated** — the grant → preview → approve → apply CLI flow is the validated product path (see `README.md` `## Usage — validated CLI flow`)
+
 Purpose
 
 Expose Aer through a command-line interface.
@@ -360,11 +379,13 @@ Deliverables
 
 Exit Criteria
 
-Aer fully usable from terminal.
+Aer fully usable from terminal — qualifier: this refers to the validated grant → preview → approve → apply loop only; multi-agent and workflow capabilities remain **experimental** (see the MVP boundary in `README.md`).
 
 ---
 
 # Sprint 10 — VS Code Extension
+
+Maturity: **planned** — design only, not implemented (see `PROJECT_STATE.md` Planned)
 
 Purpose
 
@@ -388,6 +409,8 @@ VS Code becomes an Aer client.
 
 # Sprint 11 — GUI
 
+Maturity: **planned** — design only, not implemented (see `PROJECT_STATE.md` Planned)
+
 Purpose
 
 Create a standalone desktop application.
@@ -409,6 +432,8 @@ Aer fully operable without VS Code.
 ---
 
 # Architectural Evolution
+
+Maturity labels for the stack below: Multi-Agent Runtime and Workflow Runtime are **experimental**; CLI (grant → preview → approve → apply loop) is **validated**; VS Code Extension and GUI are **planned**. ✅ = implementation and tests landed, not validation (see the MVP note in `## Current Progress`).
 
 Repository
 

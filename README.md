@@ -1,14 +1,14 @@
 # Aer Runtime
 
-Aer is a modular runtime for autonomous engineering workflows, coordinating multiple agents and workers around a shared workspace with provider-backed execution.
+Aer is a modular runtime for autonomous engineering workflows, coordinating multiple agents and workers (multi-agent coordination is **experimental**) around a shared workspace with provider-backed execution (Ollama only, implemented and tested).
 
-It is a TypeScript monorepo: `packages/runtime` contains the runtime core (agent/worker coordination, scheduler, dispatcher, provider layer, workflow engine), and `packages/cli` provides the `aer` CLI plus the `aer-daemon` process it communicates with over IPC.
+It is a TypeScript monorepo: `packages/runtime` contains the runtime core (agent/worker coordination — multi-agent is **experimental**, scheduler, dispatcher, provider layer, workflow engine — **experimental**), and `packages/cli` provides the `aer` CLI (grant → preview → approve → apply flow — **validated**) plus the `aer-daemon` process it communicates with over IPC.
 
 The grant → preview → approve → apply flow for workspace operations is the validated core path, covered end-to-end by the test suite.
 
 ## Mission
 
-Aer is a modular, provider-independent runtime that coordinates multiple agents and workers around a shared workspace, so that developers can run autonomous engineering workflows with grant-controlled, auditable operations.
+Aer is a modular, provider-independent runtime that coordinates multiple agents and workers around a shared workspace (multi-agent coordination is **experimental** — see Maturity classification), so that developers can run autonomous engineering workflows with grant-controlled, auditable operations.
 The `aer` CLI and `aer-daemon` are the runtime's execution surface; `prototype/` and `experiments/` are explorations, not product.
 Aer is pre-MVP: the only validated path today is the CLI grant → preview → approve → apply flow.
 
@@ -25,10 +25,10 @@ The MVP is deliberately narrow: the daemon-backed, CLI-driven workspace operatio
 
 **In scope**
 
-- The `aer` CLI and `aer-daemon` over IPC as the sole operator surface
+- The `aer` CLI and `aer-daemon` over IPC as the sole operator surface (**validated**: the grant → preview → approve → apply loop)
 - The grant → preview → approve → apply lifecycle with session-scoped grants and single-use approvals
-- Grant-gated workspace tools (`list`, `read`, `search`, `execute`) backed by the runtime core (scheduler, dispatcher, workflow engine)
-- The Ollama provider as the only implemented backend, behind the provider-independent `IProvider` interface
+- Grant-gated workspace tools (`list`, `read`, `search`, `execute`) backed by the runtime core (scheduler, dispatcher, workflow engine — **experimental**: implemented and tested, not a validated end-to-end path)
+- The Ollama provider as the only implemented backend (**experimental**: implemented and tested, not part of the validated CLI flow), behind the provider-independent `IProvider` interface
 
 **Intentionally out of scope**
 
@@ -44,7 +44,9 @@ The MVP is deliberately narrow: the daemon-backed, CLI-driven workspace operatio
 
 For new contributors — what you can rely on, what is in flight, and what is still to be built:
 
-- **Stable (production-ready)** — runtime core, scheduler, dispatcher, execution runtime, single-agent runtime, provider abstraction, Ollama provider, `aer` CLI, `aer-daemon`. Implemented and covered by the test suite; the CLI grant → preview → approve → apply loop is the validated product path.
+Labels used throughout the docs: **validated** = the CLI grant → preview → approve → apply flow (the only verified product path, see `## Usage — validated CLI flow`); **experimental** = implemented and tested but not a validated end-to-end product path (includes the Stable tier); **planned** = designed or on the roadmap, not implemented.
+
+- **Stable (implementation tier)** — runtime core, scheduler, dispatcher, execution runtime, single-agent runtime, provider abstraction, Ollama provider, `aer` CLI, `aer-daemon`. Implemented and covered by the test suite (**experimental** under the three-label scheme, except the CLI grant → preview → approve → apply loop, which is **validated** — the only product path that is).
 - **Experimental (implemented, not yet validated)** — multi-agent coordination and the workflow engine (unit-tested, no validated end-to-end workflow), plus `prototype/`, `experiments/`, and the root `tests/` helper scripts (explorations, not product, not part of the pipeline).
 - **Planned (designed or on the roadmap, not implemented)** — additional provider backends (OpenAI, Anthropic), the VS Code extension (Sprint 10), the GUI (Sprint 11).
 
@@ -133,3 +135,39 @@ aer workspace:apply <root> <approvalId> -f <relPath> -c "<new content>" --yes
 - The approvalId is **single-use**: reusing it fails with `Unknown or already-consumed approvalId` (exit 1)
 
 **What the user must supply:** the workspace root, an explicit read-write grant including `apply` for any change, yes/no confirmations (or `--yes` for scripting), the `diffHash` passed from step 2 into step 3, and the `approvalId` passed from step 3 into step 4.
+
+### Example — the verified run, copy-pasteable
+
+The four commands below are the exact sequence from a real, validated run (scratch root `C:\Proyects\MultiAgentDev\.tmp\usage-check`, session `AER_SESSION_ID=usage-check-01`; full outputs recorded in `01_capture-validated-cli-workflow.md`). Substitute your own absolute path for `<root>`, and take the `diffHash`/`approvalId` values from **your** run's output (the recorded values shown here: `6319f29f39da83c2cfc0f549821c58dc54643ef47dfbef3f8277002a160ea352` and `wsa_usage-ch_1790025413941_4`).
+
+> Every CLI invocation also prints a dotenv loader line on stdout (`◇ injected env (3) from .env ...`). That is banner noise from the loader, not part of the command's output.
+
+1. **Grant** a read-write session grant for the mutation flow. Without `--yes` this prompts `Grant READ-WRITE access to <root> for this CLI session? (yes/no)` — answer `yes`.
+   ```
+   aer workspace:grant <root> -m read-write -t list,read,search,apply --yes
+   ```
+   → `{ "session": "usage-check-01", "grantId": "grant_usage-ch_1790025413758_4", "registeredAt": "2026-09-21T21:16:53.758Z" }` (exit 0)
+
+2. **Preview** the change — nothing is written to disk.
+   ```
+   aer workspace:preview <root> -f notes.txt -c "validated by usage-check on 2026-09-21"
+   ```
+   → stdout: `{ "rootPath": "...", "diffHash": "6319f29f…ea352", "files": [ { "relativePath": "notes.txt", "expectedHash": "e3b0c442…b855", "size": 0 } ] }`
+   → stderr: `Use this diffHash with workspace:approve: 6319f29f…ea352` — **carry this `diffHash` into step 3**
+   → *Unexpected detail kept from the run:* `notes.txt` did not exist yet, so `expectedHash` is the sha256 of the **empty string** (`e3b0c442…b855`) and `size` is `0`.
+
+3. **Approve** the previewed diff — produces the **single-use `approvalId`** (bound to session + grant + diffHash; `expiresAt` is `createdAt` + 60 s by default). Without `--yes` this prompts `Approve applying changes to <root> (diffHash 6319f29f…)? (yes/no)` — answer `yes`.
+   ```
+   aer workspace:approve <root> 6319f29f39da83c2cfc0f549821c58dc54643ef47dfbef3f8277002a160ea352 --yes
+   ```
+   → stdout: `{ "approvalId": "wsa_usage-ch_1790025413941_4", "sessionId": "usage-check-01", "grantId": "grant_usage-ch_1790025413758_4", "rootPath": "...", "diffHash": "6319f29f…ea352", "createdAt": "2026-09-21T21:16:53.941Z", "expiresAt": "2026-09-21T21:17:53.941Z" }`
+   → stderr: `Use this approvalId with workspace:apply: wsa_usage-ch_1790025413941_4` — **carry this `approvalId` into step 4**
+
+4. **Apply** the approved diff — consumes the `approvalId` and writes the file (the `-f`/`-c` pair must match the approved diff, i.e. be identical to step 2). Without `--yes` this prompts `Apply approved changes (approvalId wsa_...) to <root>? (yes/no)` — answer `yes`.
+   ```
+   aer workspace:apply <root> wsa_usage-ch_1790025413941_4 -f notes.txt -c "validated by usage-check on 2026-09-21" --yes
+   ```
+   → `{ "rootPath": "...", "applied": true, "rolledBack": false, "restored": [], "files": [ { "relativePath": "notes.txt", "previousHash": "e3b0c442…b855", "newHash": "3830c5ad…9821" } ], "diffHash": "6319f29f…ea352" }` (exit 0)
+   → disk check: `notes.txt` now contains `validated by usage-check on 2026-09-21` (38 bytes)
+
+5. **Expected failure — reusing the consumed `approvalId`** (re-running step 4 with the same id) exits 1. *Unexpected detail kept from the run:* the CLI prints `Workspace apply failed: [object Object]` (known CLI display bug — it stringifies a plain `{ code, message }` object); the actual daemon-side error is `Unknown or already-consumed approvalId`.

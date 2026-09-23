@@ -1,5 +1,7 @@
 # Task 04: Draft a risk and gap register
 
+> Status: Complete — 2026-09-22. Replaced the `# Known Risks` bullet list in `PROJECT_STATE.md` with a 7-row risk and gap register (Area | Status | Risk or gap | Dependency), seeded from `## Pending`, `## Technical Debt`, and the Task 01 Findings (read-only default grant, `[object Object]` error display). Statuses use the three-label scheme and match the `## Component Maturity Matrix`.
+>
 > Epic: [03_usage-risk-docs.md](../03_usage-risk-docs/03_usage-risk-docs.md) — US-08: Known gaps and risks are visible
 > Sprint 12 · Usage and risk documentation · documentation-only work
 
