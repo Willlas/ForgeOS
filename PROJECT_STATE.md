@@ -1,11 +1,11 @@
 # PROJECT_STATE
 
-Last Updated: 2026-09-20
+Last Updated: 2026-09-24
 Repository Status: STABLE
 Build Status: PASSING
-Tests: PASSING (402/402, 27 files)
-Branch: sprint12
-Last Stable Commit: 8fe01fe — docs: Update project goals and next milestone in README for clarity
+Tests: PASSING (409/409, 29 files)
+Branch: sprint13
+Last Stable Commit: 0a0d7de — feat(cli): improve error handling and messaging in CLI commands
 
 ---
 
@@ -19,21 +19,20 @@ Aer is pre-MVP: the only validated path today is the CLI grant → preview → a
 
 Build a reliable autonomous engineering runtime that coordinates agents, providers, workflows, and CLI-driven operations around a secure workspace model.
 
-Sprint 12 aligns the project documentation and product framing with the actual state of the repository, defines a realistic MVP boundary, and prepares a clear path to the next milestone without overstating current maturity.
+Sprint 13 makes the validated grant → preview → approve → apply CLI path trustworthy for pre-MVP use by closing the Known Risks register defects that affect it (CLI error propagation, provider health / local inference) and documenting the local-Ollama prerequisite — without adding any new capability.
 
 ## Current Sprint
 
-Sprint: **12** — Documentation alignment and product definition
+Sprint: **13** — CLI reliability
 
 Status: **COMPLETED**
 
-Canonical sprint reference: [.ai/backlogs/012_sprint/README.md](.ai/backlogs/012_sprint/README.md)
+Canonical sprint reference: [.ai/backlogs/013_sprint/README.md](.ai/backlogs/013_sprint/README.md)
 
 Completion Criteria:
-- [x] **Documentation alignment** — unify PROJECT_STATE, ROADMAP, README, ARCHITECTURE, ADRs, and RFCs around the real architecture and current status
-- [x] **Product framing and MVP definition** — define MVP scope and explicit product boundaries (stable, experimental, planned)
-- [x] **Usage and risk documentation** — document the validated CLI workflow, usage, and remaining gaps and risks
-- [x] **Next milestone preparation** — prepare the next engineering milestone (objective, scope, exit criteria) from the stable develop branch
+- [x] **CLI error propagation** — failed `aer` commands print the daemon's real message (e.g. `Unknown or already-consumed approvalId`) instead of `[object Object]`; regression-tested in `packages/cli/src/__tests__/cli-error-propagation.test.ts`
+- [x] **Provider state in `aer status`** — `aer status` reports the Ollama provider as reachable / unreachable at `http://localhost:11434` (bounded probe, no daemon IPC added); regression-tested in `packages/cli/src/__tests__/status-provider-state.test.ts`
+- [x] **Local-Ollama prerequisite documented** — the README states the prerequisite in `## MVP boundary` (Ollama remains **experimental**); the two `Known Risks` rows are closed below
 
 ---
 
@@ -52,7 +51,7 @@ Multi-agent coordination as a validated workflow, additional provider backends, 
 
 Compilation: ✅ Passing
 
-Tests: ✅ Passing (402/402, 27 files)
+Tests: ✅ Passing (409/409, 29 files)
 
 Formatting: ✅ Clean
 
@@ -172,11 +171,11 @@ Risk and gap register — seeded from `## Pending`, `## Technical Debt`, and the
 | Area | Status | Risk or gap | Dependency | Mitigation / next step |
 |---|---|---|---|---|
 | CLI workspace loop (grant → preview → approve → apply) | validated | The only validated product path. The mutation chain requires an explicit read-write grant (`-m read-write -t list,read,search,apply`) — under the default read-only grant, `preview` fails with `apply not granted`; grants are session-scoped and the most recent registration wins (Task 01 real run). | `aer-daemon` running; explicit read-write grant | Follow the README `## Usage — validated CLI flow` (documents the full read-write grant for mutation flows); if `preview` fails, check whether the grant was registered in the current session (session-scoped, most-recent-wins). |
-| CLI error reporting | validated | The CLI swallows daemon errors — e.g. reusing a consumed approvalId prints `[object Object]` instead of `Unknown or already-consumed approvalId` (Task 01 finding; `packages/cli/src/index.ts`). | Fix CLI error propagation (`IpcClient` rejection → message) | Workaround: run `aer-daemon` in a visible terminal — it logs the real cause (`[apply-approval] FAILED: …`); fix by propagating the rejection message to the CLI (small, incremental change in `packages/cli/src/index.ts`). |
+| CLI error reporting | validated | Closed (Sprint 13, Epic 1): the CLI now surfaces the daemon's real message — reusing a consumed approvalId prints `Unknown or already-consumed approvalId`, not `[object Object]` (`errorMessage` helper in `packages/cli/src/index.ts`, used by the failing commands' catch blocks). | — | None — fix landed and regression-tested (`packages/cli/src/__tests__/cli-error-propagation.test.ts`). |
 | Multi-agent coordination (AgentTeam + workflow engine) | experimental | Implemented and unit-tested (Sprints 7–8) but not a validated end-to-end workflow (see Pending). | E2E validation run before any capability claim | Run one end-to-end multi-agent workflow, record the result, and promote or demote the status accordingly before claiming product capability. |
 | Provider backends (OpenAI, Anthropic) | planned | Only Ollama is implemented and registered (15 tests); OpenAI/Anthropic are interface types only (see Technical Debt). | Per-backend `IProvider` implementations | Keep new backends behind `IProvider` (additive registry, `provider-registry.ts`) so the core stays provider-agnostic. |
 | Provider capability detection | experimental | Capabilities are static per provider — no model-specific overrides (e.g. embeddings for `nomic-embed-text`, tool calling); asserted in `provider-registry.test.ts`. | Model-level capability override mechanism | Until model-level overrides exist, gate feature use on `provider.capabilities` (never assume embeddings/tool calling); add overrides as a small incremental change to the registry. |
-| Provider health / local inference | experimental | Provider initialization and health checks require Ollama running locally (localhost:11434; `ollama-provider.ts`). | A local Ollama instance with the required model | The README currently names Ollama as the only implemented provider (intro and `## MVP boundary`) but does not state the local-Ollama prerequisite — document it wherever provider health is described; surface provider state in `aer status` output. |
+| Provider health / local inference | experimental | Provider initialization and health checks require Ollama running locally at `http://localhost:11434` (`ollama-provider.ts`); the prerequisite is now documented in `README.md` (`## MVP boundary`) and the provider remains **experimental**. | A local Ollama instance with the required model | Closed as tracked (Sprint 13, Epic 2 + Epic 3): `aer status` reports the provider state (reachable / unreachable at `http://localhost:11434`) via a bounded CLI-side probe, regression-tested in `packages/cli/src/__tests__/status-provider-state.test.ts`; the README states the local-Ollama prerequisite. |
 | VS Code extension / GUI | planned | Design-only (Sprints 10–11), no implementation (see Technical Debt). | Validated MVP runtime path | None yet — tracked as future work (design-only; see `packages/cli/docs/vscode-extension-v1.0.md`). |
 
 > The previous process rules (incremental refactors, no large-file rewrites, avoid compiler cascades) remain day-to-day engineering practice; they are not product risks and are excluded from the register.

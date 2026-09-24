@@ -27,6 +27,6 @@
 
 ## Final review
 
-- [ ] README states the local-Ollama prerequisite and keeps Ollama experimental.
-- [ ] Both `PROJECT_STATE.md` Known Risks rows reflect the closed defects.
-- [ ] DoD is met and a stable commit exists on `sprint13`.
+- [x] README states the local-Ollama prerequisite and keeps Ollama experimental.
+- [x] Both `PROJECT_STATE.md` Known Risks rows reflect the closed defects.
+- [x] DoD is met and a stable commit exists on `sprint13`.

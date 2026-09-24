@@ -105,6 +105,45 @@ program
     }
   });
 
+// ---- Ollama provider reachability (Sprint 13, Epic 2) ----
+
+// Mirrors the default base URL in packages/runtime/src/providers/ollama-provider.ts
+// (the provider constructor falls back to this value when no baseUrl is set).
+export const OLLAMA_BASE_URL = 'http://localhost:11434';
+
+// Bounded so a down or slow Ollama cannot hang `aer status`.
+const OLLAMA_PROBE_TIMEOUT_MS = 2_000;
+
+/**
+ * Probe the local Ollama provider (GET /api/tags, the same endpoint the
+ * provider's healthCheck uses). Resolves `true` when reachable within the
+ * timeout, `false` otherwise — never rejects, so probe failures cannot
+ * crash or hang the CLI.
+ */
+export async function probeOllamaReachability(
+  baseUrl: string = OLLAMA_BASE_URL,
+  timeoutMs: number = OLLAMA_PROBE_TIMEOUT_MS,
+): Promise<boolean> {
+  try {
+    const url = `${baseUrl.replace(/\/$/, '')}/api/tags`;
+    const response = await fetch(url, {
+      method: 'GET',
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+/** Deterministic provider-state line for `aer status` output. */
+export function formatProviderStatus(
+  reachable: boolean,
+  baseUrl: string = OLLAMA_BASE_URL,
+): string {
+  return `Ollama provider: ${reachable ? 'reachable' : 'unreachable'} (${baseUrl})`;
+}
+
 program
   .command('status')
   .description('Show daemon and runtime status via IPC')
@@ -123,11 +162,14 @@ program
       } else {
         console.log('Daemon running: Yes (runtime query failed)');
       }
-    } catch (error) {
+    } catch {
       console.log('Daemon running: Yes (but IPC connection failed)');
     } finally {
       client.disconnect();
     }
+    // Provider reachability is a CLI-side probe of the local Ollama
+    // endpoint; it needs no daemon IPC.
+    console.log(formatProviderStatus(await probeOllamaReachability()));
   });
 
 // ---- workflow placeholder commands ----

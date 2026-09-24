@@ -28,7 +28,7 @@ The MVP is deliberately narrow: the daemon-backed, CLI-driven workspace operatio
 - The `aer` CLI and `aer-daemon` over IPC as the sole operator surface (**validated**: the grant → preview → approve → apply loop)
 - The grant → preview → approve → apply lifecycle with session-scoped grants and single-use approvals
 - Grant-gated workspace tools (`list`, `read`, `search`, `execute`) backed by the runtime core (scheduler, dispatcher, workflow engine — **experimental**: implemented and tested, not a validated end-to-end path)
-- The Ollama provider as the only implemented backend (**experimental**: implemented and tested, not part of the validated CLI flow), behind the provider-independent `IProvider` interface
+- The Ollama provider as the only implemented backend (**experimental**: implemented and tested, not part of the validated CLI flow), behind the provider-independent `IProvider` interface; provider initialization and health checks require Ollama running locally at `http://localhost:11434` (the prerequisite — provider state is also reported by `aer status`)
 
 **Intentionally out of scope**
 

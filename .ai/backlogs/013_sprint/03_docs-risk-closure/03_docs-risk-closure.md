@@ -37,9 +37,9 @@ Close the loop on the two `Known Risks` register rows (CLI error reporting and p
 
 ## Tasks
 
-- [ ] Document the local-Ollama prerequisite in the README.
-- [ ] Update the two `PROJECT_STATE.md` Known Risks rows.
-- [ ] Cut a stable commit on the `sprint13` branch containing all three epics.
+- [x] Document the local-Ollama prerequisite in the README.
+- [x] Update the two `PROJECT_STATE.md` Known Risks rows.
+- [x] Cut a stable commit on the `sprint13` branch containing all three epics.
 
 ## Out of scope
 
