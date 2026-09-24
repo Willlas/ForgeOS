@@ -35,11 +35,56 @@
 | Sprint 10 | VS Code Extension | ⏳ Planned |
 | Sprint 11 | GUI | ⏳ Planned |
 | Sprint 12 | Documentation alignment and product definition | ✅ Complete |
+| Sprint 13 | CLI reliability | ⏳ Planned |
 
 > MVP note: "Complete" in the table above means the sprint's implementation and tests landed, not a validated end-to-end product path.
 > The canonical MVP boundary is defined in `README.md` (`## MVP boundary`); the only validated product path is the CLI grant → preview → approve → apply flow (see `PROJECT_STATE.md`, Pending).
 > Per-component maturity labels (Stable / Experimental / Planned / Aspirational) are defined in `PROJECT_STATE.md` (`## Component Maturity Matrix`).
 > Labels used in this file: **validated** = the CLI grant → preview → approve → apply flow (the only verified product path); **experimental** = implemented and unit-tested, not a validated end-to-end product path (runtime core, multi-agent, workflow); **planned** = designed or on the roadmap, not implemented (OpenAI/Anthropic backends, VS Code extension, GUI).
+
+---
+
+# Sprint 13 — CLI reliability
+
+Status: Planned
+
+Objective:
+
+Sprint 13 makes the validated grant → preview → approve → apply CLI path trustworthy for pre-MVP use by closing the Known Risks register defects that affect it — starting with CLI error propagation, where daemon rejections print `[object Object]` instead of the real error message — without adding any new capability.
+
+Deliverables:
+
+- **CLI error propagation fix** — failed commands print the daemon's real error message instead of `[object Object]` (e.g. reusing a consumed approvalId prints `Unknown or already-consumed approvalId`): propagate the `IpcClient` rejection message in `packages/cli/src/index.ts` (rejection path in `packages/cli/src/ipc-client.ts`). *(Known Risks register: "CLI error reporting")* *(Maturity: **validated** — the fix is inside the grant → preview → approve → apply loop, the only validated path; Component Maturity Matrix: CLI row validated and tested; register row "CLI error reporting" labeled validated)*
+- **Provider state in `aer status`** — `aer status` output reports the Ollama provider state (reachable / unreachable at `localhost:11434`) in addition to `Daemon running` and `Runtime state` (`packages/cli/src/index.ts`, `status` command). *(Known Risks register: "Provider health / local inference")* *(Maturity: **experimental** — the Ollama provider is implemented and tested (15 tests) but not part of the validated CLI flow; Component Maturity Matrix: Ollama provider Stable tier → experimental under the three-label scheme; register row "Provider health / local inference" labeled experimental)*
+- **Local-Ollama prerequisite documented** — the local-Ollama prerequisite (Ollama running at `localhost:11434` for provider initialization and health checks) is stated wherever provider health or the usage flow is described (`README.md`). *(Known Risks register: "Provider health / local inference")* *(Maturity: **experimental** — documents a prerequisite of the implemented, tested-but-not-validated Ollama provider; same Component Maturity Matrix row and register row as the previous deliverable)*
+
+Critical path:
+
+- **CLI error propagation fix** (Deliverable 1) — `packages/cli/src/index.ts` / `ipc-client.ts`; no dependencies; the only code item the register names as a "small, incremental change" *(Known Risks: "CLI error reporting")* — lands first.
+- **Provider state in `aer status`** (Deliverable 2) — `packages/cli/src/index.ts`; lands after the error-propagation fix so the diffs in the same file stay sequential *(Known Risks: "Provider health / local inference")*.
+- **Local-Ollama prerequisite documented** (Deliverable 3) — `README.md`; lands after the `aer status` change so the docs describe implemented behavior *(Known Risks: "Provider health / local inference")*.
+- **Definition-of-Done closure** (not a deliverable) — update the two `PROJECT_STATE.md` Known Risks rows and cut the stable commit on the sprint branch (Exit criteria 1 and 5).
+
+Secondary path:
+
+- **None** — all three deliverables sit on the critical path because each backs an Exit criterion and the critical path alone must satisfy every Exit criterion, so no stretch items are scheduled for Sprint 13 (0 of 3 deliverables on the secondary path, within the 50% cap).
+
+Out of scope:
+
+- **Additional provider backends (OpenAI, Anthropic)** — interface types only, not implemented (README `## MVP boundary`).
+- **Multi-agent coordination as a validated end-to-end workflow** — implemented and unit-tested, not yet a validated product path (README `## MVP boundary`).
+- **VS Code extension and GUI** — design-only work from Sprints 10–11, not MVP components (README `## MVP boundary`).
+- **No future-sprint dependency** — no Sprint 13 item may depend on a future sprint completing first: every critical-path item builds on the current repo state (build passing, 402/402 tests, `sprint13` branch).
+
+Sprint 13 stays the next realistic engineering slice over the validated CLI flow: error propagation in the existing `aer` commands, provider state in the existing `aer status`, and documenting the existing local-Ollama prerequisite — no new product capability.
+
+Exit criteria:
+
+- **Build and tests green** — `npm run build` (`tsc --build`) exits 0 and `npm test` (`vitest run`) exits 0 with no failing or skipped tests, including all `packages/cli/src/__tests__` tests (Definition of Done: build passes, all tests pass).
+- **Real error message surfaces** — with `aer-daemon` running, reusing a consumed approvalId makes the CLI print the daemon's real message (`Unknown or already-consumed approvalId`, as thrown in `packages/runtime/src/core/runtime.ts`) instead of `[object Object]`, and a test in `packages/cli/src/__tests__/` asserts the rejection message is surfaced. *(Deliverable: CLI error propagation fix)*
+- **`aer status` reports provider state** — with `aer-daemon` running, `aer status` output contains an Ollama provider line reporting reachable or unreachable at `localhost:11434` in addition to the existing `Daemon running` and `Runtime state` lines. *(Deliverable: Provider state in `aer status`)*
+- **Prerequisite documented** — the README states the local-Ollama prerequisite (Ollama running at `localhost:11434` required for provider initialization and health checks) in the section that describes the usage flow / MVP boundary. *(Deliverable: Local-Ollama prerequisite documented; Definition of Done: documentation updated)*
+- **Register updated** — the `PROJECT_STATE.md` Known Risks register rows "CLI error reporting" and "Provider health / local inference" reflect the closed defects (fix landed, provider state in `aer status`), and a stable commit on the current sprint branch contains this change. *(Definition of Done: PROJECT_STATE.md updated, stable commit created)*
 
 ---
 

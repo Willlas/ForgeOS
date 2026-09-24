@@ -29,6 +29,17 @@ async function getIpcClient(): Promise<IpcClient> {
   return client;
 }
 
+// Helper: extract a human-readable message from an `Error` or from a plain
+// `{ code, message }` IPCError object (IpcClient rejects with plain objects,
+// so stringifying one directly prints "[object Object]").
+export function errorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return String(error);
+}
+
 type WorkspaceMode = 'read-only' | 'read-write';
 type WorkspaceTool = 'list' | 'read' | 'search' | 'execute' | 'apply';
 
@@ -302,7 +313,7 @@ program
       const response = await client.call(IPCCommand.WorkspaceList, { rootPath: root, relativePath: directoryPath });
       if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace list failed.');
       console.log(JSON.stringify(response.data, null, 2));
-    } catch (error) { console.error(`Workspace list failed: ${error instanceof Error ? error.message : String(error)}`); process.exitCode = 1; }
+    } catch (error) { console.error(`Workspace list failed: ${errorMessage(error)}`); process.exitCode = 1; }
     finally { client.disconnect(); }
   });
 
@@ -318,7 +329,7 @@ program
       const response = await client.call(IPCCommand.WorkspaceSearch, { rootPath: root, query });
       if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace search failed.');
       console.log(JSON.stringify(response.data, null, 2));
-    } catch (error) { console.error(`Workspace search failed: ${error instanceof Error ? error.message : String(error)}`); process.exitCode = 1; }
+    } catch (error) { console.error(`Workspace search failed: ${errorMessage(error)}`); process.exitCode = 1; }
     finally { client.disconnect(); }
   });
 
@@ -397,7 +408,7 @@ program
       if (!resp.success) throw new Error(resp.error?.message ?? 'Grant registration failed.');
       console.log(JSON.stringify({ session: client.session, ...(resp.data as object) }, null, 2));
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = errorMessage(error);
       console.error(`Workspace grant failed: ${message}`);
       process.exitCode = 1;
     } finally { client.disconnect(); }
@@ -414,7 +425,7 @@ program
       if (!resp.success) throw new Error(resp.error?.message ?? 'Grant listing failed.');
       console.log(JSON.stringify(resp.data, null, 2));
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = errorMessage(error);
       console.error(`Grant listing failed: ${message}`);
       process.exitCode = 1;
     } finally { client.disconnect(); }
@@ -432,7 +443,7 @@ program
       if (!resp.success) throw new Error(resp.error?.message ?? 'Grant revocation failed.');
       console.log(JSON.stringify(resp.data, null, 2));
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = errorMessage(error);
       console.error(`Grant revocation failed: ${message}`);
       process.exitCode = 1;
     } finally { client.disconnect(); }
@@ -491,7 +502,7 @@ program
       console.log(JSON.stringify(data, null, 2));
       console.error(`Use this diffHash with workspace:approve: ${data.diffHash}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = errorMessage(error);
       console.error(`Workspace preview failed: ${message}`);
       process.exitCode = 1;
     } finally { client.disconnect(); }
@@ -529,7 +540,7 @@ program
       const data = response.data as { approvalId: string };
       console.error(`Use this approvalId with workspace:apply: ${data.approvalId}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = errorMessage(error);
       console.error(`Workspace approval failed: ${message}`);
       process.exitCode = 1;
     } finally { client.disconnect(); }
@@ -561,7 +572,7 @@ program
       if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace apply failed.');
       console.log(JSON.stringify(response.data, null, 2));
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = errorMessage(error);
       console.error(`Workspace apply failed: ${message}`);
       process.exitCode = 1;
     } finally { client.disconnect(); }
@@ -856,4 +867,14 @@ program
     }
   });
 
-program.parse();
+// Parse the CLI only when this module is the spawned entry script (direct
+// runs via tsx or node always list it in process.argv). When imported by a
+// test runner worker, the runner's argv does not reference index.ts, so
+// parsing is skipped — which keeps `errorMessage` importable by tests
+// without commander reading the runner's argv (and exiting the worker).
+const argvHasEntry = process.argv.slice(1).some(
+  (arg) => typeof arg === "string" && /index\.(ts|js)$/.test(arg),
+);
+if (argvHasEntry) {
+  program.parse();
+}

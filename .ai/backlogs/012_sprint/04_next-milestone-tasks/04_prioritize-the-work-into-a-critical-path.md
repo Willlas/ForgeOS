@@ -1,5 +1,7 @@
 # Task 04: Prioritize the work into a critical path
 
+> Status: Complete — 2026-09-23. Added `Critical path` / `Secondary path` to the `# Sprint 13` section of `ROADMAP.md` and a "Sprint 13 prioritization (US-10)" block to the Tasks section of `04_next-milestone.md`. Critical path (ordered): 1) CLI error propagation fix (`packages/cli/src/index.ts` / `ipc-client.ts` — the register's only "small, incremental change", lands first); 2) provider state in `aer status` (same file, sequential diff); 3) local-Ollama prerequisite in `README.md` (documents item 2's implemented behavior); 4) DoD closure (`PROJECT_STATE.md` register rows + stable commit). Secondary path: explicitly **none** — all three deliverables are critical because each backs an Exit criterion and the critical path alone must satisfy every Exit criterion (0 of 3 on the secondary path, within the 50% cap; no secondary item is a prerequisite for any critical item). Sourced from the `PROJECT_STATE.md` Known Risks register (lines 175 and 179).
+>
 > Epic: [04_next-milestone.md](../04_next-milestone/04_next-milestone.md) — US-10: The next milestone has prioritized tasks
 > Sprint 12 · Next milestone preparation · documentation-only work
 

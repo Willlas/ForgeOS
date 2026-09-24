@@ -1,66 +1,52 @@
-# Sprint 13 — Next milestone execution
+# Sprint 13 — CLI reliability
+
+> Objective (from `ROADMAP.md`): close the known-risks defects in the validated CLI path and surface provider state, in a narrow, execution-ready scope grounded in the actual repository state.
 
 ## Objective
 
-Turn the clarifications completed in Sprint 12 into a concrete next milestone for the project, with a realistic and execution-ready scope grounded in the actual repository state.
+Harden the validated CLI path (grant → preview → approve → apply) by fixing the error-reporting defect that hides daemon failures as `[object Object]`, surfacing the Ollama provider state in `aer status`, and documenting the local-Ollama prerequisite. This is a small, CLI-focused, pre-MVP milestone: no new product features, no GUI, no additional provider backends.
 
 ## Current repository status
 
-The repository is now on the `develop` branch after merging Sprint 12, and a new working branch has been created for this milestone: `sprint13`.
+The repository is on the `develop` main branch with a working branch `sprint13` for this milestone.
 
 ### What is already stable
 
-- Core runtime and orchestration structure are in place.
-- CLI and daemon workflow are implemented.
-- The validated workflow path is:
-  - grant
-  - preview
-  - approve
-  - apply
-- Regression tests cover the critical grant and workspace-write flow.
-- The repository documentation has been reconciled to be more honest about maturity and scope.
+- Core runtime and orchestration structure are implemented and build cleanly (`npm run build`).
+- CLI and daemon IPC workflow are implemented.
+- The validated workflow path is grant → preview → approve → apply.
+- Regression tests cover the critical grant and workspace-write flow (402/402 passing, including the CLI tests under `packages/cli/src/__tests__/`).
+- The repository documentation is honest about maturity and scope (post-Sprint 12).
 
-### What remains realistic
+### What is in scope for Sprint 13 (from `ROADMAP.md`)
 
-- The project is still pre-MVP.
-- Multi-agent coordination is implemented, but not yet fully validated as a broad end-to-end product flow.
-- Only the validated core path should be described as working with confidence.
-- Additional provider backends and richer product-level functionality remain future work.
+- Close the `Known Risks` defect: CLI error propagation printing `[object Object]` instead of the daemon's real message (e.g. `Unknown or already-consumed approvalId`).
+- Add the Ollama provider state to `aer status` (reachable / unreachable at `http://localhost:11434`).
+- Document the local-Ollama prerequisite (`http://localhost:11434`) in the README.
 
-## Goal for Sprint 13
+## Epics in this sprint
 
-Sprint 13 focuses on hardening the pre-MVP Aer Runtime by establishing robust end-to-end test coverage for the validated secure workflow and standardizing CLI exit codes. The aim is to lock in the stability of the core path, prevent regressions, and improve scriptability before broader product features are pursued.
+| Epic | Purpose | Source |
+|------|---------|--------|
+| [Epic 1: CLI error propagation](01_cli-error-propagation/01_cli-error-propagation.md) | Surface the daemon's real error message in `aer` commands instead of `[object Object]`, with a regression test | `ROADMAP.md` (deliverable 1) |
+| [Epic 2: Provider status](02_provider-status/02_provider-status.md) | Report the Ollama provider state in `aer status` | `ROADMAP.md` (deliverable 2) |
+| [Epic 3: Docs & risk closure](03_docs-risk-closure/03_docs-risk-closure.md) | Document the local-Ollama prerequisite and close the two `Known Risks` register rows | `ROADMAP.md` (deliverable 3 + Definition of Done) |
 
-## Recommended direction
+## How to navigate this backlog
 
-The most valuable next milestone should be narrow, buildable, and testable. The best candidate is:
-
-- define the next concrete engineering milestone in a measurable way
-- implement the minimal feature set required to demonstrate a clear user-facing flow
-- keep the work aligned with the runtime + CLI + workspace grant model already validated
-- document the deliverables, risks, and exit criteria explicitly
-- harden the validated core CLI workflow with E2E coverage and consistent exit codes
-
-## Deliverables expected from the model
-
-The agent receiving this handoff should:
-
-1. Review the repository state and architecture as implemented.
-2. Define the single most realistic milestone to pursue immediately after Sprint 12.
-3. Produce a precise backlog for Sprint 13 with epics, user stories, and tasks.
-4. Recommend the first implementation slice that can be built and verified in one sprint.
-5. Produce the acceptance criteria and test strategy for the milestone.
-6. Include a robust E2E plan for the secure workflow and CLI exit-code standardization.
-7. Propose any required documentation updates to keep the repository honest.
+1. Start with this file for the objective and constraints.
+2. Open an epic file to read its objective, user stories, and acceptance criteria.
+3. Open the matching `*-tasks.md` file to see the atomized tasks, file targets, and verification.
 
 ## Constraints
 
-- Keep the scope realistic.
-- Do not claim full product maturity.
-- Favor clear, narrow milestone execution over broad speculative features.
-- Use the validated CLI workflow as the anchor for any end-to-end behavior.
-- Keep the output structured and implementation-ready.
+- Keep scope to CLI reliability and known risks; no new product features.
+- Do not claim product maturity; the project is pre-MVP.
+- Do not add additional provider backends (interface types only).
+- Do not build the GUI or VS Code extension (design-only, from Sprints 10–11).
+- Keep every task grounded in files that exist in the repository.
+- The Ollama provider remains **experimental** — the provider-state line in `aer status` is a reachability signal, not a validated product feature.
 
-## Suggested working prompt for the model
+## Companion handoff
 
-See the companion file: `GLM_HANDOFF.md`.
+See `GLM_HANDOFF.md` for the full execution brief.

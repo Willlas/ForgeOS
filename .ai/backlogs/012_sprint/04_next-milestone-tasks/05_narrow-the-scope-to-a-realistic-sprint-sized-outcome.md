@@ -1,5 +1,7 @@
 # Task 05: Narrow the scope to a realistic sprint-sized outcome
 
+> Status: Complete — 2026-09-23. Added an `Out of scope` subsection to the `# Sprint 13` section of `ROADMAP.md` (between Secondary path and Exit criteria) and a matching block to the "Sprint 13 prioritization (US-10)" section of `04_next-milestone.md`. It repeats the three README `## MVP boundary` exclusions verbatim — (1) additional provider backends (OpenAI, Anthropic, interface types only), (2) multi-agent coordination as a validated end-to-end workflow, (3) VS Code extension and GUI (design-only, Sprints 10–11) — plus the rule that no Sprint 13 item may depend on a future sprint completing first (verified: the Sprint 13 section and epic file contain no Sprint 10/11 references, and none of the three deliverables contradicts the exclusions). The milestone is explicitly bounded to the next realistic engineering slice over the validated CLI flow.
+>
 > Epic: [04_next-milestone.md](../04_next-milestone/04_next-milestone.md) — US-10: The next milestone has prioritized tasks
 > Sprint 12 · Next milestone preparation · documentation-only work
 

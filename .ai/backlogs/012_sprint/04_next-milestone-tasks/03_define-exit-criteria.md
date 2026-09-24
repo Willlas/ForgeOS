@@ -1,5 +1,7 @@
 # Task 03: Define exit criteria
 
+> Status: Complete — 2026-09-23. Added a 5-item `Exit criteria` list to the `# Sprint 13` section of `ROADMAP.md`: (1) `npm run build` + `npm test` both exit 0 with no failing/skipped tests (including `packages/cli/src/__tests__/`); (2) reusing a consumed approvalId prints the daemon's real message (`Unknown or already-consumed approvalId`, verified at `packages/runtime/src/core/runtime.ts:534`) instead of `[object Object]`, asserted by a CLI test; (3) `aer status` output contains an Ollama provider reachable/unreachable line at `localhost:11434`; (4) README states the local-Ollama prerequisite in the usage-flow / MVP-boundary section; (5) `PROJECT_STATE.md` Known Risks rows updated plus stable commit on the sprint branch (`sprint13`). Every item is objectively verifiable, maps to a Deliverable or a Definition of Done line, and claims nothing beyond the validated CLI flow.
+>
 > Epic: [04_next-milestone.md](../04_next-milestone/04_next-milestone.md) — US-09: The next milestone has a concrete objective
 > Sprint 12 · Next milestone preparation · documentation-only work
 

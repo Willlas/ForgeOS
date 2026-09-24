@@ -1,5 +1,7 @@
 # Task 02: Write the milestone deliverables
 
+> Status: Complete — 2026-09-23. Added a 3-item `Deliverables` list to the `# Sprint 13` section of `ROADMAP.md`: (1) CLI error propagation fix in `packages/cli/src/index.ts` / `ipc-client.ts` (rejections print the real message instead of `[object Object]`); (2) Ollama provider state (reachable / unreachable at `localhost:11434`) in `aer status` output; (3) local-Ollama prerequisite documented wherever provider health or usage is described (`README.md`). Each item is verified against the code (catch-handler pattern, `status` command body) and traces to the `PROJECT_STATE.md` Known Risks register.
+>
 > Epic: [04_next-milestone.md](../04_next-milestone/04_next-milestone.md) — US-09: The next milestone has a concrete objective
 > Sprint 12 · Next milestone preparation · documentation-only work
 

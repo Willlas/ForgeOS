@@ -2,131 +2,79 @@
 
 ## Context
 
-We are working in a TypeScript monorepo for Aer Runtime. The repository has reached a stable stage after Sprint 12, where documentation and sprint framing were reconciled and the project story is now more honest and aligned with the actual implementation.
+We are working in a TypeScript monorepo for Aer Runtime. The repository reached a stable stage after Sprint 12, where documentation and sprint framing were reconciled. The main branch is `develop`; the active working branch is `sprint13`.
 
-The main branch is `develop`, and the current active branch is `sprint13`.
+This handoff brief aligns Sprint 13 with the `# Sprint 13` section of `ROADMAP.md` (milestone name: **CLI reliability**). The objective is to close the known-risks defects in the validated CLI path and surface provider state — a narrow, pre-MVP, CLI-focused milestone with **no new product features**.
 
 ## Current state summary
 
-- The project is a modular TypeScript runtime for autonomous engineering workflows.
-- The runtime and CLI structure are implemented and build cleanly.
-- The key validated flow is the secure workspace interaction path:
-  - grant
-  - preview
-  - approve
-  - apply
-- The repository is in a pre-MVP state, not a full product-ready state.
-- Important work is already implemented, but the project still needs disciplined milestone definition and execution.
+- The project is a modular TypeScript runtime for autonomous engineering workflows, implemented and building cleanly (`npm run build`).
+- The validated product path is the secure workspace flow: grant → preview → approve → apply.
+- The project is **pre-MVP**. Only the validated core path is described as working with confidence.
+- The Ollama provider is **experimental**; additional provider backends are interface types only.
+- The GUI / VS Code extension are design-only (Sprints 10–11), not MVP components.
+- Tests: 402/402 passing, including the CLI tests under `packages/cli/src/__tests__/`.
+
+## Known risks targeted this sprint (from `PROJECT_STATE.md`)
+
+- **CLI error reporting:** a rejected `approvalId` or other IPC failure prints `[object Object]` instead of the daemon's real message (e.g. `Unknown or already-consumed approvalId`, thrown at `packages/runtime/src/core/runtime.ts:534`). Root cause: `IpcClient.call()` rejects with a plain `{ code, message }` object (`packages/cli/src/ipc-client.ts:113`, `:156`), and several `index.ts` catch blocks — `workspace:list` (`:305`), `workspace:approve` (`:532`), `workspace:apply` (`:564`) — still do `error instanceof Error ? error.message : String(error)`, stringifying that object (other blocks, e.g. `ask`/`chat`/`workspace:read` at `:195`/`:244`/`:281`, already extract `message`).
+- **Provider health / local inference:** `aer status` does not surface the Ollama provider state; the local-Ollama prerequisite is not documented.
 
 ## What was completed in Sprint 12
 
-- README updated to reflect the actual maturity of the repo.
-- PROJECT_STATE aligned with the current branch and status.
-- ROADMAP updated to reflect the real sprint progression.
-- Sprint backlog split into manageable user stories and task files.
-- The project narrative became more honest about what is validated, experimental, and planned.
+- README, PROJECT_STATE, and ROADMAP reconciled to an honest, pre-MVP narrative.
+- Sprint backlog split into epics and task files (`.ai/backlogs/012_sprint/`).
 
-## What we need now
+## Sprint 13 objective (per `ROADMAP.md`)
 
-Please treat this as the handoff brief for Sprint 13.
+Close the known-risks defects in the validated CLI path and surface provider state, in a narrow, execution-ready scope. Deliverables:
+1. Close the `Known Risks` defect — CLI error propagation prints the daemon's real message (e.g. `Unknown or already-consumed approvalId`), not `[object Object]`.
+2. Add the Ollama provider state to `aer status` (reachable / unreachable at `http://localhost:11434`).
+3. Document the local-Ollama prerequisite (`http://localhost:11434`) in the README.
 
-Your task is to plan and execute the next milestone in a pragmatic, realistic way.
+## Epics (this backlog)
 
-## Main objectives
+1. **Epic 1 — CLI error propagation** (`01_cli-error-propagation/`) — surface the daemon message + regression test.
+2. **Epic 2 — Provider status** (`02_provider-status/`) — Ollama reachability line in `aer status` + test.
+3. **Epic 3 — Docs & risk closure** (`03_docs-risk-closure/`) — README prerequisite + close the two Known Risks rows + stable commit.
 
-1. Review the repository and identify the next highest-value milestone after Sprint 12.
-2. Define what should be built in this sprint with a realistic scope.
-3. Break the work into epics, user stories, and concrete tasks.
-4. Favor a minimal but meaningful milestone over a broad product vision.
-5. Keep outputs grounded in the repository’s actual implementation state.
-6. Produce a clear plan with deliverables, risks, and acceptance criteria.
-7. Harden the validated secure workflow by implementing end-to-end coverage for the grant → preview → approve → apply sequence.
-8. Standardize CLI exit codes to make the workflow reliable and scriptable in CI/CD and automation contexts.
+## Acceptance criteria (Definition of Done, per `ROADMAP.md`)
 
-## Required outputs
+- `npm run build` passes and `npm test` passes, including all `packages/cli/src/__tests__` tests.
+- Reusing a consumed `approvalId` prints `Unknown or already-consumed approvalId`, not `[object Object]`; a test in `packages/cli/src/__tests__/` asserts this.
+- `aer status` (daemon running) prints the Ollama provider state (reachable / unreachable at `http://localhost:11434`) in addition to `Daemon running` and `Runtime state`.
+- The README states the local-Ollama prerequisite in the section describing provider health or the usage flow.
+- `PROJECT_STATE.md` marks the two closed defects (CLI error reporting, provider health / local inference).
+- A stable commit on the sprint branch contains all of the above, and the sprint branch remains resumable.
 
-The final result should include:
+## Technical decisions and assumptions
 
-- an executive summary
-- a Sprint 13 objective
-- a milestone definition and scope statement
-- a backlog in English
-- epics, user stories, and tasks
-- technical decisions and assumptions
-- clear acceptance criteria
-- a short list of risks and known gaps
-- a recommended next implementation slice
-- any documentation updates required to keep the project honest
+- **Epic 1:** Prefer fixing message extraction in `packages/cli/src/index.ts` (narrow blast radius) over normalizing the rejection to an `Error` in `packages/cli/src/ipc-client.ts`. Both are valid; the former is lower-risk.
+- **Epic 2:** The daemon does not expose a provider-status IPC command, so the provider line is a **CLI-side bounded reachability probe** of `http://localhost:11434`. Do not add a new IPC command (scope creep). Add a timeout so a down/slow Ollama cannot hang `aer status`.
+- **Tests:** Keep provider-state tests dependent on a mocked probe, never a live Ollama, so the suite is green in CI and on machines without Ollama.
+- **Honesty:** The Ollama provider remains **experimental**; the provider-state line is a reachability signal, not a validated product feature.
 
-## Recommended Sprint 13 plan
+## Risks and known gaps
 
-### Executive summary
+- Epic 1 root-cause ambiguity: the fix location could be `index.ts` (extraction) or `ipc-client.ts` (rejection shape). Re-verify all CLI tests if touching `ipc-client.ts`.
+- Epic 2: no provider-status IPC command exists — must stay a CLI-side probe; add a bounded timeout.
+- Live-environment flakiness for Epic 2 tests — mock the probe, never depend on a live Ollama.
+- Scope creep: do not let the provider line read as a "validated" provider feature.
 
-Sprint 13 focuses on hardening the pre-MVP Aer Runtime by establishing robust end-to-end test coverage for the validated secure workflow and standardizing CLI exit codes. Sprint 12 successfully aligned the project narrative with its actual maturity. The next logical step is to lock in the stability of the core path, prevent regressions, and improve scriptability. This milestone ensures a reliable, observable foundation before expanding into broader product features like multi-agent coordination or additional provider backends.
+## Recommended next implementation slice
 
-### Sprint objective
-
-To harden the validated core CLI workflow by implementing comprehensive E2E integration tests and standardizing error handling, thereby securing the pre-MVP foundation against regressions and making the CLI reliably scriptable.
-
-### Scope
-
-Milestone Definition: Core Flow Hardening and E2E Validation.
-
-In Scope:
-- Development of an E2E test harness for the Aer CLI.
-- Automated integration tests covering the happy path and failure paths of the grant, preview, approve, and apply sequence.
-- Standardization of CLI exit codes for the core commands.
-- Documentation updates reflecting the new test coverage and CLI reliability.
-
-Out of Scope:
-- Multi-agent coordination validation.
-- New provider backends or runtime execution engines.
-- Major new product features or UI/UX overhauls.
-- Refactoring of the core daemon logic beyond exit code adjustments.
-
-### Epics
-
-1. E2E Test Coverage for Core Workflow
-2. CLI Exit Code Standardization
-3. Documentation Alignment
-
-### User stories
-
-- As a runtime maintainer, I want an automated E2E test harness for the CLI so that I can verify the core workflow end-to-end.
-- As a runtime maintainer, I want E2E tests for the happy path of the core workflow so that I can ensure grant, preview, approve, and apply work together seamlessly.
-- As a runtime maintainer, I want E2E tests for the failure paths so that I can ensure the system handles rejection and invalid state transitions gracefully.
-- As a DevOps engineer, I want the CLI to return standardized exit codes for the core workflow commands so that I can reliably script the runtime in CI/CD pipelines.
-- As a project planner, I want the repository documentation updated to reflect the Sprint 13 hardening efforts so the project story remains accurate and honest.
-
-### Acceptance criteria
-
-- The grant → preview → approve → apply workflow is fully covered by automated E2E tests that pass reliably in the CI pipeline.
-- A rejected workflow is tested and behaves predictably, returning a non-zero exit code.
-- CLI commands return consistent, standard exit codes (0 for success, specific non-zero codes for failures).
-- All new tests pass in the CI pipeline without flakiness.
-- README accurately reflects how to execute the test suite.
-- No existing functionality in the validated core path is broken.
-
-### Risks
-
-- Test environment flakiness.
-- Hidden state dependencies.
-- Scope creep during E2E debugging.
-- Exit code breaking changes for scripts or automation.
-
-### Recommended next implementation slice
-
-Start with the E2E harness setup and initial happy-path tests. Once the CLI can be reliably invoked and evaluated in a TypeScript test script, proceed with the failure-path tests and exit-code standardization. This provides immediate visibility into the stability of the validated flow and sets the foundation for the rest of the sprint.
+1. Epic 1 first (no dependencies): fix extraction in `packages/cli/src/index.ts`, add the regression test, verify build + tests.
+2. Epic 2 second (sequential same-file change): add the bounded probe + provider line to `aer status`, add the test, verify build + tests.
+3. Epic 3 last: update the README prerequisite and the two `PROJECT_STATE.md` rows, then cut the stable commit on `sprint13`.
 
 ## Constraints
 
-- Be realistic: the project is not a full MVP yet.
-- Do not oversell the maturity of the runtime.
-- Use the validated CLI grant flow as the core dependable workflow.
-- Prefer a narrow milestone that can be completed in one sprint.
-- Keep the work aligned with the existing architecture and repository structure.
+- Keep scope to CLI reliability and known risks; no new product features.
+- Do not claim product maturity; the project is pre-MVP.
+- Do not add provider backends (interface types only) or the GUI / VS Code extension.
+- Keep every task grounded in files that exist in the repository.
 - Produce implementation-ready planning artifacts, not vague product brainstorming.
 
 ## Final instruction
 
-Create the sprint plan in a format consistent with the previous backlog work, but optimized for execution by an engineering team. The plan should be practical, grounded in reality, and ready to be used as a sprint kickoff document.
+Execute the three epics in the order above, on the `sprint13` branch, keeping `npm run build` and `npm test` green at each step. The backlog is split into epics, user stories, and atomized tasks under `.ai/backlogs/013_sprint/`. When complete, the Definition of Done above must be satisfied and the sprint branch must remain resumable.

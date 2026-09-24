@@ -1,5 +1,7 @@
 # Task 01: Define the next milestone in one sentence
 
+> Status: Complete — 2026-09-23. Named the next milestone Sprint 13 — "CLI reliability" — with a one-sentence objective grounded in the pre-MVP state, the validated CLI grant → preview → approve → apply flow, and the Known Risks register in `PROJECT_STATE.md` (CLI error propagation defect). Added the Sprint 13 row (⏳ Planned) to the `# Current Progress` table and a new `# Sprint 13` section in `ROADMAP.md`; recorded the name and objective in this epic's Objective section.
+>
 > Epic: [04_next-milestone.md](../04_next-milestone/04_next-milestone.md) — US-09: The next milestone has a concrete objective
 > Sprint 12 · Next milestone preparation · documentation-only work
 
