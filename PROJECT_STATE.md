@@ -5,7 +5,7 @@ Repository Status: STABLE
 Build Status: PASSING
 Tests: PASSING (409/409, 29 files)
 Branch: sprint13
-Last Stable Commit: 0a0d7de — feat(cli): improve error handling and messaging in CLI commands
+Last Stable Commit: 788bcbe — feat(cli): surface Ollama provider state in aer status and close Sprint 13 risk register
 
 ---
 

@@ -2,6 +2,8 @@
 
 > Objective (from `ROADMAP.md`): close the known-risks defects in the validated CLI path and surface provider state, in a narrow, execution-ready scope grounded in the actual repository state.
 
+**Status: COMPLETED** — all three epics landed on branch `sprint13` (stable commit `788bcbe`); `npm run build` passing, tests 409/409 (29 files). The sections below record the sprint's starting state and planned work.
+
 ## Objective
 
 Harden the validated CLI path (grant → preview → approve → apply) by fixing the error-reporting defect that hides daemon failures as `[object Object]`, surfacing the Ollama provider state in `aer status`, and documenting the local-Ollama prerequisite. This is a small, CLI-focused, pre-MVP milestone: no new product features, no GUI, no additional provider backends.

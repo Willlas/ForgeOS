@@ -30,7 +30,7 @@
 
 ## Final review
 
-- [ ] `aer status` (daemon running) prints an Ollama provider line with `http://localhost:11434`.
-- [ ] The probe is bounded and never hangs the CLI.
-- [ ] A test covers both provider states without a live Ollama.
-- [ ] `npm run build` and `npm test` are green.
+- [x] `aer status` (daemon running) prints an Ollama provider line with `http://localhost:11434`.
+- [x] The probe is bounded and never hangs the CLI.
+- [x] A test covers both provider states without a live Ollama.
+- [x] `npm run build` and `npm test` are green.

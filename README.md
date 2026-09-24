@@ -15,8 +15,8 @@ Aer is pre-MVP: the only validated path today is the CLI grant → preview → a
 ## Current status
 
 - **Status: pre-MVP** — the project is under active development and not yet at a minimum viable product
-- Branch: `sprint12`
-- Current focus: Sprint 12 — documentation alignment, product framing, and MVP definition
+- Branch: `sprint13`
+- Current focus: Sprint 13 — CLI reliability (completed: CLI error propagation, `aer status` provider state, local-Ollama prerequisite documented)
 - Validated path (only verified workflow): grant → preview → approve → apply CLI flow
 
 ## MVP boundary
@@ -170,4 +170,4 @@ The four commands below are the exact sequence from a real, validated run (scrat
    → `{ "rootPath": "...", "applied": true, "rolledBack": false, "restored": [], "files": [ { "relativePath": "notes.txt", "previousHash": "e3b0c442…b855", "newHash": "3830c5ad…9821" } ], "diffHash": "6319f29f…ea352" }` (exit 0)
    → disk check: `notes.txt` now contains `validated by usage-check on 2026-09-21` (38 bytes)
 
-5. **Expected failure — reusing the consumed `approvalId`** (re-running step 4 with the same id) exits 1. *Unexpected detail kept from the run:* the CLI prints `Workspace apply failed: [object Object]` (known CLI display bug — it stringifies a plain `{ code, message }` object); the actual daemon-side error is `Unknown or already-consumed approvalId`.
+5. **Expected failure — reusing the consumed `approvalId`** (re-running step 4 with the same id) exits 1 with `Workspace apply failed: Unknown or already-consumed approvalId`. *Unexpected detail kept from the run:* at the time of this recorded run (Sprint 12) the CLI printed `Workspace apply failed: [object Object]` — a display defect (it stringified a plain `{ code, message }` rejection) that is fixed as of Sprint 13 (Epic 1; regression test `packages/cli/src/__tests__/cli-error-propagation.test.ts`); the daemon-side error is `Unknown or already-consumed approvalId`.

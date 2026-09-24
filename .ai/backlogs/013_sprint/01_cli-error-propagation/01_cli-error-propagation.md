@@ -35,9 +35,9 @@ Make `aer` CLI commands report the daemon's real error message on failure, so a 
 
 ## Tasks
 
-- [ ] Surface the IPC rejection message in the CLI catch blocks (`packages/cli/src/index.ts`).
-- [ ] Add a regression test for the rejection-message path (`packages/cli/src/__tests__/`).
-- [ ] Verify `npm run build` and `npm test` are green with no regressions.
+- [x] Surface the IPC rejection message in the CLI catch blocks (`packages/cli/src/index.ts`).
+- [x] Add a regression test for the rejection-message path (`packages/cli/src/__tests__/`).
+- [x] Verify `npm run build` and `npm test` are green with no regressions.
 
 ## Out of scope
 

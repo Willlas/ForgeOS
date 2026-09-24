@@ -44,7 +44,7 @@
 
 ## Final review
 
-- [ ] The root cause is confirmed and mapped to the real reject shape.
-- [ ] The CLI prints the daemon's real error message instead of `[object Object]`.
-- [ ] The regression test is present in `packages/cli/src/__tests__/`.
-- [ ] `npm run build` and `npm test` are green.
+- [x] The root cause is confirmed and mapped to the real reject shape.
+- [x] The CLI prints the daemon's real error message instead of `[object Object]`.
+- [x] The regression test is present in `packages/cli/src/__tests__/`.
+- [x] `npm run build` and `npm test` are green.

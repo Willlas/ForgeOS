@@ -37,9 +37,9 @@ Surface the Ollama provider state in `aer status` so an operator can see whether
 
 ## Tasks
 
-- [ ] Add a bounded Ollama reachability probe and a provider-state line to `aer status` (`packages/cli/src/index.ts`).
-- [ ] Add a test for the provider-state line in both states (`packages/cli/src/__tests__/`).
-- [ ] Verify `npm run build` and `npm test` are green with no regressions.
+- [x] Add a bounded Ollama reachability probe and a provider-state line to `aer status` (`packages/cli/src/index.ts`).
+- [x] Add a test for the provider-state line in both states (`packages/cli/src/__tests__/`).
+- [x] Verify `npm run build` and `npm test` are green with no regressions.
 
 ## Out of scope
 
