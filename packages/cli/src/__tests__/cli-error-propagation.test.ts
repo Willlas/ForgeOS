@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { errorMessage } from "../index";
+import { describeFailure, errorMessage } from "../index";
 import { IPCErrorCode } from "@aer/runtime-lib";
 
 // The daemon throws this exact string in
@@ -16,10 +16,10 @@ const daemonRejection = {
 
 describe("CLI error propagation (IpcClient rejections)", () => {
   it("surfaces the daemon's real message from a plain { code, message } rejection", () => {
-    const printed = `Workspace apply failed: ${errorMessage(daemonRejection)}`;
+    const printed = describeFailure("Workspace apply failed", daemonRejection);
 
     expect(printed).toBe(
-      "Workspace apply failed: Unknown or already-consumed approvalId",
+      "Workspace apply failed: [6] Unknown or already-consumed approvalId",
     );
     expect(printed).toContain("Unknown or already-consumed approvalId");
     expect(printed).not.toContain("[object Object]");

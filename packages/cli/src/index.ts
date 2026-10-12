@@ -32,10 +32,37 @@ async function getIpcClient(): Promise<IpcClient> {
 // Helper: extract a human-readable message from an `Error` or from a plain
 // `{ code, message }` IPCError object (IpcClient rejects with plain objects,
 // so stringifying one directly prints "[object Object]").
+function formatErrorValue(value: unknown): string {
+  if (typeof value === 'object' && value !== null) {
+    try {
+      return JSON.stringify(value) ?? '[Unserializable error object]';
+    } catch {
+      return '[Unserializable error object]';
+    }
+  }
+  return String(value);
+}
+
 export function errorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  if (typeof error === 'object' && error !== null && 'message' in error) {
-    return String((error as { message: unknown }).message);
+  if (error instanceof Error) return error.message || error.name || 'Unknown error';
+  if (typeof error === 'object' && error !== null) {
+    try {
+      const errorRecord = error as Record<string, unknown>;
+      if ('message' in errorRecord) {
+        return formatErrorValue(errorRecord.message);
+      }
+      if (
+        'error' in errorRecord &&
+        typeof errorRecord.error === 'object' &&
+        errorRecord.error !== null &&
+        'message' in errorRecord.error
+      ) {
+        return formatErrorValue((errorRecord.error as { message: unknown }).message);
+      }
+      return JSON.stringify(error) ?? '[Unserializable error object]';
+    } catch {
+      return '[Unserializable error object]';
+    }
   }
   return String(error);
 }
@@ -72,7 +99,7 @@ program
       await startDaemon({ args });
       console.log('Daemon started.');
     } catch (error) {
-      console.error('Failed to start daemon:', error);
+      console.error(describeFailure('Failed to start daemon', error));
       process.exit(1);
     }
   });
@@ -86,7 +113,7 @@ program
       await stopDaemon();
       console.log('Daemon stopped.');
     } catch (error) {
-      console.error('Failed to stop daemon:', error);
+      console.error(describeFailure('Failed to stop daemon', error));
       process.exit(1);
     }
   });
@@ -100,7 +127,7 @@ program
       await restartDaemon();
       console.log('Daemon restarted.');
     } catch (error) {
-      console.error('Failed to restart daemon:', error);
+      console.error(describeFailure('Failed to restart daemon', error));
       process.exit(1);
     }
   });
@@ -109,7 +136,7 @@ program
 
 // Mirrors the default base URL in packages/runtime/src/providers/ollama-provider.ts
 // (the provider constructor falls back to this value when no baseUrl is set).
-export const OLLAMA_BASE_URL = 'http://localhost:11434';
+export const OLLAMA_BASE_URL = process.env.AER_OLLAMA_BASE_URL || 'http://localhost:11434';
 
 // Bounded so a down or slow Ollama cannot hang `aer status`.
 const OLLAMA_PROBE_TIMEOUT_MS = 2_000;
@@ -179,7 +206,8 @@ program
   .description('List all running workflows')
   .action(() => {
     if (!isRunning()) {
-      console.log('Daemon is not running. Start it first.');
+      console.error('Daemon is not running. Start it first.');
+      process.exitCode = 1;
       return;
     }
     console.log('No workflows currently running');
@@ -191,7 +219,8 @@ program
   .argument('<workflow-type>', 'Workflow type')
   .action((workflowType) => {
     if (!isRunning()) {
-      console.log('Daemon is not running. Start it first.');
+      console.error('Daemon is not running. Start it first.');
+      process.exitCode = 1;
       return;
     }
     console.log(`Requested workflow: ${workflowType}`);
@@ -202,7 +231,8 @@ program
   .description('List configuration values via IPC')
   .action(async () => {
     if (!isRunning()) {
-      console.log('Daemon is not running. Start it first.');
+      console.error('Daemon is not running. Start it first.');
+      process.exitCode = 1;
       return;
     }
     const client = await getIpcClient();
@@ -214,10 +244,12 @@ program
         console.log(`- Environment: ${config.environment || 'unknown'}`);
         console.log(`- Log Level: ${config.logLevel || 'unknown'}`);
       } else {
-        console.log('Failed to retrieve configuration.');
+        console.error(describeFailure('Failed to retrieve configuration', resp.error ?? 'Configuration request failed.'));
+        process.exitCode = 1;
       }
     } catch (error) {
-      console.error('IPC error:', error);
+      console.error(describeFailure('IPC error', error));
+      process.exitCode = 1;
     } finally {
       client.disconnect();
     }
@@ -238,19 +270,14 @@ program
     try {
       const resp = await client.call(IPCCommand.Ask, { prompt, modelId: options.model });
       if (!resp.success || !resp.data) {
-        console.error(resp.error?.message ?? 'Ask failed.');
+        console.error(describeFailure('Ask failed', resp.error ?? 'Ask failed.'));
         process.exitCode = 1;
         return;
       }
       const data = resp.data as { content: string };
       console.log(data.content);
     } catch (error) {
-      const message = error instanceof Error
-        ? error.message
-        : typeof error === 'object' && error !== null && 'message' in error
-          ? String((error as { message: unknown }).message)
-          : String(error);
-      console.error(`Ask failed: ${message}`);
+      console.error(describeFailure('Ask failed', error));
       process.exitCode = 1;
     } finally {
       client.disconnect();
@@ -277,7 +304,7 @@ program
         modelId: options.model,
         history,
       });
-      if (!resp.success || !resp.data) throw new Error(resp.error?.message ?? 'Chat request failed.');
+      if (!resp.success || !resp.data) throw resp.error ?? new Error('Chat request failed.');
       const content = (resp.data as { content: string }).content;
       history.push({ role: 'user', content: prompt }, { role: 'assistant', content });
       console.log(`assistant> ${content}`);
@@ -294,12 +321,7 @@ program
         input.prompt();
       }
     } catch (error) {
-      const message = error instanceof Error
-        ? error.message
-        : typeof error === 'object' && error !== null && 'message' in error
-          ? String((error as { message: unknown }).message)
-          : String(error);
-      console.error(`Chat failed: ${message}`);
+      console.error(describeFailure('Chat failed', error));
       process.exitCode = 1;
     } finally {
       client.disconnect();
@@ -325,18 +347,13 @@ program
         mode: 'read-only',
       });
       if (!resp.success || !resp.data) {
-        console.error(resp.error?.message ?? 'Workspace read failed.');
+        console.error(describeFailure('Workspace read failed', resp.error ?? 'Workspace read failed.'));
         process.exitCode = 1;
         return;
       }
       console.log((resp.data as { content: string }).content);
     } catch (error) {
-      const message = error instanceof Error
-        ? error.message
-        : typeof error === 'object' && error !== null && 'message' in error
-          ? String((error as { message: unknown }).message)
-          : String(error);
-      console.error(`Workspace read failed: ${message}`);
+      console.error(describeFailure('Workspace read failed', error));
       process.exitCode = 1;
     } finally {
       client.disconnect();
@@ -353,9 +370,9 @@ program
     const client = await getIpcClient();
     try {
       const response = await client.call(IPCCommand.WorkspaceList, { rootPath: root, relativePath: directoryPath });
-      if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace list failed.');
+      if (!response.success || !response.data) throw response.error ?? new Error('Workspace list failed.');
       console.log(JSON.stringify(response.data, null, 2));
-    } catch (error) { console.error(`Workspace list failed: ${errorMessage(error)}`); process.exitCode = 1; }
+    } catch (error) { console.error(describeFailure('Workspace list failed', error)); process.exitCode = 1; }
     finally { client.disconnect(); }
   });
 
@@ -369,9 +386,9 @@ program
     const client = await getIpcClient();
     try {
       const response = await client.call(IPCCommand.WorkspaceSearch, { rootPath: root, query });
-      if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace search failed.');
+      if (!response.success || !response.data) throw response.error ?? new Error('Workspace search failed.');
       console.log(JSON.stringify(response.data, null, 2));
-    } catch (error) { console.error(`Workspace search failed: ${errorMessage(error)}`); process.exitCode = 1; }
+    } catch (error) { console.error(describeFailure('Workspace search failed', error)); process.exitCode = 1; }
     finally { client.disconnect(); }
   });
 
@@ -404,15 +421,10 @@ program
     const client = await getIpcClient();
     try {
       const response = await client.call(IPCCommand.WorkspaceExecute, { rootPath: root, command, args });
-      if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace execution failed.');
+      if (!response.success || !response.data) throw response.error ?? new Error('Workspace execution failed.');
       console.log(JSON.stringify(response.data, null, 2));
     } catch (error) {
-      const message = error instanceof Error
-        ? error.message
-        : typeof error === 'object' && error !== null && 'message' in error
-          ? String((error as { message: unknown }).message)
-          : String(error);
-      console.error(`Workspace execution failed: ${message}`);
+      console.error(describeFailure('Workspace execution failed', error));
       process.exitCode = 1;
     }
     finally { client.disconnect(); }
@@ -447,11 +459,10 @@ program
         approvalRequired,
         expiresAt: options.expires,
       });
-      if (!resp.success) throw new Error(resp.error?.message ?? 'Grant registration failed.');
+      if (!resp.success) throw resp.error ?? new Error('Grant registration failed.');
       console.log(JSON.stringify({ session: client.session, ...(resp.data as object) }, null, 2));
     } catch (error) {
-      const message = errorMessage(error);
-      console.error(`Workspace grant failed: ${message}`);
+      console.error(describeFailure('Workspace grant failed', error));
       process.exitCode = 1;
     } finally { client.disconnect(); }
   });
@@ -464,11 +475,10 @@ program
     const client = await getIpcClient();
     try {
       const resp = await client.call(IPCCommand.WorkspaceGrantList);
-      if (!resp.success) throw new Error(resp.error?.message ?? 'Grant listing failed.');
+      if (!resp.success) throw resp.error ?? new Error('Grant listing failed.');
       console.log(JSON.stringify(resp.data, null, 2));
     } catch (error) {
-      const message = errorMessage(error);
-      console.error(`Grant listing failed: ${message}`);
+      console.error(describeFailure('Grant listing failed', error));
       process.exitCode = 1;
     } finally { client.disconnect(); }
   });
@@ -482,11 +492,10 @@ program
     const client = await getIpcClient();
     try {
       const resp = await client.call(IPCCommand.WorkspaceRevoke, root ? { rootPath: root } : undefined);
-      if (!resp.success) throw new Error(resp.error?.message ?? 'Grant revocation failed.');
+      if (!resp.success) throw resp.error ?? new Error('Grant revocation failed.');
       console.log(JSON.stringify(resp.data, null, 2));
     } catch (error) {
-      const message = errorMessage(error);
-      console.error(`Grant revocation failed: ${message}`);
+      console.error(describeFailure('Grant revocation failed', error));
       process.exitCode = 1;
     } finally { client.disconnect(); }
   });
@@ -539,13 +548,12 @@ program
     try {
       const changes = buildWorkspaceChanges(options);
       const response = await client.call(IPCCommand.WorkspacePreview, { rootPath: root, changes });
-      if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace preview failed.');
+      if (!response.success || !response.data) throw response.error ?? new Error('Workspace preview failed.');
       const data = response.data as { diffHash: string; files: Array<{ relativePath: string; expectedHash: string; size: number }> };
       console.log(JSON.stringify(data, null, 2));
       console.error(`Use this diffHash with workspace:approve: ${data.diffHash}`);
     } catch (error) {
-      const message = errorMessage(error);
-      console.error(`Workspace preview failed: ${message}`);
+      console.error(describeFailure('Workspace preview failed', error));
       process.exitCode = 1;
     } finally { client.disconnect(); }
   });
@@ -555,7 +563,7 @@ program
   .description('Approve a previewed diff; returns a single-use approvalId (requires confirmation)')
   .argument('<root>', 'Absolute workspace root')
   .argument('<diffHash>', 'diffHash returned by workspace:preview')
-  .option('-t, --ttl <seconds>', 'Approval TTL in seconds (capped at 300)', '60')
+  .option('-t, --ttl <seconds>', 'Approval TTL in seconds (default 60s, cap 3600s)', '60')
   .option('--yes', 'Skip the read-write confirmation prompt')
   .action(async (root: string, diffHash: string, options: { ttl: string; yes?: boolean }) => {
     if (!isRunning()) { console.error('Daemon is not running. Start it first.'); process.exitCode = 1; return; }
@@ -576,14 +584,13 @@ program
         diffHash,
         expiresInSeconds: ttl,
       });
-      if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace approval failed.');
+      if (!response.success || !response.data) throw response.error ?? new Error('Workspace approval failed.');
       // Audit-safe: the response carries no secret token.
       console.log(JSON.stringify(response.data, null, 2));
       const data = response.data as { approvalId: string };
       console.error(`Use this approvalId with workspace:apply: ${data.approvalId}`);
     } catch (error) {
-      const message = errorMessage(error);
-      console.error(`Workspace approval failed: ${message}`);
+      console.error(describeFailure('Workspace approval failed', error));
       process.exitCode = 1;
     } finally { client.disconnect(); }
   });
@@ -611,11 +618,10 @@ program
         approvalId,
         changes,
       });
-      if (!response.success || !response.data) throw new Error(response.error?.message ?? 'Workspace apply failed.');
+      if (!response.success || !response.data) throw response.error ?? new Error('Workspace apply failed.');
       console.log(JSON.stringify(response.data, null, 2));
     } catch (error) {
-      const message = errorMessage(error);
-      console.error(`Workspace apply failed: ${message}`);
+      console.error(describeFailure('Workspace apply failed', error));
       process.exitCode = 1;
     } finally { client.disconnect(); }
   });
@@ -630,7 +636,7 @@ program
     const client = await getIpcClient();
     try {
       const listResponse = await client.call(IPCCommand.WorkspaceList, { rootPath: root, relativePath: '.' });
-      if (!listResponse.success) throw new Error(listResponse.error?.message ?? 'Workspace listing failed.');
+      if (!listResponse.success) throw listResponse.error ?? new Error('Workspace listing failed.');
       const readResponse = await client.call(IPCCommand.WorkspaceRead, { rootPath: root, relativePath: 'README.md', mode: 'read-only' });
       const readme = readResponse.success && readResponse.data
         ? (readResponse.data as { content: string }).content.slice(0, 20_000)
@@ -639,15 +645,10 @@ program
       const askResponse = await client.call(IPCCommand.Ask, {
         prompt: `${prompt}\n\nUse only this authorized workspace context:\n${context}`,
       });
-      if (!askResponse.success || !askResponse.data) throw new Error(askResponse.error?.message ?? 'Workspace review failed.');
+      if (!askResponse.success || !askResponse.data) throw askResponse.error ?? new Error('Workspace review failed.');
       console.log((askResponse.data as { content: string }).content);
     } catch (error) {
-      const message = error instanceof Error
-        ? error.message
-        : typeof error === 'object' && error !== null && 'message' in error
-          ? String((error as { message: unknown }).message)
-          : String(error);
-      console.error(`Workspace review failed: ${message}`);
+      console.error(describeFailure('Workspace review failed', error));
       process.exitCode = 1;
     } finally { client.disconnect(); }
   });
@@ -802,7 +803,7 @@ program
       await fs.writeFile(targetPath, html, 'utf8');
       console.log(`Created HTML page at ${relative(process.cwd(), targetPath)}`);
     } catch (error) {
-      console.error('Failed to create HTML page:', error);
+      console.error(describeFailure('Failed to create HTML page', error));
       process.exit(1);
     }
   });
@@ -904,7 +905,7 @@ program
         console.log('Assessment: project structure looks initialized enough for a delivery review; confirm build/test tasks for the current branch before release.');
       }
     } catch (error) {
-      console.error('Failed to review project:', error);
+      console.error(describeFailure('Failed to review project', error));
       process.exit(1);
     }
   });
@@ -917,6 +918,24 @@ program
 const argvHasEntry = process.argv.slice(1).some(
   (arg) => typeof arg === "string" && /index\.(ts|js)$/.test(arg),
 );
+/**
+ * Formats error messages to avoid [object Object] output
+ */
+export function describeFailure(prefix: string, err: unknown): string {
+  let message = errorMessage(err);
+  if (typeof err === 'object' && err !== null && !(err instanceof Error)) {
+    try {
+      const errorRecord = err as Record<string, unknown>;
+      if ('code' in errorRecord && errorRecord.code !== undefined && 'message' in errorRecord) {
+        message = `[${formatErrorValue(errorRecord.code)}] ${message}`;
+      }
+    } catch {
+      // Keep the safely formatted message if an error object has throwing accessors.
+    }
+  }
+  return prefix ? `${prefix}: ${message}` : message;
+}
+
 if (argvHasEntry) {
   program.parse();
 }

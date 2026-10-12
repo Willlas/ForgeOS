@@ -148,6 +148,11 @@ export interface RuntimeHealth {
  *
  * Manages the lifecycle and wiring of all subsystems.
  */
+/** Default TTL for workspace approvals (seconds) when no explicit TTL is supplied. */
+export const WORKSPACE_APPROVAL_DEFAULT_TTL_SECONDS = 300;
+/** Hard cap (seconds) so a forgotten approvalId cannot outlive operator intent. */
+export const WORKSPACE_APPROVAL_MAX_TTL_SECONDS = 3600;
+
 export class Runtime {
   private config: RuntimeConfig;
   private state: RuntimeState;
@@ -168,8 +173,7 @@ export class Runtime {
   // Only audit-safe data is stored here; the secret approval token stays on the grant.
   private pendingWorkspaceApprovals = new Map<string, { sessionId: string; rootPath: string; diffHash: string; grantId?: string; createdAt: string; expiresAt: string }>();
   private workspaceApprovalCounter = 0;
-  private static readonly WORKSPACE_APPROVAL_DEFAULT_TTL_SECONDS = 300;
-  private static readonly WORKSPACE_APPROVAL_MAX_TTL_SECONDS = 3600;
+
 
   // In-flight workspace execute operations (sprint011 task 11). The Runtime
   // owns cancellation so `stop()` and per-session cleanup stay authoritative;
@@ -501,8 +505,8 @@ export class Runtime {
 
     const now = Date.now();
     const ttlSeconds = (typeof payload.expiresInSeconds === "number" && Number.isFinite(payload.expiresInSeconds) && payload.expiresInSeconds > 0)
-      ? Math.min(payload.expiresInSeconds, Runtime.WORKSPACE_APPROVAL_MAX_TTL_SECONDS)
-      : Runtime.WORKSPACE_APPROVAL_DEFAULT_TTL_SECONDS;
+      ? Math.min(payload.expiresInSeconds, WORKSPACE_APPROVAL_MAX_TTL_SECONDS)
+      : WORKSPACE_APPROVAL_DEFAULT_TTL_SECONDS;
     const createdAt = new Date(now).toISOString();
     const expiresAt = new Date(now + ttlSeconds * 1000).toISOString();
     const approvalId = `wsa_${sessionId.slice(0, 8)}_${now}_${++this.workspaceApprovalCounter}`;
@@ -541,7 +545,7 @@ export class Runtime {
     }
     if (Date.parse(stored.expiresAt) <= Date.now()) {
       this.pendingWorkspaceApprovals.delete(payload.approvalId);
-      throw new Error("Approval has expired");
+      throw new Error("Unknown or already-consumed approvalId");
     }
 
     const grant = this.sessionGrantManager.getGrant(sessionId, payload.rootPath);

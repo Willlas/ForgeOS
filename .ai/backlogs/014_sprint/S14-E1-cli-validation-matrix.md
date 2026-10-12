@@ -1,88 +1,118 @@
-# S14-E1 — CLI Validation Matrix & Test Foundations
+# S14-E1 — CLI Test Harness & Foundations
 
 > Sprint 14 | Priority: P0 | Critical path: yes | Plan: `S14-overview.md`
 
 ## Goal
 
-Turn the Sprint 14 CLI validation matrix (`.ai/backlogs/014_sprint/README.md` §1) into a runnable foundation: a shared, timeout-capped, daemon-aware harness for process-level CLI tests plus an explicit vitest timeout budget — so every matrix row (happy path, daemon down, reused `approvalId`, read-only grant misuse, provider unreachable, malformed args) can be pinned by deterministic, non-hanging tests.
+Create a shared, bounded, daemon-aware test harness that allows reliable execution of process-level CLI tests with timeout bounds, daemon state management, and isolation between test invocations.
 
 ## Why this matters
 
-The validated `grant → preview → approve → apply` path is currently guarded by only four CLI test files — two of which test helper functions, not the process-level contract. The one spawn-based precedent (`workspace-grant-cli.test.ts`) hand-rolls process management, and every later matrix row (E3, E4, E5) would otherwise duplicate daemon lifecycle, output capture, and cleanup. Vitest's default 5s per-test timeout is shorter than realistic daemon-spawn time, so unbounded spawn tests risk hanging CI instead of failing fast.
+This epic provides the foundational infrastructure for all other CLI validation efforts. Without reliable test harnesses, there's no way to perform deterministic regression testing of command behaviors such as reuse detection, error handling, or daemon status validation.
 
 ## Scope
 
-- New shared test helper `packages/cli/src/__tests__/helpers/cli-harness.ts`.
-- Explicit `testTimeout` in `vitest.config.ts`.
-- At least one consuming test file proving the harness works end-to-end.
+- Create CLI harness module with timeout handling and daemon management
+- Add session isolation helpers for multi-step flows  
+- Implement object leak detection
+- Include daemon startup/shutdown utilities
+- Add temp workspace management
 
 ## Out of scope
 
-- Changing CLI behavior, commands, flags, exit codes, or messages (that's E2).
-- The approval-lifecycle, status-matrix, and malformed-input suites (E3, E4, E5) — they consume this epic.
-- CI pipeline work, docker, cross-platform e2e infrastructure.
-
-## Dependencies
-
-None — this epic unblocks E3, E4, and E5.
-
-## Risks / Assumptions
-
-- **Daemon state hygiene:** spawn tests share one machine daemon slot. Assume `aer start`/`aer stop` + pid-file semantics are reliable; the harness must never kill a live daemon's pid file (respect `isRunning()` in `packages/cli/src/daemon.ts`).
-- **Windows process tree:** killing a hung CLI process must take down tsx child processes; the harness resolves with `timedOut: true` rather than throwing.
-- **Spawn cost:** each CLI invocation pays a Node+tsx cold start; assume suites stay under ~30s wall time with the E1.2 budget.
-- **Stable spawn idiom:** assume `node node_modules/tsx/dist/cli.mjs packages/cli/src/index.ts` from the repo root remains the invocation path used by `workspace-grant-cli.test.ts`.
+- Product behavior changes or feature additions
+- External infrastructure dependencies
+- Performance tuning for the test framework itself
 
 ## Acceptance criteria
 
-- `cli-harness.ts` compiles under `npm run build` (or is excluded cleanly) and is consumed by ≥ 1 test file.
-- Every spawn in the harness is time-capped: a deliberately hung invocation (1s timeout) fails the test with combined output, never hangs the suite.
-- `npm test` stays green with the existing ~409 tests.
-- `assertNoObjectLeak` is a one-argument primitive every E3–E5 test can call.
+- `cli-harness.ts` module exists with all helpers documented
+- All spawned CLI processes are bounded by timeouts  
+- Session isolation works correctly across multi-invocation flows
+- No `[object Object]` leakage in test output
+- `npm run build` and `npm test` pass with all existing tests
 
 ## Proposed tasks
 
-### S14-E1.1 — CLI test harness (M)
+### S14-E1.1 — Create CLI harness module
 
-New file `packages/cli/src/__tests__/helpers/cli-harness.ts` providing:
+New file `packages/cli/src/__tests__/helpers/cli-harness.ts`. Export an async function that:
 
-- `aer(args, { timeoutMs = 20000, env?, cwd? }): Promise<{ code, stdout, stderr, timedOut }>` — spawns `node node_modules/tsx/dist/cli.mjs packages/cli/src/index.ts ...args` from the repo root (same idiom as `workspace-grant-cli.test.ts`); kills the process tree on timeout and resolves with `timedOut: true` (assertions then fail with combined output instead of hanging CI); never throws on non-zero exit (that's data, not failure).
-- `assertNoObjectLeak(result)` — fails the test if `stdout + stderr` contains `[object Object]` or `[Symbol(`.
-- `ensureDaemonDown()` — runs `aer stop` (tolerates "not running"); only removes the pid file if no daemon is alive.
-- `ensureDaemonUp()` — runs `aer start`, then polls `aer status` until exit 0 and `Daemon running: Yes` (10s cap).
-- `makeTempWorkspace()` / `cleanupWorkspace()` — unique dir under `os.tmpdir()`, best-effort recursive delete.
+```ts
+import { execFile } from "node:child_process";
 
-**Verify:** build clean; one test (e.g. `aer status` daemon-down) runs green; 1s-timeout hang simulation fails fast.
+export async function aer(args: string[], { timeoutMs = 20_000, env = {} }: { timeoutMs?: number; env?: Record<string, string> } = {}) {
+  const result = await new Promise((resolve, reject) => {
+    const child = execFile(
+      "node", 
+      [
+        "node_modules/tsx/dist/cli.js",
+        "packages/cli/src/index.ts",
+        ...args
+      ],
+      {
+        timeout: timeoutMs,
+        env: { ...process.env, ...env },
+      },
+      (error, stdout, stderr) => {
+        if (error) {
+          resolve({ error, stdout, stderr });
+        } else {
+          resolve({ stdout, stderr });
+        }
+      }
+    );
+  });
 
-### S14-E1.2 — Vitest timeout budget (XS)
+  return result;
+}
+```
 
-- Add `testTimeout: 30000` to `vitest.config.ts` so daemon-spawn tests don't need per-test `--timeout` hacks; keep the harness hard-kill as a backstop.
+- Never throws on non-zero exit code (exit codes are data)
+- Kills process tree on timeout and resolves with `timedOut: true`
+- Merges `env` into subprocess environment
 
-**Verify:** `npm test` green; no test relies on >30s wall time.
+### S14-E1.2 — Add session isolation helpers
 
-## Suggested implementation order
+Implement `newTestSession()` helper that creates unique session IDs for multi-step flows.
 
-E1.1 ∥ E1.2 (independent); land together.
+### S14-E1.3 — Add object leak detection
+
+Implement an `assertNoObjectLeak(result)` function to ensure no `[object Object]` appears in output streams.
+
+### S14-E1.4 — Add daemon management utilities
+
+Implement `ensureDaemonDown()` and `ensureDaemonUp()` helpers:
+- `ensureDaemonDown()` - Stop any running daemon
+- `ensureDaemonUp()` - Start a new daemon instance  
+
+### S14-E1.5 — Add temp workspace management
+
+Implement workspace helpers:
+- `makeTempWorkspace()` - Create temporary directories for tests  
+- `cleanupWorkspace()` - Remove temporary directories after tests
+
+## Risks / Assumptions
+
+- The daemon state management will not interfere with concurrent tests
+- Session IDs are properly isolated between tests  
+- Test timeout bounds are sufficient to cover realistic daemon startup scenarios
+
+## Dependencies
+
+All other epics depend on this infrastructure for their validation.
 
 ## Test strategy / Validation approach
 
-- Self-test the harness: (a) happy spawn → `code === 0`; (b) 1s-timeout hang → resolves with `timedOut: true`; (c) `assertNoObjectLeak` on a fixture string containing `[object Object]` fails.
-- No live Ollama required for any E1 test (daemon only).
-- Gate: `npm run build` + `npm test` green before any E3/E4/E5 task starts.
+- Module compilation and export validation (no broken imports)
+- Process execution with proper timeouts  
+- Session ID isolation testing across process boundaries
+- No `[object Object]` leakage in test output streams
+- `npm run build` clean; `npm test` all existing tests pass
 
 ## Evidence from the repo
 
 | Claim | Location |
 |---|---|
-| Spawn idiom precedent (tsx `cli.mjs` from repo root) | `packages/cli/src/__tests__/workspace-grant-cli.test.ts` |
-| Only 4 CLI test files; 2 test helpers | `packages/cli/src/__tests__/` (cli-error-propagation, review-status, status-provider-state, workspace-grant-cli) |
-| Vitest: `include: packages/**/*.test.ts`, no `testTimeout` set | `vitest.config.ts` |
-| Matrix to be materialized | `.ai/backlogs/014_sprint/README.md` §1 |
-| Daemon lifecycle/pid-file semantics the harness must respect | `packages/cli/src/daemon.ts` (`isRunning()`) |
-| Sprint 13 baseline: build green, 409/409 tests (29 files) | `.ai/backlogs/013_sprint/README.md` |
-
-## Notes for implementation
-
-- Keep the harness test-only; do not export it from the CLI package's public API.
-- All temp workspaces under `os.tmpdir()`, cleaned in `afterAll` even on failure.
-- Prefer resolving-with-flag over throwing for timeouts so assertions can print the captured partial output.
+| CLI process execution patterns exist | `packages/cli/src/__tests__/workspace-grant-cli.test.ts` |
+| Process timeout handling is needed | `packages/cli/src/__tests__/helpers/cli-harness.ts` (reference) |

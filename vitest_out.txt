@@ -1,0 +1,1190 @@
+
+> @aer/root@0.1.0 test
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Proyects/MultiAgentDev[39m
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mLifecycle[2m > [22m[2mshould start and report running state
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mLifecycle[2m > [22m[2mshould start and report running state
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mLifecycle[2m > [22m[2mshould be idempotent on start
+[22m[39m[EventBus] Started
+
+ [32m✓[39m packages/runtime/src/persistence/__tests__/state-store.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mLifecycle[2m > [22m[2mshould be idempotent on start
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mLifecycle[2m > [22m[2mshould shutdown cleanly
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mLifecycle[2m > [22m[2mshould shutdown cleanly
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mLifecycle[2m > [22m[2mshould shutdown cleanly
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould deliver event to exact type subscriber
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould deliver event to exact type subscriber
+[22m[39m[2026-10-07T14:04:40.166Z] test.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould deliver event to exact type subscriber
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould return the published RuntimeEvent
+[22m[39m[2026-10-07T14:04:40.168Z] test.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould return the published RuntimeEvent
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould publish with custom options
+[22m[39m[2026-10-07T14:04:40.169Z] test.event (source=test-source, correlation=corr-123)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould publish with custom options
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould publish asynchronously
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould publish asynchronously
+[22m[39m[2026-10-07T14:04:40.169Z] test.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould publish asynchronously
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould track events by type in stats
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould track events by type in stats
+[22m[39m[2026-10-07T14:04:40.170Z] type.a (source=unknown, correlation=none)
+[2026-10-07T14:04:40.170Z] type.a (source=unknown, correlation=none)
+[2026-10-07T14:04:40.170Z] type.b (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould track events by type in stats
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould track events by source in stats
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould track events by source in stats
+[22m[39m[2026-10-07T14:04:40.170Z] event (source=s1, correlation=none)
+[2026-10-07T14:04:40.170Z] event (source=s2, correlation=none)
+[2026-10-07T14:04:40.170Z] event (source=s1, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mPublishing[2m > [22m[2mshould track events by source in stats
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould support on/subscribe alias
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould support on/subscribe alias
+[22m[39m[2026-10-07T14:04:40.171Z] test.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould support on/subscribe alias
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould unsubscribe when returned function is called
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould unsubscribe when returned function is called
+[22m[39m[2026-10-07T14:04:40.172Z] test.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.172Z] test.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould unsubscribe when returned function is called
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould support once (fire exactly one time)
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould support once (fire exactly one time)
+[22m[39m[2026-10-07T14:04:40.172Z] test.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.172Z] test.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould support once (fire exactly one time)
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould return active subscriptions
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould return active subscriptions
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould track invocation count per subscription
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould track invocation count per subscription
+[22m[39m[2026-10-07T14:04:40.173Z] test.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.173Z] test.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.173Z] test.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mSubscription[2m > [22m[2mshould track invocation count per subscription
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/metrics.test.ts[2m > [22m[2mConsoleMetricExporter[2m > [22m[2mshould export without errors
+[22m[39m[Metrics] [
+  {
+    "type": "counter",
+    "value": 42,
+    "timestamp": "2026-10-07T14:04:40.205Z"
+  },
+  {
+    "type": "gauge",
+    "value": 3.14,
+    "timestamp": "2026-10-07T14:04:40.205Z"
+  }
+]
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mWildcard Patterns[2m > [22m[2mshould match wildcard pattern worker.*
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mWildcard Patterns[2m > [22m[2mshould match wildcard pattern worker.*
+[22m[39m[2026-10-07T14:04:40.174Z] worker.start (source=unknown, correlation=none)
+[2026-10-07T14:04:40.174Z] worker.complete (source=unknown, correlation=none)
+[2026-10-07T14:04:40.174Z] scheduler.tick (source=unknown, correlation=none)
+
+ [32m✓[39m packages/runtime/src/core/__tests__/metrics.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mWildcard Patterns[2m > [22m[2mshould match wildcard pattern worker.*
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mWildcard Patterns[2m > [22m[2mshould match scheduler.* pattern
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mWildcard Patterns[2m > [22m[2mshould match scheduler.* pattern
+[22m[39m[2026-10-07T14:04:40.175Z] scheduler.tick (source=unknown, correlation=none)
+[2026-10-07T14:04:40.175Z] scheduler.assign (source=unknown, correlation=none)
+[2026-10-07T14:04:40.175Z] worker.start (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mWildcard Patterns[2m > [22m[2mshould match scheduler.* pattern
+[22m[39m[EventBus] Shutdown complete
+
+ [32m✓[39m packages/runtime/src/core/__tests__/logging.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m packages/runtime/src/providers/__tests__/ollama-provider.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m packages/runtime/src/persistence/__tests__/pid-manager.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mWildcard Patterns[2m > [22m[2mshould match workspace.* pattern
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mWildcard Patterns[2m > [22m[2mshould match workspace.* pattern
+[22m[39m[2026-10-07T14:04:40.175Z] workspace.read (source=unknown, correlation=none)
+[2026-10-07T14:04:40.175Z] workspace.write (source=unknown, correlation=none)
+[2026-10-07T14:04:40.175Z] event.bus.tick (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mWildcard Patterns[2m > [22m[2mshould match workspace.* pattern
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mDead Letter Queue[2m > [22m[2mshould add failed handlers to dead letter queue
+[22m[39m[EventBus] Started
+
+ [32m✓[39m packages/runtime/src/persistence/__tests__/health-check.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mDead Letter Queue[2m > [22m[2mshould add failed handlers to dead letter queue
+[22m[39m[2026-10-07T14:04:40.184Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.176Z] test.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mDead Letter Queue[2m > [22m[2mshould add failed handlers to dead letter queue
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mDead Letter Queue[2m > [22m[2mshould respect max dead letter size
+[22m[39m[2026-10-07T14:04:40.185Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.185Z] fail.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.185Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.185Z] fail.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.186Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.185Z] fail.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.186Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.186Z] fail.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.186Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.186Z] fail.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.186Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.186Z] fail.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.186Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.186Z] fail.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.186Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.186Z] fail.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.187Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.186Z] fail.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.187Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.187Z] fail.event (source=unknown, correlation=none)
+[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mDead Letter Queue[2m > [22m[2mshould respect max dead letter size
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mlifecycle[2m > [22m[2mstarts successfully
+[22m[39m[2026-10-07T14:04:40.258Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mDead Letter Queue[2m > [22m[2mshould clear dead letter queue
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mlifecycle[2m > [22m[2mstarts successfully
+[22m[39m[2026-10-07T14:04:40.260Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+ [32m✓[39m packages/runtime/src/core/lifecycle/__tests__/cleanup-coordinator.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mlifecycle[2m > [22m[2mis idempotent on start
+[22m[39m[2026-10-07T14:04:40.261Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mDead Letter Queue[2m > [22m[2mshould clear dead letter queue
+[22m[39m[2026-10-07T14:04:40.188Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.187Z] test.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mlifecycle[2m > [22m[2mis idempotent on start
+[22m[39m[2026-10-07T14:04:40.261Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mDead Letter Queue[2m > [22m[2mshould clear dead letter queue
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mlifecycle[2m > [22m[2mstops successfully
+[22m[39m[2026-10-07T14:04:40.262Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mStatistics[2m > [22m[2mshould reset statistics
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mlifecycle[2m > [22m[2mstops successfully
+[22m[39m[2026-10-07T14:04:40.262Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mStatistics[2m > [22m[2mshould reset statistics
+[22m[39m[2026-10-07T14:04:40.188Z] event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.188Z] event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/workflow-engine.test.ts[2m > [22m[2mWorkflowEngine[2m > [22m[2mshould execute a workflow to completion
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880267-a5womh (full_engineering_cycle)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mwork graph management[2m > [22m[2mregisters a work graph
+[22m[39m[Scheduler] Work graph "wg-1" registered with 1 nodes.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould transition to Running after start
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mStatistics[2m > [22m[2mshould reset statistics
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/__tests__/workflow-engine.test.ts[2m > [22m[2mWorkflowEngine[2m > [22m[2mshould execute a workflow to completion
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880267-a5womh completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould transition to Running after start
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mStatistics[2m > [22m[2mshould track subscription count
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/__tests__/workflow-engine.test.ts[2m > [22m[2mWorkflowEngine[2m > [22m[2mshould execute all active workflows
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880270-3s6iuu (architect_to_worker)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mwork graph management[2m > [22m[2mgets all work graphs
+[22m[39m[Scheduler] Work graph "wg-4" registered with 0 nodes.
+[Scheduler] Work graph "wg-5" registered with 0 nodes.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould transition to Running after start
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mStatistics[2m > [22m[2mshould track subscription count
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/__tests__/workflow-engine.test.ts[2m > [22m[2mWorkflowEngine[2m > [22m[2mshould execute all active workflows
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880270-3s6iuu completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mworker management[2m > [22m[2madds a worker
+[22m[39m[2026-10-07T14:04:40.268Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould transition to Running after start
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mStatistics[2m > [22m[2mshould calculate average processing time
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/__tests__/workflow-engine.test.ts[2m > [22m[2mWorkflowEngine[2m > [22m[2mshould execute all active workflows
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880270-aqpswc (worker_to_reviewer)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mworker management[2m > [22m[2madds a worker
+[22m[39m[2026-10-07T14:04:40.269Z] scheduler.worker_online (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould be healthy when running
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mStatistics[2m > [22m[2mshould calculate average processing time
+[22m[39m[2026-10-07T14:04:40.189Z] slow.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.189Z] slow.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/workflow-engine.test.ts[2m > [22m[2mWorkflowEngine[2m > [22m[2mshould execute all active workflows
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880270-aqpswc completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mworker management[2m > [22m[2madds a worker
+[22m[39m[2026-10-07T14:04:40.270Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould be healthy when running
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mStatistics[2m > [22m[2mshould calculate average processing time
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/__tests__/workflow-engine.test.ts[2m > [22m[2mWorkflowEngine[2m > [22m[2mshould cancel a workflow
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880273-5na6ml (full_engineering_cycle)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mworker management[2m > [22m[2mgets all workers
+[22m[39m[2026-10-07T14:04:40.270Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould be healthy when running
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould not crash on handler errors
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/__tests__/workflow-engine.test.ts[2m > [22m[2mWorkflowEngine[2m > [22m[2mshould cancel a workflow
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880273-5na6ml completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mworker management[2m > [22m[2mgets all workers
+[22m[39m[2026-10-07T14:04:40.271Z] scheduler.worker_online (source=core.scheduler, correlation=none)
+[2026-10-07T14:04:40.271Z] scheduler.worker_online (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould be healthy when running
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/workflow-engine.test.ts[2m > [22m[2mWorkflowEngine Edge Cases[2m > [22m[2mshould handle cleanup of terminal workflows
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880276-c82nby (full_engineering_cycle)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mworker management[2m > [22m[2mgets all workers
+[22m[39m[2026-10-07T14:04:40.271Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould pause and resume correctly
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould not crash on handler errors
+[22m[39m[2026-10-07T14:04:40.192Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.190Z] error.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/workflow-engine.test.ts[2m > [22m[2mWorkflowEngine Edge Cases[2m > [22m[2mshould handle cleanup of terminal workflows
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880276-c82nby completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mworker management[2m > [22m[2mremoves a worker and requeues its tasks
+[22m[39m[2026-10-07T14:04:40.272Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould pause and resume correctly
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould not crash on handler errors
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mworker management[2m > [22m[2mremoves a worker and requeues its tasks
+[22m[39m[2026-10-07T14:04:40.272Z] scheduler.worker_online (source=core.scheduler, correlation=none)
+[2026-10-07T14:04:40.272Z] scheduler.worker_offline (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould pause and resume correctly
+[22m[39m[Dispatcher] Dispatcher paused.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mworker management[2m > [22m[2mremoves a worker and requeues its tasks
+[22m[39m[2026-10-07T14:04:40.272Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould pause and resume correctly
+[22m[39m[Dispatcher] Dispatcher resumed.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould emit handler_error event on failure
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mworker management[2m > [22m[2mcounts available workers
+[22m[39m[2026-10-07T14:04:40.272Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould pause and resume correctly
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+ [32m✓[39m packages/runtime/src/__tests__/workflow-engine.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mworker management[2m > [22m[2mcounts available workers
+[22m[39m[2026-10-07T14:04:40.273Z] scheduler.worker_online (source=core.scheduler, correlation=none)
+[2026-10-07T14:04:40.273Z] scheduler.worker_online (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould pause and resume correctly
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould emit handler_error event on failure
+[22m[39m[2026-10-07T14:04:40.193Z] event_bus.handler_error (source=unknown, correlation=none)
+[2026-10-07T14:04:40.192Z] error.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mworker management[2m > [22m[2mcounts available workers
+[22m[39m[2026-10-07T14:04:40.273Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould return to Stopped after stop
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould emit handler_error event on failure
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mschedules a single node
+[22m[39m[2026-10-07T14:04:40.273Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould return to Stopped after stop
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mschedules a single node
+[22m[39m[2026-10-07T14:04:40.273Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould return to Stopped after stop
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould handle async handler errors
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mschedules a single node
+[22m[39m[2026-10-07T14:04:40.274Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould return to Stopped after stop
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould handle async handler errors
+[22m[39m[2026-10-07T14:04:40.194Z] async.error (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mschedules multiple nodes
+[22m[39m[2026-10-07T14:04:40.274Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould be idempotent: double-start should not throw
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mschedules multiple nodes
+[22m[39m[2026-10-07T14:04:40.274Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+[2026-10-07T14:04:40.274Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+[2026-10-07T14:04:40.274Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould be idempotent: double-start should not throw
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould handle async handler errors
+[22m[39m[2026-10-07T14:04:40.194Z] event_bus.handler_error (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mschedules multiple nodes
+[22m[39m[2026-10-07T14:04:40.274Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould be idempotent: double-start should not throw
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould handle async handler errors
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mdequeues highest priority task first
+[22m[39m[2026-10-07T14:04:40.274Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould be idempotent: double-start should not throw
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mdequeues highest priority task first
+[22m[39m[2026-10-07T14:04:40.274Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+[2026-10-07T14:04:40.274Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+[2026-10-07T14:04:40.274Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould be idempotent: double-stop should not throw
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mCorrelation IDs[2m > [22m[2mshould chain events via causationId
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mdequeues highest priority task first
+[22m[39m[2026-10-07T14:04:40.275Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould be idempotent: double-stop should not throw
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mCorrelation IDs[2m > [22m[2mshould chain events via causationId
+[22m[39m[2026-10-07T14:04:40.206Z] chain.event.child (source=unknown, correlation=corr-1)
+[2026-10-07T14:04:40.206Z] chain.event (source=unknown, correlation=corr-1)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mreturns null when queue is empty
+[22m[39m[2026-10-07T14:04:40.275Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould be idempotent: double-stop should not throw
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mCorrelation IDs[2m > [22m[2mshould chain events via causationId
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mreturns null when queue is empty
+[22m[39m[2026-10-07T14:04:40.275Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlifecycle[2m > [22m[2mshould be idempotent: double-stop should not throw
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mCorrelation IDs[2m > [22m[2mshould preserve correlationId across events
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mcancels a task in the queue
+[22m[39m[2026-10-07T14:04:40.275Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould register a worker
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mCorrelation IDs[2m > [22m[2mshould preserve correlationId across events
+[22m[39m[2026-10-07T14:04:40.206Z] first.event (source=unknown, correlation=corr-123)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mcancels a task in the queue
+[22m[39m[2026-10-07T14:04:40.275Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+[2026-10-07T14:04:40.275Z] scheduler.task_cancelled (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould register a worker
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mCorrelation IDs[2m > [22m[2mshould preserve correlationId across events
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mcancels a task in the queue
+[22m[39m[2026-10-07T14:04:40.276Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould register a worker
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mEvent Filtering[2m > [22m[2mshould only deliver to matching filtered subscriptions
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mreturns null for non-existent task cancellation
+[22m[39m[2026-10-07T14:04:40.276Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould register a worker
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mEvent Filtering[2m > [22m[2mshould only deliver to matching filtered subscriptions
+[22m[39m[2026-10-07T14:04:40.207Z] number.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.207Z] number.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.207Z] number.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.207Z] number.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mreturns null for non-existent task cancellation
+[22m[39m[2026-10-07T14:04:40.276Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould register a worker
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mEvent Filtering[2m > [22m[2mshould only deliver to matching filtered subscriptions
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mgets ready tasks sorted by priority
+[22m[39m[2026-10-07T14:04:40.276Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould unregister a worker
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mEvent Filtering[2m > [22m[2mshould support function-based subscription pattern
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mgets ready tasks sorted by priority
+[22m[39m[2026-10-07T14:04:40.277Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+[2026-10-07T14:04:40.277Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+[2026-10-07T14:04:40.277Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould unregister a worker
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mEvent Filtering[2m > [22m[2mshould support function-based subscription pattern
+[22m[39m[2026-10-07T14:04:40.208Z] scheduler.tick (source=unknown, correlation=none)
+[2026-10-07T14:04:40.208Z] scheduler.tick (source=unknown, correlation=none)
+[2026-10-07T14:04:40.208Z] worker.start (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask scheduling[2m > [22m[2mgets ready tasks sorted by priority
+[22m[39m[2026-10-07T14:04:40.277Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+ [32m✓[39m packages/runtime/src/core/lifecycle/__tests__/graceful-shutdown-handler.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould unregister a worker
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+[Dispatcher] Worker "w1" unregistered from pool "default".
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mEvent Filtering[2m > [22m[2mshould support function-based subscription pattern
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask dispatch[2m > [22m[2mdispatches to an available worker
+[22m[39m[2026-10-07T14:04:40.278Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould implement Architect → Worker workflow pattern
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880326-bcplfj (architect_to_worker)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould unregister a worker
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mOff (bulk unsubscribe)[2m > [22m[2mshould deactivate all handlers for a type
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask dispatch[2m > [22m[2mdispatches to an available worker
+[22m[39m[2026-10-07T14:04:40.278Z] scheduler.worker_online (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould implement Architect → Worker workflow pattern
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880326-bcplfj completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould unregister a worker
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mOff (bulk unsubscribe)[2m > [22m[2mshould deactivate all handlers for a type
+[22m[39m[2026-10-07T14:04:40.208Z] multi.event (source=unknown, correlation=none)
+[2026-10-07T14:04:40.209Z] multi.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask dispatch[2m > [22m[2mdispatches to an available worker
+[22m[39m[2026-10-07T14:04:40.278Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+[2026-10-07T14:04:40.279Z] scheduler.task_dispatched (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould implement Worker → Reviewer workflow pattern
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880330-5bs0k6 (worker_to_reviewer)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould return false when unregistering non-existent worker
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mOff (bulk unsubscribe)[2m > [22m[2mshould deactivate all handlers for a type
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould implement Worker → Reviewer workflow pattern
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880330-5bs0k6 completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould return false when unregistering non-existent worker
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mIntegration Scenarios[2m > [22m[2mshould handle a simple event chain
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould implement Reviewer → Architect workflow pattern
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880331-lbmhfo (reviewer_to_architect)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould return false when unregistering non-existent worker
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mIntegration Scenarios[2m > [22m[2mshould handle a simple event chain
+[22m[39m[2026-10-07T14:04:40.209Z] task.complete (source=worker, correlation=none)
+[2026-10-07T14:04:40.209Z] task.processing (source=scheduler, correlation=none)
+[2026-10-07T14:04:40.209Z] task.start (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould implement Reviewer → Architect workflow pattern
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880331-lbmhfo completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould return false when unregistering non-existent worker
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mIntegration Scenarios[2m > [22m[2mshould handle a simple event chain
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould list all workers
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mIntegration Scenarios[2m > [22m[2mshould handle concurrent subscribers for same event
+[22m[39m[EventBus] Started
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould list all workers
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mIntegration Scenarios[2m > [22m[2mshould handle concurrent subscribers for same event
+[22m[39m[2026-10-07T14:04:40.210Z] math.event (source=unknown, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould list all workers
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+[Dispatcher] Worker "w2" registered in pool "pool-a".
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mIntegration Scenarios[2m > [22m[2mshould handle concurrent subscribers for same event
+[22m[39m[EventBus] Shutdown complete
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould list all workers
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould list all workers
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould implement full engineering cycle workflow
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880332-bvet50 (full_engineering_cycle)
+
+ [32m✓[39m packages/runtime/src/core/__tests__/eventbus.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould filter healthy workers only
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould implement full engineering cycle workflow
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880332-bvet50 completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould filter healthy workers only
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould support automatic retries with proper error handling
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880334-x3x93m (architect_to_worker)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould filter healthy workers only
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould support automatic retries with proper error handling
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880334-x3x93m completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould filter healthy workers only
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould support failure recovery mechanisms
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880335-pq3z8l (architect_to_worker)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould filter healthy workers only
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould support failure recovery mechanisms
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880335-pq3z8l completed with status: completed
+
+ [32m✓[39m packages/runtime/src/__tests__/agent-team.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould list worker pools
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould collect and report workflow metrics
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880336-vxco7k (full_engineering_cycle)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould list worker pools
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould collect and report workflow metrics
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880336-vxco7k completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould list worker pools
+[22m[39m[Dispatcher] Worker "w1" registered in pool "pool-a".
+[Dispatcher] Worker "w2" registered in pool "pool-b".
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould emit workflow events for monitoring
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880337-9l5kc3 (architect_to_worker)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould list worker pools
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould emit workflow events for monitoring
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880337-9l5kc3 completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould list worker pools
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould support long-running execution
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880338-b3rxjo (full_engineering_cycle)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould get a worker by id
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould support long-running execution
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880338-b3rxjo completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould get a worker by id
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould support long-running execution
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880338-hwrdct (full_engineering_cycle)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould get a worker by id
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould support long-running execution
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880338-hwrdct completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould get a worker by id
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould support long-running execution
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880339-is948m (full_engineering_cycle)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker registration[2m > [22m[2mshould get a worker by id
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould support long-running execution
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880339-is948m completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker selection[2m > [22m[2mshould return available workers filtered by capabilities
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould integrate with AgentTeam coordination
+[22m[39m[WorkflowEngine:workflow-engine] Workflow started: wf-1791381880341-hi0km8 (full_engineering_cycle)
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker selection[2m > [22m[2mshould return available workers filtered by capabilities
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts[2m > [22m[2mSprint 8 - Workflow Runtime[2m > [22m[2mshould integrate with AgentTeam coordination
+[22m[39m[WorkflowEngine:workflow-engine] Workflow wf-1791381880341-hi0km8 completed with status: completed
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker selection[2m > [22m[2mshould return available workers filtered by capabilities
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker selection[2m > [22m[2mshould return available workers filtered by capabilities
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker selection[2m > [22m[2mshould return available workers filtered by capabilities
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker selection[2m > [22m[2mshould return empty when no workers match capabilities
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker selection[2m > [22m[2mshould return empty when no workers match capabilities
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+ [32m✓[39m packages/runtime/src/__tests__/sprint8-workflow-runtime.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker selection[2m > [22m[2mshould return empty when no workers match capabilities
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker selection[2m > [22m[2mshould return empty when no workers match capabilities
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mworker selection[2m > [22m[2mshould return empty when no workers match capabilities
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould return null when no workers available
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould return null when no workers available
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould return null when no workers available
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould return null when no workers available
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould dispatch when workers are available
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould dispatch when workers are available
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould dispatch when workers are available
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+[Dispatcher] Task "task-1791381880287-hrjked1ul" routed to worker "w1" (least_connections) in 0ms
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould dispatch when workers are available
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould dispatch when workers are available
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould dispatch to a specific worker
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould dispatch to a specific worker
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould dispatch to a specific worker
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould dispatch to a specific worker
+[22m[39m[Dispatcher] Task "task-1791381880288-vzxbogv6n" completed successfully on worker "w1" in 0ms.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould dispatch to a specific worker
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould dispatch to a specific worker
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould fail to dispatch to non-existent worker
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould fail to dispatch to non-existent worker
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould fail to dispatch to non-existent worker
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould fail to dispatch to non-existent worker
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask completion[2m > [22m[2mshould complete a task successfully
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask completion[2m > [22m[2mshould complete a task successfully
+[22m[39m[Dispatcher] Dispatcher "tc" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask completion[2m > [22m[2mshould complete a task successfully
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask completion[2m > [22m[2mshould complete a task successfully
+[22m[39m[Dispatcher] Task "task-1791381880291-5lipwv2ds" completed successfully on worker "w1" in 0ms.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask completion[2m > [22m[2mshould complete a task successfully
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask completion[2m > [22m[2mshould complete a task successfully
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask completion[2m > [22m[2mshould complete a task as failed
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask completion[2m > [22m[2mshould complete a task as failed
+[22m[39m[Dispatcher] Dispatcher "tf" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask completion[2m > [22m[2mshould complete a task as failed
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask completion[2m > [22m[2mshould complete a task as failed
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask cancellation[2m > [22m[2mshould cancel a task
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask cancellation[2m > [22m[2mshould cancel a task
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask cancellation[2m > [22m[2mshould cancel a task
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask cancellation[2m > [22m[2mshould cancel a task
+[22m[39m[Dispatcher] Task "task-1791381880293-r67nvw15m" completed successfully on worker "w1" in 0ms.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask cancellation[2m > [22m[2mshould cancel a task
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask cancellation[2m > [22m[2mshould cancel a task
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould get default retry policy
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould get default retry policy
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould get default retry policy
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould get default retry policy
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould set custom retry policy
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould set custom retry policy
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould set custom retry policy
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould set custom retry policy
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould not retry when max attempts exceeded
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould not retry when max attempts exceeded
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould not retry when max attempts exceeded
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould not retry when max attempts exceeded
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mfailure propagation[2m > [22m[2mshould fail a task with propagation
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mfailure propagation[2m > [22m[2mshould fail a task with propagation
+[22m[39m[Dispatcher] Dispatcher "fp" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mfailure propagation[2m > [22m[2mshould fail a task with propagation
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mfailure propagation[2m > [22m[2mshould fail a task with propagation
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mfailure propagation[2m > [22m[2mshould respect failure propagation mode
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mfailure propagation[2m > [22m[2mshould respect failure propagation mode
+[22m[39m[Dispatcher] Dispatcher "test-no-propagation" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mfailure propagation[2m > [22m[2mshould respect failure propagation mode
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mfailure propagation[2m > [22m[2mshould respect failure propagation mode
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mhealth monitoring[2m > [22m[2mshould report healthy dispatcher
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mhealth monitoring[2m > [22m[2mshould report healthy dispatcher
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mhealth monitoring[2m > [22m[2mshould report healthy dispatcher
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mhealth monitoring[2m > [22m[2mshould report healthy dispatcher
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mhealth monitoring[2m > [22m[2mshould report unhealthy when workers are down
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mhealth monitoring[2m > [22m[2mshould report unhealthy when workers are down
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mhealth monitoring[2m > [22m[2mshould report unhealthy when workers are down
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mhealth monitoring[2m > [22m[2mshould report unhealthy when workers are down
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mhealth monitoring[2m > [22m[2mshould report unhealthy when workers are down
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mmetrics[2m > [22m[2mshould track dispatched tasks when metrics enabled
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mmetrics[2m > [22m[2mshould track dispatched tasks when metrics enabled
+[22m[39m[Dispatcher] Dispatcher "metrics-test" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mmetrics[2m > [22m[2mshould track dispatched tasks when metrics enabled
+[22m[39m[Dispatcher] Worker "w1" registered in pool "default".
+[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mmetrics[2m > [22m[2mshould track dispatched tasks when metrics enabled
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mmetrics[2m > [22m[2mshould track zero tasks when nothing happens
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mmetrics[2m > [22m[2mshould track zero tasks when nothing happens
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mmetrics[2m > [22m[2mshould track zero tasks when nothing happens
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mmetrics[2m > [22m[2mshould track zero tasks when nothing happens
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlogging[2m > [22m[2mshould set log level
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlogging[2m > [22m[2mshould set log level
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlogging[2m > [22m[2mshould set log level
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mlogging[2m > [22m[2mshould set log level
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mprovider registration[2m > [22m[2mshould register workers from a provider
+[22m[39m[Dispatcher] Starting Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mprovider registration[2m > [22m[2mshould register workers from a provider
+[22m[39m[Dispatcher] Dispatcher "test-dispatcher" started successfully.
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mprovider registration[2m > [22m[2mshould register workers from a provider
+[22m[39m[Dispatcher] Worker "prov-1" registered in pool "prov-pool".
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mprovider registration[2m > [22m[2mshould register workers from a provider
+[22m[39m[Dispatcher] Stopping Dispatcher...
+
+[90mstdout[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mprovider registration[2m > [22m[2mshould register workers from a provider
+[22m[39m[Dispatcher] Dispatcher stopped.
+
+ [32m✓[39m packages/runtime/src/__tests__/dispatcher.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m packages/runtime/src/__tests__/session-grant-manager.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 320[2mms[22m[39m
+   [33m[2m✓[22m[39m SessionGrantManager[2m > [22mdrops expired grants on read, listing, and pruning [33m 303[2mms[22m[39m
+ [32m✓[39m packages/runtime/src/core/lifecycle/__tests__/watchdog-monitor.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m packages/runtime/src/core/lifecycle/__tests__/lifecycle-state-machine.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m packages/cli/src/__tests__/workspace-grant-cli.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 660[2mms[22m[39m
+   [33m[2m✓[22m[39m CLI workspace grant command[2m > [22mexposes --yes in the command help and accepts the flag [33m 659[2mms[22m[39m
+ [32m✓[39m packages/runtime/src/core/lifecycle/__tests__/crash-detector.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m packages/runtime/src/__tests__/multi-agent-coordination.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m packages/runtime/src/core/lifecycle/__tests__/backoff.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m packages/runtime/src/providers/__tests__/provider-registry.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m packages/runtime/src/core/lifecycle/__tests__/crash-recovery-manager.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m packages/runtime/src/__tests__/complete-engineering-workflow.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+[90mstdout[2m | packages/runtime/src/__tests__/ipc-protocol.test.ts
+[22m[39m◇ injected env (3) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+
+ [32m✓[39m packages/runtime/src/__tests__/workspace-tools.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 776[2mms[22m[39m
+   [33m[2m✓[22m[39m WorkspaceTools[2m > [22mterminates a long-running command within the timeout bound [33m 325[2mms[22m[39m
+[90mstdout[2m | packages/cli/src/__tests__/status-provider-state.test.ts
+[22m[39m◇ injected env (3) from .env // tip: ⌘ suppress logs { quiet: true }
+
+[90mstdout[2m | packages/cli/src/__tests__/cli-error-propagation.test.ts
+[22m[39m◇ injected env (3) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+
+ [32m✓[39m packages/cli/src/__tests__/review-status.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 897[2mms[22m[39m
+   [33m[2m✓[22m[39m CLI review-status workflow[2m > [22msummarizes the status of a project directory via the CLI [33m 896[2mms[22m[39m
+ [32m✓[39m packages/cli/src/__tests__/cli-error-propagation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m packages/cli/src/__tests__/status-provider-state.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m packages/runtime/src/__tests__/ipc-protocol.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask dispatch[2m > [22m[2mdispatches to an available worker
+[22m[39m[2026-10-07T14:04:45.359Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask dispatch[2m > [22m[2mqueues task when no worker available
+[22m[39m[2026-10-07T14:04:45.361Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask dispatch[2m > [22m[2mqueues task when no worker available
+[22m[39m[2026-10-07T14:04:45.361Z] scheduler.worker_online (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask dispatch[2m > [22m[2mqueues task when no worker available
+[22m[39m[2026-10-07T14:04:45.362Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask dispatch[2m > [22m[2mqueues task when no worker available
+[22m[39m[2026-10-07T14:04:45.364Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask completion[2m > [22m[2mmarks task as completed
+[22m[39m[2026-10-07T14:04:45.365Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask completion[2m > [22m[2mmarks task as completed
+[22m[39m[2026-10-07T14:04:45.365Z] scheduler.task_scheduled (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask completion[2m > [22m[2mmarks task as completed
+[22m[39m[2026-10-07T14:04:45.366Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask completion[2m > [22m[2mtracks metrics
+[22m[39m[2026-10-07T14:04:45.366Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mtask completion[2m > [22m[2mtracks metrics
+[22m[39m[2026-10-07T14:04:45.366Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2msummary and metrics[2m > [22m[2mgets a summary
+[22m[39m[2026-10-07T14:04:45.366Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2msummary and metrics[2m > [22m[2mgets a summary
+[22m[39m[2026-10-07T14:04:45.367Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2msummary and metrics[2m > [22m[2mgets metrics snapshot
+[22m[39m[2026-10-07T14:04:45.367Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=true, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2msummary and metrics[2m > [22m[2mgets metrics snapshot
+[22m[39m[2026-10-07T14:04:45.367Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mintegration scenario[2m > [22m[2mhandles a complete scheduling workflow
+[22m[39m[2026-10-07T14:04:45.367Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Started (autoDispatch=false, interval=2000ms)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mintegration scenario[2m > [22m[2mhandles a complete scheduling workflow
+[22m[39m[Scheduler] Work graph "wg-23" registered with 3 nodes.
+[2026-10-07T14:04:45.368Z] scheduler.worker_online (source=core.scheduler, correlation=none)
+
+[90mstdout[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mintegration scenario[2m > [22m[2mhandles a complete scheduling workflow
+[22m[39m[2026-10-07T14:04:45.368Z] scheduler.queue_state_changed (source=core.scheduler, correlation=none)
+[Scheduler] Stopped
+
+ [32m✓[39m packages/runtime/src/core/__tests__/scheduler.test.ts [2m([22m[2m35 tests[22m[2m)[22m[33m 5113[2mms[22m[39m
+   [33m[2m✓[22m[39m Scheduler[2m > [22mtask dispatch[2m > [22mdispatches to an available worker [33m 5083[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m29 passed[39m[22m[90m (29)[39m
+[2m      Tests [22m [1m[32m409 passed[39m[22m[90m (409)[39m
+[2m   Start at [22m 16:04:39
+[2m   Duration [22m 5.91s[2m (transform 2.21s, setup 0ms, collect 5.84s, tests 8.20s, environment 6ms, prepare 7.07s)[22m
+

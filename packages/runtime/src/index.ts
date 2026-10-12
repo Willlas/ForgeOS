@@ -184,7 +184,7 @@ export type {
 } from "./ipc-protocol.js";
 
 // Runtime Core exports
-export { Runtime, RuntimeState, createRuntime, createDefaultConfig } from "./core/runtime.js";
+export { Runtime, RuntimeState, createRuntime, createDefaultConfig, WORKSPACE_APPROVAL_DEFAULT_TTL_SECONDS, WORKSPACE_APPROVAL_MAX_TTL_SECONDS } from "./core/runtime.js";
 export type { RuntimeConfig, RuntimeHealth } from "./core/runtime.js";
 
 // Core Subsystem exports — EventBus

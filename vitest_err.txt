@@ -1,0 +1,191 @@
+[90mstderr[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mDead Letter Queue[2m > [22m[2mshould add failed handlers to dead letter queue
+[22m[39m[EventBus] Handler error for event "test.event": Error: handler error
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:246:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:251:11
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:20
+
+[90mstderr[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mDead Letter Queue[2m > [22m[2mshould add failed handlers to dead letter queue
+[22m[39m[EventBus] 1 events in dead letter queue at shutdown
+
+[90mstderr[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mDead Letter Queue[2m > [22m[2mshould respect max dead letter size
+[22m[39m[EventBus] Handler error for event "fail.event": Error: fail
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:262:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:267:18
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+[EventBus] Handler error for event "fail.event": Error: fail
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:262:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:267:18
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+[EventBus] Handler error for event "fail.event": Error: fail
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:262:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:267:18
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+[EventBus] Handler error for event "fail.event": Error: fail
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:262:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:267:18
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+[EventBus] Handler error for event "fail.event": Error: fail
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:262:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:267:18
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+[EventBus] Handler error for event "fail.event": Error: fail
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:262:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:267:18
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+[EventBus] Handler error for event "fail.event": Error: fail
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:262:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:267:18
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+[EventBus] Handler error for event "fail.event": Error: fail
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:262:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:267:18
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+[EventBus] Handler error for event "fail.event": Error: fail
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:262:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:267:18
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+[EventBus] Handler error for event "fail.event": Error: fail
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:262:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:267:18
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:155:11
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:26
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:1863:10[90m)[39m
+[EventBus] 5 events in dead letter queue at shutdown
+
+[90mstderr[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mDead Letter Queue[2m > [22m[2mshould clear dead letter queue
+[22m[39m[EventBus] Handler error for event "test.event": Error: fail
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:276:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:281:11
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:20
+
+[90mstderr[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2mwork graph management[2m > [22m[2munregisters a work graph
+[22m[39m[Scheduler] Work graph "wg-3" was not registered.
+
+[90mstderr[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould not crash on handler errors
+[22m[39m[EventBus] Handler error for event "error.event": Error: test error
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:340:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:345:24
+    at Proxy.assertThrows [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mchai[24m/index.js:2767:5[90m)[39m
+    at Proxy.methodWrapper [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mchai[24m/index.js:1686:25[90m)[39m
+    at Proxy.<anonymous> [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/expect/dist/index.js:1088:12[90m)[39m
+    at Proxy.overwritingMethodWrapper [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mchai[24m/index.js:1735:33[90m)[39m
+    at Proxy.<anonymous> [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/expect/dist/index.js:1420:16[90m)[39m
+
+[90mstderr[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould not crash on handler errors
+[22m[39m[EventBus] 1 events in dead letter queue at shutdown
+
+[90mstderr[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould emit handler_error event on failure
+[22m[39m[EventBus] Handler error for event "error.event": Error: test error
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:351:15[90m)[39m
+    at Object.mockCall [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/spy/dist/index.js:96:15[90m)[39m
+    at Object.spy [as handler] [90m(file:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4mtinyspy[24m/dist/index.js:47:80[90m)[39m
+    at EventBus.publish [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\eventbus.ts:256:37[90m)[39m
+    at [90mC:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:358:11
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at [90mfile:///C:/Proyects/MultiAgentDev/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:20
+
+[90mstderr[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould emit handler_error event on failure
+[22m[39m[EventBus] 1 events in dead letter queue at shutdown
+
+[90mstderr[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould handle async handler errors
+[22m[39m[EventBus] Handler error for event "async.error": Error: async error
+    at Object.<anonymous> [90m(C:\Proyects\MultiAgentDev\[39mpackages\runtime\src\core\__tests__\eventbus.test.ts:367:15[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+
+[90mstderr[2m | packages/runtime/src/core/__tests__/eventbus.test.ts[2m > [22m[2mEventBus[2m > [22m[2mError Handling[2m > [22m[2mshould handle async handler errors
+[22m[39m[EventBus] 1 events in dead letter queue at shutdown
+
+[90mstderr[2m | packages/runtime/src/core/lifecycle/__tests__/graceful-shutdown-handler.test.ts[2m > [22m[2mGracefulShutdownHandler[2m > [22m[2mshould force exit when shutdown exceeds the timeout
+[22m[39m[shutdown] Deadline exceeded after 1000 ms — force exit
+
+[90mstderr[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mtask dispatching[2m > [22m[2mshould return null when no workers available
+[22m[39m[Dispatcher] No available workers for node "node-1".
+
+[90mstderr[2m | packages/runtime/src/__tests__/dispatcher.test.ts[2m > [22m[2mDispatcher[2m > [22m[2mretry policy[2m > [22m[2mshould not retry when max attempts exceeded
+[22m[39m[Dispatcher] Max retries reached for task "task-1" after 3 attempts.
+
+[90mstderr[2m | packages/runtime/src/core/lifecycle/__tests__/watchdog-monitor.test.ts[2m > [22m[2mWatchdogMonitor[2m > [22m[2mshould fire after the configured number of failed probes
+[22m[39m[watchdog] Daemon unresponsive after 2 consecutive failed probes — notifying 1 callback(s)
+
+[90mstderr[2m | packages/runtime/src/core/__tests__/scheduler.test.ts[2m > [22m[2mScheduler[2m > [22m[2medge cases[2m > [22m[2mhandles removing non-existent worker
+[22m[39m[Scheduler] Worker "non-existent" was not registered.
+

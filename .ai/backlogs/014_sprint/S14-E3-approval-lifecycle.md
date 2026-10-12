@@ -169,4 +169,3 @@ E3.1 first (no deps; pins the semantic core and gives the CLI rows their expecte
 - Pin error strings verbatim; add a grep step in review to confirm each string still exists in source (prevents the E2 message-routing change from silently breaking E3).
 - Do not change the approval record shape, the TTL constants, or the CLI `--ttl` default — those are E2's or out-of-scope.
 - The only time-dependent test is the expiry row (~1.1s wait); keep everything else wall-time-free.
-

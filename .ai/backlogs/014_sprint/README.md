@@ -1,86 +1,138 @@
+# Sprint 14 - CLI Validation Hardening & Test Plan Expansion
 
-# Sprint 14 — CLI Validation, Hardening, and Test-Plan Expansion
+## Purpose
 
-## Current Repository State & Sprint 13 Closure
+Validate and harden the existing workflow path (`grant -> preview -> approve -> apply`) through comprehensive test coverage, deterministic behavior, and improved error handling without introducing new product features. The goal is to ensure robustness, operator confidence, and regression prevention.
 
-Sprint 13 successfully stabilized the pre-MVP Aer Runtime CLI. The secure workspace interaction path (`grant` → `preview` → `approve` → `apply`) is validated, and the core daemon-backed flow is operational. Known risk defects, such as raw `[object Object]` output during IPC rejections, have been closed. The repository is currently on the `develop` branch. The project remains honestly pre-MVP, and the local Ollama provider is treated strictly as an experimental local prerequisite, not a guaranteed external service.
+## Scope
 
----
+This sprint focuses strictly on validating existing paths rather than adding new product features:
 
-## Sprint 14 Enriched Plan & Test Strategy
+- **Validated scope**: `grant` → `preview` → `approve` → `apply`
+- **Validation matrix**: Happy path, failure scenarios (reuse detection), provider status, daemon availability
+- **Operational focus**: robustness, deterministic exit behavior, error quality, provider status handling
 
-**Objective:** Strengthen operator confidence in the validated CLI path by expanding regression coverage, defining a concrete validation matrix, and establishing a reproducible operator test plan.
+## Core Assumptions
 
-**Scope:** Strictly limited to validation, hardening, and evidence collection for the existing `grant → preview → approve → apply` workflow. No new product features or provider backends will be added.
+- The daemon must be running before CLI workspace commands are used  
+- The local Ollama provider remains experimental and should be treated as a prerequisite dependency
+- The CLI should never surface raw `[object Object]` for IPC rejections
+- Operators should be able to validate behavior with command output and exit codes, not just by reading code
 
----
+## Test Matrix
 
-### 1. CLI Validation Matrix
+### 1) Happy path — valid CLI flow  
+Commands:
+1. `aer start`
+2. `aer status` 
+3. `aer workspace:grant <root> -m read-write -t list,read,apply --yes`
+4. `aer workspace:preview <root> -f notes.txt -c "demo text"`
+5. `aer workspace:approve <root> <diffHash> --yes`
+6. `aer workspace:apply <root> <approvalId> -f notes.txt -c "demo text" --yes`
 
-This matrix defines the exact scenarios to be validated. Operators and automated tests should use these signals to determine pass/fail status.
+Expected results:
+- `aer status` prints daemon and provider state  
+- grant succeeds with session-scoped grant output
+- preview returns a diffHash
+- approval returns a single-use approvalId
+- apply succeeds and writes the file
+- exit code is 0 for the successful path
 
-| Scenario | Command(s) | Expected Exit Code | Expected stdout/stderr | Pass/Fail Signal |
-| :--- | :--- | :--- | :--- | :--- |
-| **Happy Path** | `aer status` → `aer workspace:grant ...` → `aer workspace:preview ...` → `aer workspace:approve ...` → `aer workspace:apply ...` | `0` | `status` prints daemon/provider state; `grant` outputs session ID; `preview` outputs `diffHash`; `approve` outputs `approvalId`; `apply` confirms file write. | File is written; exit code is `0`. |
-| **Daemon Not Running** | `aer workspace:grant <root> ...` (while daemon is down) | `1` | stderr: `Daemon is not running. Start it first.` | No hang; deterministic exit `1`. |
-| **Reused approvalId** | Rerun `aer workspace:apply <root> <approvalId> ...` | `1` | stderr: `Unknown or already-consumed approvalId` | No `[object Object]` in output; apply does not execute. |
-| **Read-only Grant Misuse** | `aer workspace:preview <root> ...` (with read-only grant) | `1` | stderr: Clear message indicating `read-write` grant with `apply` scope is required. | Preview blocked; clear error message. |
-| **Provider Unreachable** | `aer status` (while Ollama is down) | `0` | stdout: Provider line prints `unreachable`. | CLI remains responsive; status command still exits cleanly. |
-| **Malformed Arguments** | `aer workspace:preview <root> -f notes.txt` (missing `-c`) | `1` | stderr: Clear validation message identifying missing required argument. | No silent failure; no object stringification. |
+### 2) Reused approvalId failure path
+Command:
+- rerun the `workspace:apply` step with the same `approvalId`
 
----
+Expected result:
+- exit code 1  
+- stderr includes: `Unknown or already-consumed approvalId`
+- output must not include `[object Object]`
 
-### 2. Operator Test Plan
+### 3) Daemon not running
+Command:
+- run a workspace command while daemon is down
 
-A reproducible smoke suite for human operators to validate the CLI on a real workstation.
+Expected result:
+- `Daemon is not running. Start it first.`
+- exit code 1
+- no hangs or unbounded wait
 
-#### A. Initial Smoke Test (Happy Path)
-1. Start the daemon (`aer start`).
-2. Check status (`aer status`)—verify the daemon is running and the provider line is present.
-3. Run a valid grant cycle (`aer workspace:grant <root> -m read-write -t list,read,search,apply --yes`).
-4. Run preview (`aer workspace:preview <root> -f notes.txt -c "demo text"`).
-5. Run approve (`aer workspace:approve <root> <diffHash> --yes`).
-6. Run apply (`aer workspace:apply <root> <approvalId> -f notes.txt -c "demo text" --yes`).
-7. Confirm the file was written to the workspace.
+### 4) Read-only grant misuse  
+Command:
+- attempt `preview` or `apply` without a read-write grant including `apply`
 
-#### B. Failure Smoke Test
-1. Rerun the `apply` step from Suite A with the exact same `approvalId`.
-2. Verify the CLI surfaces the exact rejection message and exits cleanly.
-3. Visually verify no `[object Object]` text appears in the output.
-4. Stop the daemon and run an `aer status` or `workspace:grant` command. Verify it reports the daemon is down without hanging.
+Expected result:
+- clear failure that explains the grant requirement
+- exit code 1
+- reproducible operator error message
 
-#### C. Recovery Check
-1. Restart the daemon.
-2. Re-register the grant and run the happy path again.
-3. Confirm command sequences remain stable and state does not leak between sessions inappropriately.
+### 5) Local Ollama unavailable
+Command:
+- run `aer status` when Ollama is not reachable  
 
----
+Expected result:
+- provider line prints `unreachable`
+- CLI remains responsive 
+- no hang or crash
+- status command still exits cleanly if daemon state is otherwise valid
 
-### 3. Suggested Future Regression Checks
+### 6) Invalid argument or malformed payload
+Examples:
+- missing required arguments  
+- mismatched `--file` / `--content` pairs
+- invalid TTL value for approval
+- malformed root path
 
-These checks should be codified to prevent silent regressions in the CLI's operational reliability:
+Expected result:
+- clear message from CLI
+- deterministic exit code 1
+- no silent failure or object-stringification  
 
-* **Serialization Guard:** A test that specifically searches stdout/stderr for the string `[object Object]` and fails if found across all CLI commands.
-* **Exit Code Contract:** A test ensuring `--yes` flagged commands in the happy path return `0`, and known failure paths return `1`.
-* **Provider Decoupling:** A test verifying that `aer status` returns exit code `0` and prints `unreachable` when the local Ollama provider is absent, ensuring the daemon does not crash.
-* **Single-Use Enforcement:** A test ensuring that an `approvalId` can only be used exactly once for `workspace:apply`.
+## Manual Operator Checklist
 
----
+### Initial smoke test
+- start the daemon
+- check status
+- verify provider line is present  
+- run a valid grant cycle
+- confirm apply writes the expected file
 
-### 4. Recommendations for Next Automation Targets
+### Failure smoke test
+- exhaust the same approvalId once
+- confirm the exact message is surfaced
+- verify no `[object Object]` appears in output
 
-To build a reliable CI pipeline without depending on live external infrastructure, the following scenarios should be converted into automated Vitest regression tests first:
+### Recovery check
+- restart the daemon if needed  
+- re-register the grant
+- repeat the workflow and confirm command sequences remain stable
 
-1. **`workspace:apply` Duplicate approvalId:** Spawn the CLI, run apply twice, assert stderr contains the exact rejection message and exit code is `1`. (Highest priority—prevents IPC serialization regressions).
-2. **Daemon-Down Behavior:** Stop the daemon, spawn a workspace command, assert it exits `1` with the correct message without hanging (use a timeout).
-3. **Malformed Payload Check:** Spawn `workspace:preview` with missing arguments, assert exit code `1` and clear stderr.
-4. **Provider Unreachable Status:** Stop Ollama, run `aer status`, assert exit code `0` and stdout includes `unreachable`.
+## Exit-code expectations  
 
----
+- success: exit code 0
+- validation failure / invalid command flow: exit code 1
+- daemon not running: exit code 1  
+- provider unreachable: status command should still stay responsive and not crash
 
-### 5. Acceptance Criteria for Sprint 14
+## Recommended automation hooks
 
-* The CLI validation matrix is fully executable manually.
-* The operator test plan is documented in the repository.
-* The top automation targets are queued for implementation as Vitest regression suites.
-* No new product scope or features have been introduced beyond the verified CLI path.
+Where possible, convert these into targeted Vitest tests:
+- `workspace:apply` duplicate approvalId error message
+- `aer status` provider reachability output
+- daemon-down behavior
+- basic invalid-argument and malformed payload checks
+
+## Suggested next-step plan
+
+1. Validate the full happy path manually on a scratch workspace.
+2. Validate at least two failure paths: reused approvalId and daemon-down state.  
+3. Capture exact output strings for each step.
+4. Convert the repeatable checks into a CLI-focused regression suite.
+5. Keep the suite small and deterministic, not dependent on live external infrastructure.
+
+## Acceptance bar for this sprint
+
+A CLI validation plan is considered useful if it allows a developer or operator to:
+- run the success path in a predictable sequence,
+- observe failures without confusion,  
+- confirm the exact message format for known error patterns,
+- validate the provider-state line without depending on a live Ollama instance in CI.
