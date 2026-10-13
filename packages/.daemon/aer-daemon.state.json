@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "pid": 9620,
+  "pid": 34592,
   "state": "running",
   "healthy": true,
-  "startedAt": "2026-10-13T09:42:16.010Z",
-  "uptimeSeconds": 2508.679,
+  "startedAt": "2026-10-13T10:25:59.207Z",
+  "uptimeSeconds": 110.19,
   "health": {
     "healthy": true,
     "state": "running",
-    "uptimeSeconds": 2508.679,
-    "startedAt": "2026-10-13T09:42:16.010Z",
+    "uptimeSeconds": 110.19,
+    "startedAt": "2026-10-13T10:25:59.207Z",
     "components": {
       "eventBus": true,
       "workspace": true,
@@ -32,5 +32,5 @@
     "histograms": {},
     "timers": {}
   },
-  "capturedAt": "2026-10-13T10:24:04.689Z"
+  "capturedAt": "2026-10-13T10:27:49.397Z"
 }
