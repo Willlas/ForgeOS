@@ -937,5 +937,9 @@ export function describeFailure(prefix: string, err: unknown): string {
 }
 
 if (argvHasEntry) {
+  if (process.argv.slice(2).length === 0) {
+    program.help({ error: false });
+    process.exit(0);
+  }
   program.parse();
 }

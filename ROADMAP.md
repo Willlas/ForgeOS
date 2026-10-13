@@ -36,6 +36,7 @@
 | Sprint 11 | GUI | ⏳ Planned |
 | Sprint 12 | Documentation alignment and product definition | ✅ Complete |
 | Sprint 13 | CLI reliability | ✅ Complete |
+| Sprint 14 | CLI validation hardening & test plan expansion | ✅ Complete |
 
 > MVP note: "Complete" in the table above means the sprint's implementation and tests landed, not a validated end-to-end product path.
 > The canonical MVP boundary is defined in `README.md` (`## MVP boundary`); the only validated product path is the CLI grant → preview → approve → apply flow (see `PROJECT_STATE.md`, Pending).

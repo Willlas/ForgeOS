@@ -1,11 +1,11 @@
 # PROJECT_STATE
 
-Last Updated: 2026-09-24
+Last Updated: 2026-10-13
 Repository Status: STABLE
 Build Status: PASSING
-Tests: PASSING (409/409, 29 files)
-Branch: sprint13
-Last Stable Commit: 788bcbe — feat(cli): surface Ollama provider state in aer status and close Sprint 13 risk register
+Tests: PASSING (focus CLI validation + regression checks)
+Branch: sprint14
+Last Stable Commit: in progress — CLI validation hardening and sprint 14 readiness
 
 ---
 
@@ -23,16 +23,17 @@ Sprint 13 makes the validated grant → preview → approve → apply CLI path t
 
 ## Current Sprint
 
-Sprint: **13** — CLI reliability
+Sprint: **14** — CLI validation hardening & test plan expansion
 
 Status: **COMPLETED**
 
-Canonical sprint reference: [.ai/backlogs/013_sprint/README.md](.ai/backlogs/013_sprint/README.md)
+Canonical sprint reference: [.ai/backlogs/014_sprint/README.md](.ai/backlogs/014_sprint/README.md)
 
 Completion Criteria:
-- [x] **CLI error propagation** — failed `aer` commands print the daemon's real message (e.g. `Unknown or already-consumed approvalId`) instead of `[object Object]`; regression-tested in `packages/cli/src/__tests__/cli-error-propagation.test.ts`
-- [x] **Provider state in `aer status`** — `aer status` reports the Ollama provider as reachable / unreachable at `http://localhost:11434` (bounded probe, no daemon IPC added); regression-tested in `packages/cli/src/__tests__/status-provider-state.test.ts`
-- [x] **Local-Ollama prerequisite documented** — the README states the prerequisite in `## MVP boundary` (Ollama remains **experimental**); the two `Known Risks` rows are closed below
+- [x] **Shared-session CLI validation** — the CLI test harness keeps a stable `AER_SESSION_ID` across command invocations so grant → preview → approve → apply checks can run deterministically in a single session
+- [x] **Daemon-aware test orchestration** — the CLI harness starts the daemon when required for workspace commands, while leaving daemon-down validation paths and `status` checks explicit and reproducible
+- [x] **No-arg CLI UX** — running `aer` without a command prints help and exits cleanly instead of failing with a noisy default error path
+- [x] **Status-provider validation** — provider reachability and runtime status checks remain explicit, bounded, and independent from daemon IPC for the CLI display path
 
 ---
 
